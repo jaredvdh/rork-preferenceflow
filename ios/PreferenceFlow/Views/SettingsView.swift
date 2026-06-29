@@ -1,0 +1,184 @@
+//
+//  SettingsView.swift
+//  PreferenceFlow
+//
+
+import SwiftUI
+
+/// Settings — terminology, location, safety and about.
+struct SettingsView: View {
+    @Environment(AppSettings.self) private var settings
+    @Environment(DataStore.self) private var store
+
+    @State private var showSafety = false
+    var embedInStack: Bool = true
+
+    var body: some View {
+        if embedInStack {
+            NavigationStack { formContent }
+        } else {
+            formContent
+        }
+    }
+
+    private var formContent: some View {
+        @Bindable var settings = settings
+        return Form {
+                Section {
+                    HStack(spacing: 14) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 14).fill(Theme.heroGradient).frame(width: 52, height: 52)
+                            Image(systemName: "list.bullet.rectangle.portrait.fill")
+                                .foregroundStyle(.white)
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("ORPrep").font(.headline)
+                            Text("\(store.doctors.count) providers · \(store.hospitals.count) hospitals")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                Section("Terminology") {
+                    Picker(selection: $settings.region) {
+                        ForEach(TerminologyRegion.allCases) { Text($0.displayName).tag($0) }
+                    } label: {
+                        Label("Region", systemImage: "globe")
+                    }
+                    LabeledRow(label: "Provider term", value: settings.region.provider)
+                    LabeledRow(label: "Assistant term", value: settings.region.assistant)
+                    LabeledRow(label: "Spelling", value: settings.region.discipline)
+                }
+
+                Section("Location") {
+                    LabeledField(label: "Country", text: $settings.country, icon: "mappin.and.ellipse")
+                    LabeledField(label: "Region", text: $settings.regionName, icon: "map")
+                }
+
+                Section {
+                    LabeledField(label: "Your name", text: $settings.userName, icon: "person")
+                    Picker(selection: $settings.dailyContextMode) {
+                        ForEach(DailyContextMode.allCases) { Text($0.rawValue).tag($0) }
+                    } label: {
+                        Label("Daily start prompt", systemImage: "sun.max")
+                    }
+                } header: {
+                    Text("Daily Context")
+                } footer: {
+                    Text(settings.dailyContextMode.explanation)
+                }
+
+                Section("Data") {
+                    NavigationLink {
+                        ImportsView(embedInStack: false)
+                            .navigationTitle("Import & Export")
+                    } label: {
+                        Label("Import & Export", systemImage: "square.and.arrow.down.on.square")
+                    }
+                }
+
+                Section {
+                    HStack(spacing: 12) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10).fill(Color(.tertiarySystemFill)).frame(width: 36, height: 36)
+                            Image(systemName: "icloud")
+                                .foregroundStyle(.secondary)
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Cloud sync").foregroundStyle(.primary)
+                            Text("Share one source of truth across your whole department")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Text("Coming soon")
+                            .font(.caption2.weight(.semibold))
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(Theme.accent.opacity(0.12), in: .capsule)
+                            .foregroundStyle(Theme.accent)
+                    }
+                    .padding(.vertical, 2)
+                } header: {
+                    Text("Sync")
+                } footer: {
+                    Text("A future version will sync profiles to a central hospital database so every technician shares one source of truth. For now, everything stays on this device and sharing is peer-to-peer.")
+                }
+
+                Section("Safety") {
+                    Button { showSafety = true } label: {
+                        Label("Reference Tool Disclaimer", systemImage: "exclamationmark.shield")
+                    }
+                }
+
+                Section {
+                    LabeledRow(label: "Data storage", value: "On device only")
+                    LabeledRow(label: "Export format", value: "JSON v\(PreferenceExport.currentSchemaVersion)")
+                    LabeledRow(label: "Version", value: "1.0")
+                } header: {
+                    Text("About")
+                } footer: {
+                    Text("All data is stored locally on this device. No accounts. No servers.")
+                }
+            }
+        .navigationTitle("Settings")
+        .sheet(isPresented: $showSafety) {
+            SafetyDisclaimerSheet()
+        }
+    }
+}
+
+struct LabeledRow: View {
+    let label: String
+    let value: String
+    var body: some View {
+        HStack {
+            Text(label)
+            Spacer()
+            Text(value).foregroundStyle(.secondary)
+        }
+    }
+}
+
+struct SafetyDisclaimerSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 20) {
+                    ZStack {
+                        Circle().fill(Theme.accent.opacity(0.12)).frame(width: 88, height: 88)
+                        Image(systemName: "exclamationmark.shield.fill")
+                            .font(.system(size: 36)).foregroundStyle(Theme.accent)
+                    }
+                    Text("Reference Tool Only").font(.title2.weight(.bold))
+                    Text(SafetyText.disclaimer)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                    VStack(alignment: .leading, spacing: 12) {
+                        safetyLine("No dose calculations")
+                        safetyLine("No clinical recommendations")
+                        safetyLine("No treatment algorithms")
+                        safetyLine("Stores user-entered preferences only")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .card()
+                }
+                .padding(20)
+            }
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Safety")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+            }
+        }
+    }
+
+    private func safetyLine(_ text: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.accent)
+            Text(text).font(.subheadline)
+        }
+    }
+}
