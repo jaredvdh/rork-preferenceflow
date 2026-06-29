@@ -71,9 +71,10 @@ struct DoctorDetailView: View {
     /// View Mode (read-only laminated card) vs Edit Mode (section editor tabs).
     @State private var isEditing = false
     /// Exported profile file, presented in the system share sheet for peer-to-peer
-    /// sharing (AirDrop, Messages, Files) — no cloud sync.
-    @State private var shareURL: URL?
-    @State private var showShareSheet = false
+    /// sharing (AirDrop, Messages, Files) — no cloud sync. Uses an Identifiable
+    /// payload with `.sheet(item:)` so the sheet presents reliably (a boolean +
+    /// separate URL races and causes the sheet to flicker/dismiss).
+    @State private var sharePayload: SharePayload?
     @State private var shareError: String?
 
     init(
@@ -143,8 +144,8 @@ struct DoctorDetailView: View {
         .sheet(isPresented: $exportingPDF) {
             if let doctor { PreferenceCardExportView(doctor: doctor) }
         }
-        .sheet(isPresented: $showShareSheet) {
-            if let shareURL { ShareSheet(items: [shareURL]) }
+        .sheet(item: $sharePayload) { payload in
+            ShareSheet(items: [payload.url])
         }
         .alert("Share Failed", isPresented: .constant(shareError != nil)) {
             Button("OK") { shareError = nil }
@@ -210,8 +211,8 @@ struct DoctorDetailView: View {
         guard let doctor else { return }
         let export = store.makeExport(doctorIDs: [doctor.id], region: settings.region, sharedBy: settings.userName)
         do {
-            shareURL = try store.writeExportFile(export)
-            showShareSheet = true
+            let url = try store.writeExportFile(export)
+            sharePayload = SharePayload(url: url)
         } catch {
             shareError = error.localizedDescription
         }

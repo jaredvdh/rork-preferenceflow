@@ -11,8 +11,7 @@ struct ShareTab: View {
     @Environment(AppSettings.self) private var settings
     let doctor: Doctor
 
-    @State private var shareURL: URL?
-    @State private var showShare = false
+    @State private var sharePayload: SharePayload?
     @State private var showPDFOptions = false
     @State private var errorMessage: String?
 
@@ -57,10 +56,8 @@ struct ShareTab: View {
             }
             .padding(16)
         }
-        .sheet(isPresented: $showShare) {
-            if let shareURL {
-                ShareSheet(items: [shareURL])
-            }
+        .sheet(item: $sharePayload) { payload in
+            ShareSheet(items: [payload.url])
         }
         .sheet(isPresented: $showPDFOptions) {
             PreferenceCardExportView(doctor: doctor)
@@ -119,8 +116,8 @@ struct ShareTab: View {
     private func prepareShare() {
         let export = store.makeExport(doctorIDs: [doctor.id], region: settings.region, sharedBy: settings.userName)
         do {
-            shareURL = try store.writeExportFile(export)
-            showShare = true
+            let url = try store.writeExportFile(export)
+            sharePayload = SharePayload(url: url)
         } catch {
             errorMessage = error.localizedDescription
         }
