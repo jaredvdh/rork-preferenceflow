@@ -18,6 +18,7 @@ struct EquipmentLocationEditView: View {
     @State private var showingSourceChoice = false
     @State private var showingCamera = false
     @State private var showingLibrary = false
+    @State private var showingDeleteConfirm = false
     private let isNew: Bool
 
     init(hospitalID: UUID, item: EquipmentLocation) {
@@ -28,32 +29,27 @@ struct EquipmentLocationEditView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Equipment") {
-                    Picker(selection: $draft.kind) {
-                        ForEach(EquipmentKind.allCases) { Text($0.rawValue).tag($0) }
-                    } label: {
-                        Label("Item", systemImage: draft.symbol)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    photoPicker
+                    itemTypeSection
+                    locationSection
+                    accessSection
+                    if !isNew {
+                        deleteButton
                     }
-                    if draft.kind == .other {
-                        LabeledField(label: "Name", text: $draft.customLabel, placeholder: "Equipment name", icon: "tag")
-                    }
-                    LabeledField(label: "Location", text: $draft.location, placeholder: "Theatre corridor by OR 4", icon: "mappin.and.ellipse")
                 }
-                Section("Access") {
-                    NotesField(label: "Access instructions", text: $draft.accessInstructions)
-                    NotesField(label: "Notes", text: $draft.notes)
-                }
-                Section("Photo") {
-                    photoRow
-                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
             }
+            .background(Color(.systemGroupedBackground))
             .navigationTitle(isNew ? "New Location" : "Edit Location")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
+                        .fontWeight(.semibold)
                         .disabled(draft.kind == .other && draft.customLabel.isBlank)
                 }
             }
@@ -64,6 +60,12 @@ struct EquipmentLocationEditView: View {
                 }
                 Button("Choose from Library") { showingLibrary = true }
                 Button("Cancel", role: .cancel) {}
+            }
+            .alert("Delete this item?", isPresented: $showingDeleteConfirm) {
+                Button("Delete", role: .destructive) { deleteItem() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This removes \(draft.title) and its location from this hospital.")
             }
             .photosPicker(isPresented: $showingLibrary, selection: $photoItem, matching: .images)
             .fullScreenCover(isPresented: $showingCamera) {
@@ -77,33 +79,145 @@ struct EquipmentLocationEditView: View {
         }
     }
 
+    // MARK: - Photo
+
     @ViewBuilder
-    private var photoRow: some View {
+    private var photoPicker: some View {
         if let data = draft.photoData, let image = UIImage(data: data) {
-            VStack(spacing: 10) {
-                Color(.secondarySystemBackground)
-                    .frame(height: 180)
-                    .overlay { Image(uiImage: image).resizable().aspectRatio(contentMode: .fill).allowsHitTesting(false) }
-                    .clipShape(.rect(cornerRadius: Theme.cornerMedium))
-                HStack {
-                    Button {
-                        showingSourceChoice = true
+            Color(.secondarySystemBackground)
+                .frame(height: 200)
+                .overlay { Image(uiImage: image).resizable().aspectRatio(contentMode: .fill).allowsHitTesting(false) }
+                .clipShape(.rect(cornerRadius: Theme.cornerLarge))
+                .overlay(alignment: .topTrailing) {
+                    Menu {
+                        if CameraImagePicker.isAvailable {
+                            Button { showingCamera = true } label: { Label("Take Photo", systemImage: "camera") }
+                        }
+                        Button { showingLibrary = true } label: { Label("Choose from Library", systemImage: "photo") }
+                        Button(role: .destructive) { draft.photoData = nil; photoItem = nil } label: {
+                            Label("Remove Photo", systemImage: "trash")
+                        }
                     } label: {
-                        Text("Change Photo").font(.subheadline.weight(.medium)).foregroundStyle(Theme.accent)
+                        Label("Change", systemImage: "pencil")
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(.ultraThinMaterial, in: .capsule)
+                            .foregroundStyle(.primary)
                     }
-                    Spacer()
-                    Button("Remove", role: .destructive) { draft.photoData = nil; photoItem = nil }
-                        .font(.subheadline)
+                    .padding(12)
+                }
+        } else {
+            VStack(spacing: 0) {
+                if CameraImagePicker.isAvailable {
+                    photoOption(title: "Take photo", icon: "camera.fill") { showingCamera = true }
+                    Divider().padding(.leading, 56)
+                }
+                photoOption(title: "Choose from library", icon: "photo.fill") { showingLibrary = true }
+            }
+            .frame(height: 200)
+            .frame(maxWidth: .infinity)
+            .background(Theme.accent.opacity(0.07))
+            .overlay {
+                RoundedRectangle(cornerRadius: Theme.cornerLarge)
+                    .strokeBorder(Theme.accent.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [7, 6]))
+            }
+            .clipShape(.rect(cornerRadius: Theme.cornerLarge))
+        }
+    }
+
+    private func photoOption(title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundStyle(Theme.accent)
+                    .frame(width: 42)
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(Theme.accentDeep)
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Item type
+
+    private var itemTypeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionLabel("What is it?", icon: "shippingbox")
+            VStack(spacing: 12) {
+                Picker(selection: $draft.kind) {
+                    ForEach(EquipmentKind.allCases) { Text($0.rawValue).tag($0) }
+                } label: {
+                    Label("Item", systemImage: draft.symbol)
+                }
+                if draft.kind == .other {
+                    Divider()
+                    LabeledField(label: "Name", text: $draft.customLabel, placeholder: "Equipment name", icon: "tag")
                 }
             }
-            .listRowBackground(Color.clear)
-        } else {
-            Button {
-                showingSourceChoice = true
-            } label: {
-                Label("Take or Choose Photo", systemImage: "camera.badge.plus").foregroundStyle(Theme.accent)
-            }
+            .card()
         }
+    }
+
+    // MARK: - Location (prominent)
+
+    private var locationSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionLabel("Where is it?", icon: "mappin.and.ellipse")
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "mappin.and.ellipse")
+                    .font(.title2)
+                    .foregroundStyle(Theme.accent)
+                    .padding(.top, 2)
+                TextField(
+                    "e.g. Anaesthetic tech room \u{00B7} top shelf",
+                    text: $draft.location,
+                    axis: .vertical
+                )
+                .font(.title3.weight(.semibold))
+                .lineLimit(1...3)
+            }
+            .card()
+            Text("Be specific — room, then shelf or trolley. This is what a locum reads to find it.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+        }
+    }
+
+    // MARK: - Access & notes
+
+    private var accessSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionLabel("Access & notes", icon: "key")
+            VStack(alignment: .leading, spacing: 14) {
+                NotesField(label: "Access instructions", text: $draft.accessInstructions)
+                Divider()
+                NotesField(label: "Notes", text: $draft.notes)
+            }
+            .card()
+        }
+    }
+
+    // MARK: - Delete
+
+    private var deleteButton: some View {
+        Button(role: .destructive) { showingDeleteConfirm = true } label: {
+            Label("Delete item", systemImage: "trash")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(Color.red.opacity(0.1), in: .rect(cornerRadius: Theme.cornerLarge))
+                .foregroundStyle(.red)
+        }
+        .buttonStyle(.plain)
+        .padding(.top, 8)
     }
 
     private func loadPhoto(_ item: PhotosPickerItem?) async {
@@ -123,6 +237,15 @@ struct EquipmentLocationEditView: View {
         } else {
             o.equipmentLocations.append(draft)
         }
+        h.orientation = o
+        store.upsert(h)
+        dismiss()
+    }
+
+    private func deleteItem() {
+        guard var h = store.hospital(id: hospitalID) else { return }
+        var o = h.orientationOrEmpty
+        o.equipmentLocations.removeAll { $0.id == draft.id }
         h.orientation = o
         store.upsert(h)
         dismiss()

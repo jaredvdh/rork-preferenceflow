@@ -11,7 +11,6 @@ struct EquipmentLocationsTab: View {
     @Environment(DataStore.self) private var store
     let hospitalID: UUID
 
-    @State private var editingItem: EquipmentLocation?
     @State private var creating = false
 
     private var hospital: Hospital? { store.hospital(id: hospitalID) }
@@ -43,7 +42,7 @@ struct EquipmentLocationsTab: View {
                                     .font(.caption2.weight(.bold)).foregroundStyle(.secondary)
                             }
                             ForEach(matches) { item in
-                                Button { editingItem = item } label: {
+                                NavigationLink(value: item) {
                                     EquipmentLocationCard(item: item)
                                 }
                                 .buttonStyle(.plain)
@@ -60,11 +59,11 @@ struct EquipmentLocationsTab: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
+        .navigationDestination(for: EquipmentLocation.self) { item in
+            EquipmentLocationDetailView(hospitalID: hospitalID, item: item)
+        }
         .sheet(isPresented: $creating) {
             EquipmentLocationEditView(hospitalID: hospitalID, item: EquipmentLocation())
-        }
-        .sheet(item: $editingItem) { item in
-            EquipmentLocationEditView(hospitalID: hospitalID, item: item)
         }
     }
 
