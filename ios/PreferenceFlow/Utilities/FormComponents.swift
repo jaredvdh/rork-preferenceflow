@@ -158,6 +158,36 @@ struct OptionPicker: View {
     }
 }
 
+/// A free-text field paired with quick-pick suggestion chips. Lets the user tap a
+/// common value or type a less-common one. Designed for use inside a Form section.
+struct SuggestionField: View {
+    let label: String
+    @Binding var text: String
+    let suggestions: [String]
+    var placeholder: String = ""
+    var icon: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            LabeledField(label: label, text: $text, placeholder: placeholder, icon: icon)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(suggestions, id: \.self) { suggestion in
+                        Button {
+                            text = suggestion
+                        } label: {
+                            Chip(text: suggestion, selected: text.caseInsensitiveCompare(suggestion) == .orderedSame)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 1)
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
 /// A segmented control bound to a String, choosing among a small set of options.
 struct SegmentedRow: View {
     let label: String

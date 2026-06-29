@@ -55,7 +55,8 @@ struct GeneralTab: View {
 
     private var highlightChips: [String] {
         var chips: [String] = []
-        if !g.gloveSize.isBlank { chips.append("Gloves \(g.gloveSize)") }
+        if !g.sterileGloveDisplay.isBlank { chips.append("Sterile \(g.sterileGloveDisplay)") }
+        if !g.nonSterileGloveDisplay.isBlank { chips.append("Non-sterile \(g.nonSterileGloveDisplay)") }
         if !g.gownSize.isBlank { chips.append("Gown \(g.gownSize)") }
         if !g.coffeePreference.isBlank { chips.append(g.coffeePreference) }
         if g.arriveBeforePatient { chips.append("Arrives early") }
@@ -65,8 +66,8 @@ struct GeneralTab: View {
     // MARK: - Theatre setup
 
     private var hasTheatreSetup: Bool {
-        !(g.gloveSize.isBlank && g.gownSize.isBlank && g.maskPreference.isBlank
-            && g.theatreShoeSize.isBlank && g.roomTemperature.isBlank)
+        !(g.sterileGloveDisplay.isBlank && g.nonSterileGloveDisplay.isBlank && g.gownSize.isBlank
+            && g.maskPreference.isBlank && g.theatreShoeSize.isBlank && g.roomTemperature.isBlank)
     }
 
     private var theatreSetupCard: some View {
@@ -74,11 +75,12 @@ struct GeneralTab: View {
             group: .equipment,
             title: "Theatre Setup",
             icon: "tshirt.fill",
-            collapsedSummary: [g.gloveSize.isBlank ? "" : "Gloves \(g.gloveSize)",
-                               g.gownSize.isBlank ? "" : "Gown \(g.gownSize)"]
+            collapsedSummary: [g.sterileGloveDisplay.isBlank ? "" : "Sterile \(g.sterileGloveDisplay)",
+                               g.nonSterileGloveDisplay.isBlank ? "" : "Non-sterile \(g.nonSterileGloveDisplay)"]
                 .filter { !$0.isEmpty }.joined(separator: " • ")
         ) {
-            PrefRow(label: "Glove size", value: g.gloveSize)
+            PrefRow(label: "Sterile gloves", value: g.sterileGloveDisplay)
+            PrefRow(label: "Non-sterile gloves", value: g.nonSterileGloveDisplay)
             PrefRow(label: "Gown size", value: g.gownSize)
             PrefRow(label: "Mask", value: g.maskPreference)
             PrefRow(label: "Shoe size", value: g.theatreShoeSize)
@@ -202,8 +204,26 @@ struct GeneralEditView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    OptionPicker(label: "Size", selection: $draft.general.sterileGloveSize,
+                                 options: GeneralPreferences.sterileGloveSizes, icon: "hand.raised.fill")
+                    SuggestionField(label: "Type", text: $draft.general.sterileGloveType,
+                                    suggestions: GeneralPreferences.sterileGloveTypes,
+                                    placeholder: "e.g. Biogel")
+                } header: {
+                    Text("Sterile gloves")
+                } footer: {
+                    Text("Worn for procedures — intubation, regional blocks, lines.")
+                }
+                Section {
+                    SegmentedRow(label: "Size", selection: $draft.general.nonSterileGloveSize,
+                                 options: GeneralPreferences.nonSterileGloveSizes)
+                } header: {
+                    Text("Non-sterile gloves")
+                } footer: {
+                    Text("Worn for general tasks.")
+                }
                 Section("Theatre Setup") {
-                    LabeledField(label: "Glove size", text: $draft.general.gloveSize)
                     LabeledField(label: "Gown size", text: $draft.general.gownSize)
                     LabeledField(label: "Mask", text: $draft.general.maskPreference)
                     LabeledField(label: "Shoe size", text: $draft.general.theatreShoeSize)

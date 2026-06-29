@@ -21,7 +21,7 @@ struct QuickAddConsultantView: View {
 
     @State private var fullName = ""
     @State private var specialties: [Subspecialty] = []
-    @State private var gloveSize = ""
+    @State private var sterileGloveSize = ""
     @State private var gownSize = ""
     @State private var coffee = ""
     @State private var notes = ""
@@ -54,7 +54,7 @@ struct QuickAddConsultantView: View {
                 }
 
                 Section("Quick preferences") {
-                    LabeledField(label: "Glove size", text: $gloveSize, placeholder: "e.g. 7.5", icon: "hand.raised")
+                    LabeledField(label: "Sterile glove size", text: $sterileGloveSize, placeholder: "e.g. 7.5", icon: "hand.raised")
                     LabeledField(label: "Gown size", text: $gownSize, placeholder: "e.g. Large", icon: "tshirt")
                     LabeledField(label: "Coffee order", text: $coffee, placeholder: "e.g. Flat white", icon: "cup.and.saucer")
                 }
@@ -138,7 +138,7 @@ struct QuickAddConsultantView: View {
             doctor.hospitalId = only.id
             doctor.department = only.department
         }
-        doctor.general.gloveSize = gloveSize
+        doctor.general.sterileGloveSize = sterileGloveSize
         doctor.general.gownSize = gownSize
         doctor.general.coffeePreference = coffee
         doctor.personalNotes = notes

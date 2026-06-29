@@ -237,7 +237,8 @@ struct OverviewTab: View {
     private var generalCard: some View {
         let g = doctor.general
         return DetailSection(title: "General", icon: "person.text.rectangle.fill") {
-            ValueRow(label: "Glove size", value: g.gloveSize, icon: "hand.raised")
+            ValueRow(label: "Sterile gloves", value: g.sterileGloveDisplay, icon: "hand.raised.fill")
+            ValueRow(label: "Non-sterile gloves", value: g.nonSterileGloveDisplay, icon: "hand.raised")
             ValueRow(label: "Gown size", value: g.gownSize, icon: "tshirt")
             ValueRow(label: "Coffee", value: g.coffeePreference, icon: "cup.and.saucer")
             if isGeneralEmpty {
@@ -248,7 +249,7 @@ struct OverviewTab: View {
 
     private var isGeneralEmpty: Bool {
         let g = doctor.general
-        return g.gloveSize.isBlank && g.gownSize.isBlank && g.coffeePreference.isBlank
+        return g.sterileGloveDisplay.isBlank && g.nonSterileGloveDisplay.isBlank && g.gownSize.isBlank && g.coffeePreference.isBlank
     }
 
     // 5. Airway

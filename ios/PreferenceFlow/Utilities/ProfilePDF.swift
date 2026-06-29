@@ -239,7 +239,8 @@ enum ProfilePDF {
 
     private static func drawGeneral(_ ctx: inout DrawContext, _ g: GeneralPreferences) {
         var rows: [(String, String)] = []
-        rows.append(("Glove size", g.gloveSize))
+        rows.append(("Sterile gloves", g.sterileGloveDisplay))
+        rows.append(("Non-sterile gloves", g.nonSterileGloveDisplay))
         rows.append(("Gown size", g.gownSize))
         rows.append(("Mask", g.maskPreference))
         rows.append(("Theatre shoe size", g.theatreShoeSize))

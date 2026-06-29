@@ -459,8 +459,13 @@ enum TheatreCardPDF {
     private static func notesItems(_ doctor: Doctor) -> [CardItem] {
         var items: [CardItem] = []
         let g = doctor.general
-        // Glove size (number) and gown size (S/M/L/XL) are distinct and always shown.
-        items.append(CardItem(text: "Gloves: \(g.gloveSize.isBlank ? "—" : g.gloveSize)"))
+        // Sterile and non-sterile gloves are distinct items; show whichever are set.
+        if !g.sterileGloveDisplay.isBlank {
+            items.append(CardItem(text: "Sterile gloves: \(g.sterileGloveDisplay)"))
+        }
+        if !g.nonSterileGloveDisplay.isBlank {
+            items.append(CardItem(text: "Non-sterile gloves: \(g.nonSterileGloveDisplay)"))
+        }
         items.append(CardItem(text: "Gown: \(g.gownSize.isBlank ? "—" : g.gownSize)"))
         if !g.coffeePreference.isBlank { items.append(CardItem(text: "Coffee: \(g.coffeePreference)")) }
         if !g.contactPreferences.isBlank { items.append(CardItem(text: "Comms: \(g.contactPreferences)")) }
