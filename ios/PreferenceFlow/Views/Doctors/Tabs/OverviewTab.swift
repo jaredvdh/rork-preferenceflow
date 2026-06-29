@@ -257,7 +257,7 @@ struct OverviewTab: View {
         return DetailSection(title: "Airway", icon: "lungs.fill") {
             PrefRow(label: "ETT (Male)", value: a.adultMale.tubeSize)
             PrefRow(label: "ETT (Female)", value: a.adultFemale.tubeSize)
-            PrefRow(label: "Laryngoscope", value: laryngoscopySummary)
+            laryngoscopeRows
             PrefRow(label: "Supraglottic", value: sgaSummary)
             PrefRow(label: "Bougie", value: a.adultMale.bougiePreference)
             if isAirwayEmpty {
@@ -266,16 +266,51 @@ struct OverviewTab: View {
         }
     }
 
-    private var laryngoscopySummary: String {
-        let m = doctor.airway.adultMale
-        if m.primaryTechnique == .video {
-            return m.videoSystem != .none ? "\(m.videoSystem.rawValue) (video)" : "Video"
+    /// Laryngoscope rows for the card view. Shows one row when male and female
+    /// parameters match (or only one is set), and two gender-labelled rows when
+    /// they differ so the female value is never silently dropped.
+    @ViewBuilder private var laryngoscopeRows: some View {
+        let a = doctor.airway
+        let mEmpty = laryngoscopyEmpty(a.adultMale)
+        let fEmpty = laryngoscopyEmpty(a.adultFemale)
+        let mSummary = laryngoscopySummary(a.adultMale)
+        let fSummary = laryngoscopySummary(a.adultFemale)
+        if mEmpty && fEmpty {
+            PrefRow(label: "Laryngoscope", value: "")
+        } else if fEmpty {
+            PrefRow(label: "Laryngoscope", value: mSummary)
+        } else if mEmpty {
+            PrefRow(label: "Laryngoscope", value: fSummary)
+        } else if mSummary == fSummary {
+            PrefRow(label: "Laryngoscope", value: mSummary)
+        } else {
+            PrefRow(label: "Laryngoscope (M)", value: mSummary)
+            PrefRow(label: "Laryngoscope (F)", value: fSummary)
         }
+    }
+
+    private func laryngoscopySummary(_ s: AirwaySetup) -> String {
         var parts: [String] = []
-        if m.blade != .none { parts.append(m.blade.rawValue) }
-        if !m.bladeSize.isBlank { parts.append("size \(m.bladeSize)") }
-        parts.append("direct")
-        return parts.joined(separator: " ")
+        if s.primaryTechnique == .video {
+            parts.append(s.videoSystem != .none ? "\(s.videoSystem.rawValue) (video)" : "Video")
+        } else {
+            parts.append("Direct")
+        }
+        let blade = bladeValue(s)
+        if !blade.isBlank { parts.append(blade) }
+        return parts.joined(separator: " · ")
+    }
+
+    private func bladeValue(_ s: AirwaySetup) -> String {
+        switch s.blade {
+        case .macintosh: return s.bladeSize.isBlank ? "" : "Mac \(s.bladeSize)"
+        case .miller: return s.bladeSize.isBlank ? "" : "Miller \(s.bladeSize)"
+        case .other, .none: return s.bladeSize
+        }
+    }
+
+    private func laryngoscopyEmpty(_ s: AirwaySetup) -> Bool {
+        bladeValue(s).isBlank && s.primaryTechnique != .video
     }
 
     private var sgaSummary: String {

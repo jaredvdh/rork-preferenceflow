@@ -75,13 +75,31 @@ struct AirwayTab: View {
     private var highlightChips: [String] {
         var chips: [String] = []
         let m = a.adultMale
+        let f = a.adultFemale
         if m.primaryTechnique == .video, m.videoSystem != .none { chips.append(m.videoSystem.rawValue) }
-        let blade = bladeValue(m)
-        if !blade.isBlank { chips.append(blade) }
-        if !m.tubeSize.isBlank { chips.append("ETT \(m.tubeSize)") }
+        // Blade — show both when male and female differ, otherwise a single chip.
+        chips.append(contentsOf: splitChips(male: bladeValue(m), female: bladeValue(f)))
+        // ETT — show both when male and female differ, otherwise a single chip.
+        chips.append(contentsOf: splitChips(prefix: "ETT ", male: m.tubeSize, female: f.tubeSize))
         if !m.bougiePreference.isBlank { chips.append("Bougie \(m.bougiePreference)") }
         if isModified { chips.append(contentsOf: a.supraglottic.summaryChips.map { "SGA \($0)" }) }
-        return Array(chips.prefix(5))
+        return Array(chips.prefix(6))
+    }
+
+    /// Builds summary chips for a male/female parameter pair: a single chip when
+    /// the values match (or only one is present), or two gender-labelled chips
+    /// when they differ. Never silently drops the female value.
+    private func splitChips(prefix: String = "", male: String, female: String) -> [String] {
+        let m = male.isBlank ? nil : male
+        let f = female.isBlank ? nil : female
+        switch (m, f) {
+        case let (mv?, fv?):
+            if mv == fv { return ["\(prefix)\(mv)"] }
+            return ["\(prefix)\(mv) (M)", "\(prefix)\(fv) (F)"]
+        case let (mv?, nil): return ["\(prefix)\(mv)"]
+        case let (nil, fv?): return ["\(prefix)\(fv)"]
+        default: return []
+        }
     }
 
     private var isModified: Bool {
@@ -167,11 +185,26 @@ struct AirwayTab: View {
     }
 
     private var laryngoscopyCard: some View {
-        let summary = laryngoscopySummary(a.adultMale)
-        return PrefCollapsibleCard(group: .technique, title: "Laryngoscopy", icon: "scope", collapsedSummary: summary) {
+        return PrefCollapsibleCard(group: .technique, title: "Laryngoscopy", icon: "scope", collapsedSummary: adultLaryngoscopySummary) {
             laryngoscopySubgroup("Adult Male", a.adultMale)
             laryngoscopySubgroup("Adult Female", a.adultFemale)
         }
+    }
+
+    /// Collapsed-row subtitle for adult laryngoscopy. Shows a single line when
+    /// male and female parameters match (or only one is set), and a combined
+    /// "M: … / F: …" line when they differ so the female value is never dropped.
+    private var adultLaryngoscopySummary: String {
+        let m = a.adultMale
+        let f = a.adultFemale
+        let mEmpty = laryngoscopyEmpty(m)
+        let fEmpty = laryngoscopyEmpty(f)
+        if fEmpty { return laryngoscopySummary(m) }
+        if mEmpty { return laryngoscopySummary(f) }
+        let mSummary = laryngoscopySummary(m)
+        let fSummary = laryngoscopySummary(f)
+        if mSummary == fSummary { return mSummary }
+        return "M: \(mSummary) / F: \(fSummary)"
     }
 
     @ViewBuilder private func laryngoscopySubgroup(_ title: String, _ s: AirwaySetup) -> some View {

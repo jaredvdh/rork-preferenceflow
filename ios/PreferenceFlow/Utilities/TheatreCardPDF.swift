@@ -361,15 +361,23 @@ enum TheatreCardPDF {
         if !a.adultMale.tubeSize.isBlank { items.append(CardItem(text: "ETT \(a.adultMale.tubeSize) (M)")) }
         if !a.adultFemale.tubeSize.isBlank { items.append(CardItem(text: "ETT \(a.adultFemale.tubeSize) (F)")) }
 
-        // Laryngoscopy from the male setup (or female fallback).
-        let setup = !airwaySetupBlank(a.adultMale) ? a.adultMale : a.adultFemale
-        var laryngoscopy = setup.primaryTechnique.rawValue
-        if setup.primaryTechnique == .video, setup.videoSystem != .none { laryngoscopy += " · \(setup.videoSystem.rawValue)" }
-        if setup.blade != .none {
-            laryngoscopy += " · \(setup.blade.rawValue)"
-            if !setup.bladeSize.isBlank { laryngoscopy += " \(setup.bladeSize)" }
+        // Laryngoscopy — show both male and female when they differ, otherwise a
+        // single line. Never silently drop the female parameter.
+        let mBlank = airwaySetupBlank(a.adultMale)
+        let fBlank = airwaySetupBlank(a.adultFemale)
+        let mLaryn = laryngoscopyLine(a.adultMale)
+        let fLaryn = laryngoscopyLine(a.adultFemale)
+        if !mBlank && !fBlank {
+            if mLaryn == fLaryn {
+                if !mLaryn.isBlank { items.append(CardItem(text: mLaryn)) }
+            } else {
+                if !mLaryn.isBlank { items.append(CardItem(text: "M: \(mLaryn)")) }
+                if !fLaryn.isBlank { items.append(CardItem(text: "F: \(fLaryn)")) }
+            }
+        } else {
+            let line = !mBlank ? mLaryn : fLaryn
+            if !line.isBlank { items.append(CardItem(text: line)) }
         }
-        if !laryngoscopy.isBlank { items.append(CardItem(text: laryngoscopy)) }
 
         let sg = a.supraglottic
         if !sg.adultFemale.isEmpty || !sg.adultMale.isEmpty {
@@ -385,6 +393,18 @@ enum TheatreCardPDF {
         let da = a.difficultAirway
         if !da.backupPlan.isBlank { items.append(CardItem(text: "Backup: \(da.backupPlan)")) }
         return items
+    }
+
+    /// One-line laryngoscopy summary for a single airway setup (technique, video
+    /// system and blade).
+    private static func laryngoscopyLine(_ setup: AirwaySetup) -> String {
+        var laryngoscopy = setup.primaryTechnique.rawValue
+        if setup.primaryTechnique == .video, setup.videoSystem != .none { laryngoscopy += " · \(setup.videoSystem.rawValue)" }
+        if setup.blade != .none {
+            laryngoscopy += " · \(setup.blade.rawValue)"
+            if !setup.bladeSize.isBlank { laryngoscopy += " \(setup.bladeSize)" }
+        }
+        return laryngoscopy
     }
 
     private static func airwaySetupBlank(_ s: AirwaySetup) -> Bool {
