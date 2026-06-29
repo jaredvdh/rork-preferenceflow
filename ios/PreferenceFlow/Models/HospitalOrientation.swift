@@ -62,35 +62,91 @@ nonisolated enum OrientationApproval: String, Codable, Hashable, CaseIterable {
 
 // MARK: - Equipment locations
 
-/// A piece of key equipment and where to find it. `kind` maps to a curated set
-/// of well-known items (with icons) but `customLabel` allows anything.
-nonisolated struct EquipmentLocation: Identifiable, Codable, Hashable {
+/// One physical place a piece of equipment can be found, with its own optional
+/// access instructions and photo. An item can have several of these — emergency
+/// kit (crash cart, MH kit, difficult airway trolley) often lives in more than
+/// one place, and staff need to reach the nearest one.
+nonisolated struct EquipmentSpot: Identifiable, Codable, Hashable {
     var id: UUID
-    var kind: EquipmentKind
-    /// Used only when `kind == .other`.
-    var customLabel: String
     var location: String
     var accessInstructions: String
-    var notes: String
     /// Optional inline photo (JPEG) kept portable for sharing/export.
     var photoData: Data?
 
     init(
         id: UUID = UUID(),
-        kind: EquipmentKind = .difficultIntubationTrolley,
-        customLabel: String = "",
         location: String = "",
         accessInstructions: String = "",
-        notes: String = "",
         photoData: Data? = nil
+    ) {
+        self.id = id
+        self.location = location
+        self.accessInstructions = accessInstructions
+        self.photoData = photoData
+    }
+
+    var hasContent: Bool {
+        !location.isBlank || !accessInstructions.isBlank || photoData != nil
+    }
+}
+
+/// A piece of key equipment and where to find it. `kind` maps to a curated set
+/// of well-known items (with icons) but `customLabel` allows anything. An item
+/// can be stored in one or more `spots` (locations).
+nonisolated struct EquipmentLocation: Identifiable, Codable, Hashable {
+    var id: UUID
+    var kind: EquipmentKind
+    /// Used only when `kind == .other`.
+    var customLabel: String
+    /// One or more places this item can be found. Always at least one entry.
+    var spots: [EquipmentSpot]
+    var notes: String
+
+    init(
+        id: UUID = UUID(),
+        kind: EquipmentKind = .difficultIntubationTrolley,
+        customLabel: String = "",
+        spots: [EquipmentSpot] = [EquipmentSpot()],
+        notes: String = ""
     ) {
         self.id = id
         self.kind = kind
         self.customLabel = customLabel
-        self.location = location
-        self.accessInstructions = accessInstructions
+        self.spots = spots.isEmpty ? [EquipmentSpot()] : spots
         self.notes = notes
-        self.photoData = photoData
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, kind, customLabel, spots, notes
+        // Legacy flat keys (pre multi-location).
+        case location, accessInstructions, photoData
+    }
+
+    /// Decodes both the new `spots` array and the legacy single-location format,
+    /// migrating older saved profiles into a one-spot item.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        kind = try c.decodeIfPresent(EquipmentKind.self, forKey: .kind) ?? .difficultIntubationTrolley
+        customLabel = try c.decodeIfPresent(String.self, forKey: .customLabel) ?? ""
+        notes = try c.decodeIfPresent(String.self, forKey: .notes) ?? ""
+        if let decoded = try c.decodeIfPresent([EquipmentSpot].self, forKey: .spots), !decoded.isEmpty {
+            spots = decoded
+        } else {
+            let loc = try c.decodeIfPresent(String.self, forKey: .location) ?? ""
+            let access = try c.decodeIfPresent(String.self, forKey: .accessInstructions) ?? ""
+            let photo = try c.decodeIfPresent(Data.self, forKey: .photoData)
+            spots = [EquipmentSpot(location: loc, accessInstructions: access, photoData: photo)]
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(kind, forKey: .kind)
+        try c.encode(customLabel, forKey: .customLabel)
+        try c.encode(spots, forKey: .spots)
+        try c.encode(notes, forKey: .notes)
     }
 
     var title: String {
@@ -98,6 +154,39 @@ nonisolated struct EquipmentLocation: Identifiable, Codable, Hashable {
     }
 
     var symbol: String { kind.symbol }
+
+    /// True for items in the Emergency category — shown with extra prominence.
+    var isEmergency: Bool { kind.category == .emergency }
+
+    /// Spots that have an actual location entered.
+    var locatedSpots: [EquipmentSpot] { spots.filter { !$0.location.isBlank } }
+
+    var hasMultipleLocations: Bool { locatedSpots.count > 1 }
+
+    /// All entered locations joined for compact one-line display and search.
+    var locationSummary: String {
+        locatedSpots.map(\.location).joined(separator: " \u{00B7} ")
+    }
+
+    /// Legacy single-location accessor (first located spot). Kept so existing
+    /// display/search/export call sites keep working.
+    var location: String { locatedSpots.first?.location ?? "" }
+
+    /// Combined access instructions across all spots, for legacy display/search.
+    var accessInstructions: String {
+        spots.compactMap { $0.accessInstructions.isBlank ? nil : $0.accessInstructions }
+            .joined(separator: "\n")
+    }
+
+    /// First available photo, for compact thumbnails.
+    var photoData: Data? { spots.first(where: { $0.photoData != nil })?.photoData }
+
+    /// True when every located spot shares the same access instructions, so the
+    /// detail view can show access once rather than per-location.
+    var accessIsUniform: Bool {
+        let values = Set(locatedSpots.map { $0.accessInstructions.trimmingCharacters(in: .whitespacesAndNewlines) })
+        return values.count <= 1
+    }
 }
 
 /// High-level grouping for equipment so the locations screen reads as categories

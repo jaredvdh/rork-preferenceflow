@@ -15,26 +15,26 @@ struct EquipmentLocationEditView: View {
     let hospitalID: UUID
     @State private var draft: EquipmentLocation
     @State private var photoItem: PhotosPickerItem?
-    @State private var showingSourceChoice = false
     @State private var showingCamera = false
     @State private var showingLibrary = false
     @State private var showingDeleteConfirm = false
+    /// Which spot is currently picking a photo.
+    @State private var activeSpotID: UUID?
     private let isNew: Bool
 
     init(hospitalID: UUID, item: EquipmentLocation) {
         self.hospitalID = hospitalID
         _draft = State(initialValue: item)
-        self.isNew = item.location.isBlank && item.notes.isBlank && item.accessInstructions.isBlank
+        self.isNew = !item.spots.contains { $0.hasContent } && item.notes.isBlank
     }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    photoPicker
                     itemTypeSection
-                    locationSection
-                    accessSection
+                    locationsSection
+                    notesSection
                     if !isNew {
                         deleteButton
                     }
@@ -43,7 +43,7 @@ struct EquipmentLocationEditView: View {
                 .padding(.vertical, 16)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle(isNew ? "New Location" : "Edit Location")
+            .navigationTitle(isNew ? "New Equipment" : "Edit Equipment")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
@@ -54,95 +54,22 @@ struct EquipmentLocationEditView: View {
                 }
             }
             .onChange(of: photoItem) { _, item in Task { await loadPhoto(item) } }
-            .confirmationDialog("Add Photo", isPresented: $showingSourceChoice, titleVisibility: .visible) {
-                if CameraImagePicker.isAvailable {
-                    Button("Take Photo") { showingCamera = true }
-                }
-                Button("Choose from Library") { showingLibrary = true }
-                Button("Cancel", role: .cancel) {}
-            }
             .alert("Delete this item?", isPresented: $showingDeleteConfirm) {
                 Button("Delete", role: .destructive) { deleteItem() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This removes \(draft.title) and its location from this hospital.")
+                Text("This removes \(draft.title) and all its locations from this hospital.")
             }
             .photosPicker(isPresented: $showingLibrary, selection: $photoItem, matching: .images)
             .fullScreenCover(isPresented: $showingCamera) {
                 CameraImagePicker { image in
                     if let resized = image?.resizedJPEG(maxDimension: 900, quality: 0.8) {
-                        draft.photoData = resized
+                        setPhoto(resized)
                     }
                 }
                 .ignoresSafeArea()
             }
         }
-    }
-
-    // MARK: - Photo
-
-    @ViewBuilder
-    private var photoPicker: some View {
-        if let data = draft.photoData, let image = UIImage(data: data) {
-            Color(.secondarySystemBackground)
-                .frame(height: 200)
-                .overlay { Image(uiImage: image).resizable().aspectRatio(contentMode: .fill).allowsHitTesting(false) }
-                .clipShape(.rect(cornerRadius: Theme.cornerLarge))
-                .overlay(alignment: .topTrailing) {
-                    Menu {
-                        if CameraImagePicker.isAvailable {
-                            Button { showingCamera = true } label: { Label("Take Photo", systemImage: "camera") }
-                        }
-                        Button { showingLibrary = true } label: { Label("Choose from Library", systemImage: "photo") }
-                        Button(role: .destructive) { draft.photoData = nil; photoItem = nil } label: {
-                            Label("Remove Photo", systemImage: "trash")
-                        }
-                    } label: {
-                        Label("Change", systemImage: "pencil")
-                            .font(.caption.weight(.semibold))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
-                            .background(.ultraThinMaterial, in: .capsule)
-                            .foregroundStyle(.primary)
-                    }
-                    .padding(12)
-                }
-        } else {
-            VStack(spacing: 0) {
-                if CameraImagePicker.isAvailable {
-                    photoOption(title: "Take photo", icon: "camera.fill") { showingCamera = true }
-                    Divider().padding(.leading, 56)
-                }
-                photoOption(title: "Choose from library", icon: "photo.fill") { showingLibrary = true }
-            }
-            .frame(height: 200)
-            .frame(maxWidth: .infinity)
-            .background(Theme.accent.opacity(0.07))
-            .overlay {
-                RoundedRectangle(cornerRadius: Theme.cornerLarge)
-                    .strokeBorder(Theme.accent.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [7, 6]))
-            }
-            .clipShape(.rect(cornerRadius: Theme.cornerLarge))
-        }
-    }
-
-    private func photoOption(title: String, icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                Image(systemName: icon)
-                    .font(.title3)
-                    .foregroundStyle(Theme.accent)
-                    .frame(width: 42)
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(Theme.accentDeep)
-                Spacer()
-                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
-            }
-            .padding(.horizontal, 14)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Item type
@@ -165,43 +92,149 @@ struct EquipmentLocationEditView: View {
         }
     }
 
-    // MARK: - Location (prominent)
+    // MARK: - Locations (one or more)
 
-    private var locationSection: some View {
+    private var locationsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel("Where is it?", icon: "mappin.and.ellipse")
+            HStack {
+                SectionLabel("Where is it?", icon: "mappin.and.ellipse")
+                Spacer()
+                if draft.spots.count > 1 {
+                    Text("\(draft.spots.count) locations")
+                        .font(.caption2.weight(.bold)).foregroundStyle(.secondary)
+                }
+            }
+            ForEach($draft.spots) { $spot in
+                locationCard(spot: $spot)
+            }
+            addLocationButton
+            if draft.isEmergency {
+                Label("Emergency item — add every place it can be found so staff reach the nearest one.", systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 4)
+            } else {
+                Text("Add each place this item is kept. Be specific — room, then shelf or trolley.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    private func locationCard(spot: Binding<EquipmentSpot>) -> some View {
+        let index = draft.spots.firstIndex(where: { $0.id == spot.wrappedValue.id }) ?? 0
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("Location \(index + 1)")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.accentDeep)
+                Spacer()
+                if draft.spots.count > 1 {
+                    Button(role: .destructive) {
+                        draft.spots.removeAll { $0.id == spot.wrappedValue.id }
+                    } label: {
+                        Image(systemName: "trash").font(.subheadline)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.red)
+                }
+            }
+            spotPhoto(spot: spot)
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: "mappin.and.ellipse")
-                    .font(.title2)
-                    .foregroundStyle(Theme.accent)
-                    .padding(.top, 2)
+                    .font(.title3).foregroundStyle(Theme.accent).padding(.top, 2)
                 TextField(
-                    "e.g. Anaesthetic tech room \u{00B7} top shelf",
-                    text: $draft.location,
+                    "e.g. Theatre corridor \u{00B7} by OR 1",
+                    text: spot.location,
                     axis: .vertical
                 )
                 .font(.title3.weight(.semibold))
                 .lineLimit(1...3)
             }
-            .card()
-            Text("Be specific — room, then shelf or trolley. This is what a locum reads to find it.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 4)
+            Divider()
+            NotesField(label: "Access instructions (optional)", text: spot.accessInstructions, minHeight: 60)
+        }
+        .card()
+    }
+
+    private var addLocationButton: some View {
+        Button {
+            draft.spots.append(EquipmentSpot())
+        } label: {
+            Label("Add another location", systemImage: "plus.circle.fill")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Theme.accent)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .card(padding: 14)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Per-spot photo
+
+    @ViewBuilder
+    private func spotPhoto(spot: Binding<EquipmentSpot>) -> some View {
+        if let data = spot.wrappedValue.photoData, let image = UIImage(data: data) {
+            Color(.secondarySystemBackground)
+                .frame(height: 160)
+                .overlay { Image(uiImage: image).resizable().aspectRatio(contentMode: .fill).allowsHitTesting(false) }
+                .clipShape(.rect(cornerRadius: Theme.cornerMedium))
+                .overlay(alignment: .topTrailing) {
+                    Menu {
+                        if CameraImagePicker.isAvailable {
+                            Button { activeSpotID = spot.wrappedValue.id; showingCamera = true } label: { Label("Take Photo", systemImage: "camera") }
+                        }
+                        Button { activeSpotID = spot.wrappedValue.id; showingLibrary = true } label: { Label("Choose from Library", systemImage: "photo") }
+                        Button(role: .destructive) { spot.wrappedValue.photoData = nil } label: {
+                            Label("Remove Photo", systemImage: "trash")
+                        }
+                    } label: {
+                        Label("Change", systemImage: "pencil")
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 12).padding(.vertical, 7)
+                            .background(.ultraThinMaterial, in: .capsule)
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(10)
+                }
+        } else {
+            HStack(spacing: 0) {
+                if CameraImagePicker.isAvailable {
+                    photoOption(title: "Take photo", icon: "camera.fill") { activeSpotID = spot.wrappedValue.id; showingCamera = true }
+                    Divider()
+                }
+                photoOption(title: "Library", icon: "photo.fill") { activeSpotID = spot.wrappedValue.id; showingLibrary = true }
+            }
+            .frame(height: 88)
+            .frame(maxWidth: .infinity)
+            .background(Theme.accent.opacity(0.07))
+            .overlay {
+                RoundedRectangle(cornerRadius: Theme.cornerMedium)
+                    .strokeBorder(Theme.accent.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [6, 5]))
+            }
+            .clipShape(.rect(cornerRadius: Theme.cornerMedium))
         }
     }
 
-    // MARK: - Access & notes
-
-    private var accessSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            SectionLabel("Access & notes", icon: "key")
-            VStack(alignment: .leading, spacing: 14) {
-                NotesField(label: "Access instructions", text: $draft.accessInstructions)
-                Divider()
-                NotesField(label: "Notes", text: $draft.notes)
+    private func photoOption(title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: icon).font(.title3).foregroundStyle(Theme.accent)
+                Text(title).font(.caption.weight(.semibold)).foregroundStyle(Theme.accentDeep)
             }
-            .card()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Notes (item-wide)
+
+    private var notesSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionLabel("Notes", icon: "note.text")
+            NotesField(label: "Notes for this item (optional)", text: $draft.notes)
+                .card()
         }
     }
 
@@ -220,22 +253,32 @@ struct EquipmentLocationEditView: View {
         .padding(.top, 8)
     }
 
+    private func setPhoto(_ data: Data) {
+        guard let spotID = activeSpotID,
+              let index = draft.spots.firstIndex(where: { $0.id == spotID }) else { return }
+        draft.spots[index].photoData = data
+    }
+
     private func loadPhoto(_ item: PhotosPickerItem?) async {
         guard let item else { return }
         if let data = try? await item.loadTransferable(type: Data.self),
            let image = UIImage(data: data),
            let resized = image.resizedJPEG(maxDimension: 900, quality: 0.8) {
-            draft.photoData = resized
+            setPhoto(resized)
         }
     }
 
     private func save() {
         guard var h = store.hospital(id: hospitalID) else { return }
         var o = h.orientationOrEmpty
-        if let index = o.equipmentLocations.firstIndex(where: { $0.id == draft.id }) {
-            o.equipmentLocations[index] = draft
+        // Keep at least one spot; drop fully-empty extra spots on save.
+        var cleaned = draft
+        let nonEmpty = cleaned.spots.filter { $0.hasContent }
+        cleaned.spots = nonEmpty.isEmpty ? [cleaned.spots.first ?? EquipmentSpot()] : nonEmpty
+        if let index = o.equipmentLocations.firstIndex(where: { $0.id == cleaned.id }) {
+            o.equipmentLocations[index] = cleaned
         } else {
-            o.equipmentLocations.append(draft)
+            o.equipmentLocations.append(cleaned)
         }
         h.orientation = o
         store.upsert(h)

@@ -90,22 +90,41 @@ struct EquipmentLocationsTab: View {
 private struct EquipmentLocationCard: View {
     let item: EquipmentLocation
 
+    private var locations: [String] {
+        let located = item.locatedSpots.map(\.location)
+        return located.isEmpty ? [] : located
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             ZStack {
                 RoundedRectangle(cornerRadius: Theme.cornerMedium)
-                    .fill(Theme.accent.opacity(0.14)).frame(width: 46, height: 46)
-                Image(systemName: item.symbol).font(.title3).foregroundStyle(Theme.accent)
+                    .fill((item.isEmergency ? Color.red : Theme.accent).opacity(0.14))
+                    .frame(width: 46, height: 46)
+                Image(systemName: item.symbol).font(.title3)
+                    .foregroundStyle(item.isEmergency ? Color.red : Theme.accent)
             }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(item.title).font(.headline)
-                if !item.location.isBlank {
-                    Label(item.location, systemImage: "mappin.and.ellipse")
-                        .font(.subheadline).foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    Text(item.title).font(.headline)
+                    if item.hasMultipleLocations {
+                        Text("\(locations.count)")
+                            .font(.caption2.weight(.bold)).foregroundStyle(.white)
+                            .padding(.horizontal, 7).padding(.vertical, 2)
+                            .background(item.isEmergency ? Color.red : Theme.accent, in: .capsule)
+                    }
                 }
-                if !item.accessInstructions.isBlank {
-                    Text(item.accessInstructions).font(.caption).foregroundStyle(.secondary)
-                        .lineLimit(2)
+                if locations.isEmpty {
+                    Text("Location not set yet")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                } else {
+                    // Emergency items show every location fully, no truncation.
+                    ForEach(Array(locations.enumerated()), id: \.offset) { _, loc in
+                        Label(loc, systemImage: "mappin.and.ellipse")
+                            .font(item.isEmergency ? .subheadline.weight(.semibold) : .subheadline)
+                            .foregroundStyle(item.isEmergency ? .primary : .secondary)
+                            .lineLimit(item.isEmergency ? nil : 2)
+                    }
                 }
             }
             Spacer(minLength: 0)
@@ -117,6 +136,12 @@ private struct EquipmentLocationCard: View {
             }
         }
         .card()
+        .overlay {
+            if item.isEmergency {
+                RoundedRectangle(cornerRadius: Theme.cornerLarge)
+                    .strokeBorder(Color.red.opacity(0.3), lineWidth: 1.5)
+            }
+        }
     }
 }
 

@@ -3,8 +3,8 @@
 //  PreferenceFlow
 //
 //  Read-only equipment card — built so a locum who has never set foot in this
-//  hospital can recognise the item (photo) and reach it (location banner) in
-//  seconds.
+//  hospital can recognise the item (photo) and reach the nearest of its
+//  locations in seconds. Emergency items show every location fully, no tapping.
 //
 
 import SwiftUI
@@ -18,6 +18,7 @@ struct EquipmentLocationDetailView: View {
     private let fallback: EquipmentLocation
 
     @State private var editing = false
+    @State private var expandedSpots: Set<UUID> = []
 
     init(hospitalID: UUID, item: EquipmentLocation) {
         self.hospitalID = hospitalID
@@ -32,26 +33,29 @@ struct EquipmentLocationDetailView: View {
             .first { $0.id == itemID } ?? fallback
     }
 
+    private var spots: [EquipmentSpot] {
+        let located = item.locatedSpots
+        return located.isEmpty ? Array(item.spots.prefix(1)) : located
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                photo
-                locationBanner
+                if item.isEmergency { emergencyBanner }
+                heroPhoto
+                whereToFindHeader
 
-                if !item.accessInstructions.isBlank {
-                    infoCard(
-                        title: "How to access",
-                        icon: "key.fill",
-                        text: item.accessInstructions
-                    )
+                ForEach(Array(spots.enumerated()), id: \.element.id) { index, spot in
+                    locationRow(index: index, spot: spot)
+                }
+
+                // When access is the same everywhere, show it once below the list.
+                if item.accessIsUniform, let access = spots.first?.accessInstructions, !access.isBlank {
+                    infoCard(title: "How to access", icon: "key.fill", text: access)
                 }
 
                 if !item.notes.isBlank {
-                    infoCard(
-                        title: "Notes",
-                        icon: "note.text",
-                        text: item.notes
-                    )
+                    infoCard(title: "Notes", icon: "note.text", text: item.notes)
                 }
             }
             .padding(.horizontal, 16)
@@ -69,7 +73,6 @@ struct EquipmentLocationDetailView: View {
         }
         .toolbarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .top) {
-            // Show item type as a quiet subtitle under the nav title.
             HStack(spacing: 6) {
                 Image(systemName: item.symbol)
                     .font(.caption.weight(.semibold))
@@ -87,10 +90,29 @@ struct EquipmentLocationDetailView: View {
         }
     }
 
-    // MARK: - Photo
+    // MARK: - Emergency banner
+
+    private var emergencyBanner: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.headline)
+            Text("EMERGENCY ITEM · \(spots.count) location\(spots.count == 1 ? "" : "s")")
+                .font(.subheadline.weight(.bold))
+                .tracking(0.5)
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.red.gradient)
+        .clipShape(.rect(cornerRadius: Theme.cornerMedium))
+    }
+
+    // MARK: - Hero photo (first available)
 
     @ViewBuilder
-    private var photo: some View {
+    private var heroPhoto: some View {
         if let data = item.photoData, let image = UIImage(data: data) {
             Color(.secondarySystemBackground)
                 .frame(height: 200)
@@ -128,36 +150,92 @@ struct EquipmentLocationDetailView: View {
         }
     }
 
-    // MARK: - Location banner
+    // MARK: - Where to find it
 
-    private var locationBanner: some View {
-        HStack(spacing: 14) {
+    private var whereToFindHeader: some View {
+        HStack(spacing: 8) {
             Image(systemName: "mappin.and.ellipse")
-                .font(.system(size: 30, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 52)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text("WHERE TO FIND IT")
-                    .font(.caption2.weight(.bold))
-                    .tracking(0.8)
-                    .foregroundStyle(.white.opacity(0.75))
-                Text(item.location.isBlank ? "Location not set yet" : item.location)
-                    .font(.system(size: 20, weight: .bold))
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(Theme.accent)
+            Text("WHERE TO FIND IT")
+                .font(.subheadline.weight(.bold))
+                .tracking(0.6)
+                .foregroundStyle(.secondary)
+            Spacer()
+            if spots.count > 1 {
+                Text("\(spots.count)")
+                    .font(.caption.weight(.bold))
                     .foregroundStyle(.white)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 9).padding(.vertical, 3)
+                    .background(Theme.accent, in: .capsule)
             }
-            Spacer(minLength: 0)
         }
-        .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            item.location.isBlank
-                ? AnyShapeStyle(Color.secondary.gradient)
-                : AnyShapeStyle(Theme.heroGradient)
-        )
-        .clipShape(.rect(cornerRadius: Theme.cornerLarge))
-        .shadow(color: Theme.accent.opacity(item.location.isBlank ? 0 : 0.25), radius: 12, x: 0, y: 6)
+        .padding(.top, 2)
+    }
+
+    @ViewBuilder
+    private func locationRow(index: Int, spot: EquipmentSpot) -> some View {
+        let emergency = item.isEmergency
+        // Emergency items always show everything; others can expand per-spot.
+        let perSpotAccess = !item.accessIsUniform && !spot.accessInstructions.isBlank
+        let isExpanded = emergency || expandedSpots.contains(spot.id)
+
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text("\(index + 1)")
+                    .font(emergency ? .title3.weight(.bold) : .headline.weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(width: emergency ? 36 : 30, height: emergency ? 36 : 30)
+                    .background(emergency ? AnyShapeStyle(Color.red.gradient) : AnyShapeStyle(Theme.heroGradient), in: .circle)
+
+                Text(spot.location.isBlank ? "Location not set yet" : spot.location)
+                    .font(emergency ? .system(size: 20, weight: .bold) : .system(size: 18, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                if !emergency && (perSpotAccess || spot.photoData != nil) {
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.tertiary)
+                }
+            }
+
+            if isExpanded {
+                if let data = spot.photoData, let image = UIImage(data: data) {
+                    Color(.secondarySystemBackground)
+                        .frame(height: 150)
+                        .overlay { Image(uiImage: image).resizable().aspectRatio(contentMode: .fill).allowsHitTesting(false) }
+                        .clipShape(.rect(cornerRadius: Theme.cornerMedium))
+                }
+                if perSpotAccess {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: "key.fill")
+                            .font(.caption).foregroundStyle(Theme.accent).padding(.top, 2)
+                        Text(spot.accessInstructions)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Theme.accent.opacity(0.08), in: .rect(cornerRadius: Theme.cornerSmall))
+                }
+            }
+        }
+        .card()
+        .overlay {
+            if emergency {
+                RoundedRectangle(cornerRadius: Theme.cornerLarge)
+                    .strokeBorder(Color.red.opacity(0.35), lineWidth: 1.5)
+            }
+        }
+        .contentShape(.rect)
+        .onTapGesture {
+            guard !emergency, perSpotAccess || spot.photoData != nil else { return }
+            if expandedSpots.contains(spot.id) { expandedSpots.remove(spot.id) }
+            else { expandedSpots.insert(spot.id) }
+        }
     }
 
     // MARK: - Info card

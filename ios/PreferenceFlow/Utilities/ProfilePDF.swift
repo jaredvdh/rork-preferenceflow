@@ -512,8 +512,18 @@ enum ProfilePDF {
             ctx.drawGroupLabel("Equipment Locations")
             for item in o.equipmentLocations {
                 ctx.drawSubheading(item.title)
-                if !item.location.isBlank { ctx.drawBullet("Location: \(item.location)") }
-                if !item.accessInstructions.isBlank { ctx.drawBullet("Access: \(item.accessInstructions)") }
+                let located = item.locatedSpots
+                if located.isEmpty {
+                    if !item.accessInstructions.isBlank { ctx.drawBullet("Access: \(item.accessInstructions)") }
+                } else if located.count == 1, let only = located.first {
+                    ctx.drawBullet("Location: \(only.location)")
+                    if !only.accessInstructions.isBlank { ctx.drawBullet("Access: \(only.accessInstructions)") }
+                } else {
+                    for (index, spot) in located.enumerated() {
+                        ctx.drawBullet("Location \(index + 1): \(spot.location)")
+                        if !spot.accessInstructions.isBlank { ctx.drawBullet("   Access: \(spot.accessInstructions)") }
+                    }
+                }
                 if !item.notes.isBlank { ctx.drawNote(item.notes) }
             }
         }
