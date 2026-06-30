@@ -53,11 +53,11 @@ struct DrugsFluidsTab: View {
                     ForEach(DrugCategory.allCases) { category in
                         let selection = setup.selection(for: category)
                         if !selection.isEmpty {
-                            drugCard(category, selection)
+                            DrugCategoryCollapsibleCard(category: category, selection: selection)
                         }
                     }
                     if !setup.notes.isBlank {
-                        consultantNotesCard
+                        DrugsConsultantNotesCard(notes: setup.notes)
                     }
                 } else if !(cohort == .paediatric && setup.gasInduction?.enabled == true) {
                     EmptyStateView(
@@ -94,17 +94,25 @@ struct DrugsFluidsTab: View {
         return Array(chips.prefix(5))
     }
 
-    private func group(for category: DrugCategory) -> PrefGroup {
-        category == .fluid ? .equipment : .medications
-    }
+}
 
-    private func drugCard(_ category: DrugCategory, _ selection: DrugSelection) -> some View {
-        let tint = group(for: category).tint
+/// A collapsible read card for one drug category — the shared component used by
+/// both the Drugs & Fluids tab and the main consultant card so the collapsed
+/// summary and expanded detail (checklist, "Prepared by", notes) are identical in
+/// both places. Reads from the same `DrugSelection` the editor writes.
+struct DrugCategoryCollapsibleCard: View {
+    let category: DrugCategory
+    let selection: DrugSelection
+
+    private var group: PrefGroup { category == .fluid ? .equipment : .medications }
+
+    var body: some View {
+        let tint = group.tint
         return PrefCollapsibleCard(
-            group: group(for: category),
+            group: group,
             title: category.rawValue,
             icon: category.symbol,
-            collapsedSummary: collapsedSummary(category, selection)
+            collapsedSummary: Self.collapsedSummary(category, selection)
         ) {
             PrefChecklist(items: selection.selected, tint: tint)
             if category != .fluid {
@@ -114,7 +122,9 @@ struct DrugsFluidsTab: View {
         }
     }
 
-    private func collapsedSummary(_ category: DrugCategory, _ selection: DrugSelection) -> String {
+    /// One-line collapsed summary: the first agents plus an "Assistant may prepare"
+    /// flag, or a notes hint when nothing is selected.
+    static func collapsedSummary(_ category: DrugCategory, _ selection: DrugSelection) -> String {
         if selection.selected.isEmpty {
             return selection.notes.isBlank ? "Tap to view" : "See notes"
         }
@@ -124,13 +134,19 @@ struct DrugsFluidsTab: View {
         }
         return summary
     }
+}
 
-    private var consultantNotesCard: some View {
+/// The overall Drugs & Fluids consultant notes as a collapsible card — shared so
+/// the tab and the main card render it identically.
+struct DrugsConsultantNotesCard: View {
+    let notes: String
+
+    var body: some View {
         PrefCollapsibleCard(
             group: .consultantNotes,
-            collapsedSummary: setup.notes
+            collapsedSummary: notes
         ) {
-            PrefNote(label: "", text: setup.notes, tint: PrefGroup.consultantNotes.tint)
+            PrefNote(label: "", text: notes, tint: PrefGroup.consultantNotes.tint)
         }
     }
 }

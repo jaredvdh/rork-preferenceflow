@@ -154,38 +154,139 @@ struct OverviewTab: View {
         }
     }
 
-    // 4. General
+    // 4. General — the four most-used fields are always visible; everything else
+    // the editor knows about expands in place below, so a technician never has to
+    // switch to the General tab to read a field that has a value.
+    private var g: GeneralPreferences { doctor.general }
+
     private var generalCard: some View {
-        let g = doctor.general
-        return DetailSection(title: "General", icon: "person.text.rectangle.fill") {
-            ValueRow(label: "Sterile gloves", value: g.sterileGloveDisplay, icon: "hand.raised.fill")
-            ValueRow(label: "Non-sterile gloves", value: g.nonSterileGloveDisplay, icon: "hand.raised")
-            ValueRow(label: "Gown size", value: g.gownSize, icon: "tshirt")
-            ValueRow(label: "Coffee", value: g.coffeePreference, icon: "cup.and.saucer")
-            if isGeneralEmpty {
-                IncompleteNudge(text: "Incomplete — tap to add general preferences") { onNavigate(.general) }
+        VStack(alignment: .leading, spacing: 12) {
+            SectionLabel("General", icon: "person.text.rectangle.fill")
+            VStack(spacing: 8) {
+                ValueRow(label: "Sterile gloves", value: g.sterileGloveDisplay, icon: "hand.raised.fill")
+                ValueRow(label: "Non-sterile gloves", value: g.nonSterileGloveDisplay, icon: "hand.raised")
+                ValueRow(label: "Gown size", value: g.gownSize, icon: "tshirt")
+                ValueRow(label: "Coffee", value: g.coffeePreference, icon: "cup.and.saucer")
+                if isGeneralEmpty {
+                    IncompleteNudge(text: "Incomplete — tap to add general preferences") { onNavigate(.general) }
+                }
+            }
+            .card()
+            generalMoreDetail
+        }
+    }
+
+    /// Expandable cards revealing every remaining General field that has a value:
+    /// theatre setup extras, personal touches, workflow expectations, contact
+    /// preferences and general notes. Each card renders only when it has content.
+    @ViewBuilder
+    private var generalMoreDetail: some View {
+        if hasGeneralTheatreExtras {
+            PrefCollapsibleCard(
+                group: .equipment,
+                title: "Theatre Setup",
+                icon: "tshirt.fill",
+                collapsedSummary: [g.maskPreference, g.theatreShoeSize, g.roomTemperature]
+                    .filter { !$0.isBlank }.prefix(2).joined(separator: " • ")
+            ) {
+                PrefRow(label: "Mask", value: g.maskPreference)
+                PrefRow(label: "Shoe size", value: g.theatreShoeSize)
+                PrefRow(label: "Room temp", value: g.roomTemperature)
+            }
+        }
+        if hasGeneralPersonalExtras {
+            PrefCollapsibleCard(
+                group: .personal,
+                title: "Personal",
+                collapsedSummary: [g.teaPreference, g.favouriteSnacks]
+                    .filter { !$0.isBlank }.joined(separator: " • ")
+            ) {
+                PrefRow(label: "Tea", value: g.teaPreference)
+                PrefRow(label: "Snacks", value: g.favouriteSnacks)
+            }
+        }
+        if hasGeneralWorkflow {
+            PrefCollapsibleCard(
+                group: .workflow,
+                title: "Workflow",
+                collapsedSummary: (generalWorkflowFlags + [g.briefingStyle.isBlank ? "" : "Briefing"])
+                    .filter { !$0.isEmpty }.prefix(2).joined(separator: " • ")
+            ) {
+                if !generalWorkflowFlags.isEmpty {
+                    PrefChecklist(items: generalWorkflowFlags, tint: PrefGroup.workflow.tint)
+                }
+                PrefNote(label: "Briefing style", text: g.briefingStyle, tint: PrefGroup.workflow.tint)
+            }
+        }
+        if !g.contactPreferences.isBlank {
+            PrefCollapsibleCard(
+                group: .monitoring,
+                title: "Communication",
+                icon: "bubble.left.and.bubble.right.fill",
+                collapsedSummary: g.contactPreferences
+            ) {
+                PrefNote(label: "", text: g.contactPreferences, tint: PrefGroup.monitoring.tint)
+            }
+        }
+        if !g.generalNotes.isBlank {
+            PrefCollapsibleCard(
+                group: .consultantNotes,
+                collapsedSummary: g.generalNotes
+            ) {
+                PrefNote(label: "", text: g.generalNotes, tint: PrefGroup.consultantNotes.tint)
             }
         }
     }
 
+    private var generalWorkflowFlags: [String] {
+        var out: [String] = []
+        if g.arriveBeforePatient { out.append("Arrives before patient") }
+        if g.prepareOwnMedications { out.append("Prepares own medications") }
+        if g.assistantMayPrepareMedications { out.append("Assistant may prepare meds") }
+        return out
+    }
+
+    private var hasGeneralTheatreExtras: Bool {
+        !(g.maskPreference.isBlank && g.theatreShoeSize.isBlank && g.roomTemperature.isBlank)
+    }
+
+    private var hasGeneralPersonalExtras: Bool {
+        !(g.teaPreference.isBlank && g.favouriteSnacks.isBlank)
+    }
+
+    private var hasGeneralWorkflow: Bool {
+        !generalWorkflowFlags.isEmpty || !g.briefingStyle.isBlank
+    }
+
     private var isGeneralEmpty: Bool {
-        let g = doctor.general
-        return g.sterileGloveDisplay.isBlank && g.nonSterileGloveDisplay.isBlank && g.gownSize.isBlank && g.coffeePreference.isBlank
+        g.sterileGloveDisplay.isBlank && g.nonSterileGloveDisplay.isBlank && g.gownSize.isBlank && g.coffeePreference.isBlank
     }
 
     // 6. Drugs
     private var adultDrugs: DrugsFluidsSetup { doctor.adultDrugs ?? DrugsFluidsSetup() }
 
+    /// Each drug category is a collapsible card (reusing the exact component the
+    /// Drugs & Fluids tab uses) so the full checklist, "Prepared by" and category
+    /// notes are reachable here — not only on the dedicated tab.
     private var drugsCard: some View {
         let d = adultDrugs
-        return DetailSection(title: "Drugs & Fluids", icon: "syringe.fill") {
-            PrefRow(label: "Induction", value: d.induction.selected.joined(separator: ", "))
-            PrefRow(label: "Opioid", value: d.opioid.selected.joined(separator: ", "))
-            PrefRow(label: "Vasopressor", value: d.vasopressor.selected.joined(separator: ", "))
-            PrefRow(label: "Muscle relaxant", value: d.muscleRelaxant.selected.joined(separator: ", "))
-            PrefRow(label: "IV fluids", value: d.fluids.selected.joined(separator: ", "))
-            if !d.hasContent {
-                IncompleteNudge(text: "Incomplete — tap to add drugs & fluids") { onNavigate(.drugs) }
+        return VStack(alignment: .leading, spacing: 12) {
+            SectionLabel("Drugs & Fluids", icon: "syringe.fill")
+            if d.hasContent {
+                ForEach(DrugCategory.allCases) { category in
+                    let selection = d.selection(for: category)
+                    if !selection.isEmpty {
+                        DrugCategoryCollapsibleCard(category: category, selection: selection)
+                    }
+                }
+                if !d.notes.isBlank {
+                    DrugsConsultantNotesCard(notes: d.notes)
+                }
+            } else {
+                VStack(spacing: 8) {
+                    IncompleteNudge(text: "Incomplete — tap to add drugs & fluids") { onNavigate(.drugs) }
+                }
+                .card()
             }
         }
     }
