@@ -1,0 +1,3885 @@
+{
+  "meta": {
+    "region": "United States",
+    "regionCode": "US",
+    "units": "Weight-based mg/mcg/mL dosing (kg); °F shown alongside °C for temperature targets",
+    "terminology": "epinephrine, norepinephrine, albuterol, succinylcholine, lidocaine",
+    "title": "Anesthetic Crisis Handbook",
+    "version": "App edition 1.0 — US terminology",
+    "sourceAcknowledgement": "Adapted from the NZ Anaesthetic Crisis Handbook (Adam Hollingworth et al., v3.3 Feb 2023). Terminology localized for a US audience; some agents (e.g. metaraminol) are not US-marketed and are flagged inline. Always confirm doses and protocols against ACLS/PALS and your institution's current guidelines.",
+    "disclaimer": "Every effort has been made to prevent errors or omissions, but this cannot be guaranteed. Drug availability and brand names vary by institution — always verify doses before use. Not a substitute for ACLS/PALS certification or institutional protocols."
+  },
+  "legend": {
+    "red": "Emergency / doing tasks — work through in order",
+    "yellow": "Thinking tasks — diagnostic or further information",
+    "green": "Doses, equipment, or calculation information"
+  },
+  "sections": {
+    "airway": {
+      "label": "Airway",
+      "book": "emergencies",
+      "tag": "A"
+    },
+    "breathing": {
+      "label": "Breathing",
+      "book": "emergencies",
+      "tag": "B"
+    },
+    "circulation": {
+      "label": "Circulation",
+      "book": "emergencies",
+      "tag": "C"
+    },
+    "everything": {
+      "label": "Everything Else",
+      "book": "emergencies",
+      "tag": "E"
+    },
+    "obstetrics": {
+      "label": "Obstetrics",
+      "book": "emergencies",
+      "tag": "O"
+    },
+    "diagnosing": {
+      "label": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "tag": "D"
+    }
+  },
+  "cards": [
+    {
+      "id": "1e",
+      "section": "airway",
+      "title": "Airway Management – Vortex",
+      "priority": "Oxygenation in the green zone",
+      "doing": [
+        "Always have a safe airway strategy ready (e.g. awake fibreoptic intubation, call ENT/surgeon)",
+        "Pre-oxygenate all patients",
+        "Consider passive apnoeic oxygenation via nasal cannula during RSI",
+        "Remove cricoid pressure early if it is impeding the view",
+        "Address all airway attempts using the Vortex Approach (vortexapproach.org – Dr Chrimes & Dr Fritz)",
+        "If first airway plan fails: get the difficult intubation trolley and extra help",
+        "Goal: restore oxygenation and reach the Green Zone (EtCO₂ present & safe SpO₂ – i.e. an SpO₂ that would cause no harm if it persisted 15 min)",
+        "Try the three lifelines – bag/mask, supraglottic airway (SGA), endotracheal tube (ETT) – in any order",
+        "For each lifeline: at least 1 attempt, no more than 3 (a 4th is allowed only if a genuine game-changer becomes available, e.g. new kit, expert help)",
+        "A best effort at any lifeline must include full muscle relaxation",
+        "Optimisations – Bag/Mask: dentures in, two-hand vice grip, cuff inflation/deflation, OPA/NPA, change mask size/type, suction, paralysis",
+        "Optimisations – SGA: pull tongue forward, twist to insert, cuff inflation/deflation, insert with laryngoscope/bougie, change size/type, suction, paralysis",
+        "Optimisations – ETT: dentures out, laryngeal manipulation, remove cricoid pressure, lift epiglottis, bougie/stylet, change tube size/blade, video laryngoscope, suction, paralysis",
+        "If in the Green Zone, plan for ongoing safety: Maintain (consider waking – sugammadex, naloxone), Convert (fibreoptic ETT through SGA or surgical airway), or Replace (leave Green Zone and re-enter the Vortex)",
+        "With an unsuccessful best effort at any lifeline, escalate CICO status: Ready (get CICO kit, designate proceduralist) → Set (ready equipment, palpate landmarks) → Go (optimise position and start CICO Rescue if not in Green Zone after 3 lifeline best efforts)"
+      ],
+      "thinking": [],
+      "drugs": [
+        {
+          "drug": "Sugammadex (waking, immediately post rocuronium/vecuronium)",
+          "bolus": "1.2 g (6 × 200 mg vials)",
+          "peds": "16 mg/kg"
+        },
+        {
+          "drug": "Naloxone",
+          "bolus": "400 mcg bolus",
+          "peds": "10 mcg/kg"
+        }
+      ],
+      "crossRefs": [
+        "2e"
+      ],
+      "sectionLabel": "Airway",
+      "book": "emergencies",
+      "sectionTag": "A",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Always have a safe airway strategy ready (e.g. awake fibreoptic intubation, call ENT/surgeon)",
+            "Pre-oxygenate all patients",
+            "Consider passive apnoeic oxygenation via nasal cannula during RSI",
+            "Remove cricoid pressure early if it is impeding the view",
+            "Address all airway attempts using the Vortex Approach (vortexapproach.org – Dr Chrimes & Dr Fritz)",
+            "If first airway plan fails: get the difficult intubation trolley and extra help",
+            "Goal: restore oxygenation and reach the Green Zone (EtCO₂ present & safe SpO₂ – i.e. an SpO₂ that would cause no harm if it persisted 15 min)",
+            "Try the three lifelines – bag/mask, supraglottic airway (SGA), endotracheal tube (ETT) – in any order",
+            "For each lifeline: at least 1 attempt, no more than 3 (a 4th is allowed only if a genuine game-changer becomes available, e.g. new kit, expert help)",
+            "A best effort at any lifeline must include full muscle relaxation",
+            "Optimisations – Bag/Mask: dentures in, two-hand vice grip, cuff inflation/deflation, OPA/NPA, change mask size/type, suction, paralysis",
+            "Optimisations – SGA: pull tongue forward, twist to insert, cuff inflation/deflation, insert with laryngoscope/bougie, change size/type, suction, paralysis",
+            "Optimisations – ETT: dentures out, laryngeal manipulation, remove cricoid pressure, lift epiglottis, bougie/stylet, change tube size/blade, video laryngoscope, suction, paralysis",
+            "If in the Green Zone, plan for ongoing safety: Maintain (consider waking – sugammadex, naloxone), Convert (fibreoptic ETT through SGA or surgical airway), or Replace (leave Green Zone and re-enter the Vortex)",
+            "With an unsuccessful best effort at any lifeline, escalate CICO status: Ready (get CICO kit, designate proceduralist) → Set (ready equipment, palpate landmarks) → Go (optimise position and start CICO Rescue if not in Green Zone after 3 lifeline best efforts)"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": []
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Sugammadex (waking, immediately post rocuronium/vecuronium)",
+              "bolus": "1.2 g (6 × 200 mg vials)",
+              "peds": "16 mg/kg"
+            },
+            {
+              "drug": "Naloxone",
+              "bolus": "400 mcg bolus",
+              "peds": "10 mcg/kg"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2e",
+      "section": "airway",
+      "title": "CICO Rescue",
+      "priority": "Oxygenation with stable SpO₂ > 90%",
+      "doing": [
+        "Dedicated team member continues attempting supraglottic oxygenation",
+        "Pull patient up the bed so the head extends over a pillow",
+        "Decide and share your intended technique with the team early – three options:",
+        "1. Cannula cricothyroidotomy (palpable anatomy): CICO pack (14G cannula, 5 mL syringe with 2 mL saline, rapid-O₂ insufflation device); secure the cricoid cartilage and aspirate while advancing the saline-filled cannula; success = free aspiration of air – never let go of the cannula",
+        "Connect the rapid-O₂ device to the cannula and the machine's auxiliary O₂ port at 10 L/min: 1st breath 6 sec (1000 mL) – look for chest rise/fall; wait 20 sec for SpO₂ rise, or until SpO₂ starts to drop 5% from peak; 2nd breath 3 sec (500 mL), repeating only after the same wait; abandon the technique if there is no SpO₂ rise after the 2nd breath or any doubt",
+        "Convert to a size 5 Melker airway using the Seldinger technique",
+        "2. Scalpel–bougie (palpable anatomy): prepare gauze/suction for blood; horizontal stab incision through the cricothyroid membrane with a 10-blade scalpel; rotate the blade to vertical (caudad) and pass the bougie alongside it; remove the scalpel and railroad a size 6 ETT over the bougie",
+        "3. Scalpel–finger–cannula/scalpel (non-palpable anatomy): prepare for significant blood; vertical midline 8–10 cm incision through skin and subcutaneous tissue; blunt-dissect with both hands down to the airway and secure the cartilage; insert a cannula or scalpel through the cricothyroid membrane or trachea; then follow step 1 or 2 above to oxygenate"
+      ],
+      "thinking": [
+        "Choice of first method is operator preference – decide and practise (mentally or in simulation) before a crisis",
+        "If the first method fails, move to the alternative method immediately",
+        "If there is no palpable anatomy, the scalpel–finger method is recommended"
+      ],
+      "drugs": [],
+      "crossRefs": [
+        "1e"
+      ],
+      "sectionLabel": "Airway",
+      "book": "emergencies",
+      "sectionTag": "A",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Dedicated team member continues attempting supraglottic oxygenation",
+            "Pull patient up the bed so the head extends over a pillow",
+            "Decide and share your intended technique with the team early – three options:",
+            "1. Cannula cricothyroidotomy (palpable anatomy): CICO pack (14G cannula, 5 mL syringe with 2 mL saline, rapid-O₂ insufflation device); secure the cricoid cartilage and aspirate while advancing the saline-filled cannula; success = free aspiration of air – never let go of the cannula",
+            "Connect the rapid-O₂ device to the cannula and the machine's auxiliary O₂ port at 10 L/min: 1st breath 6 sec (1000 mL) – look for chest rise/fall; wait 20 sec for SpO₂ rise, or until SpO₂ starts to drop 5% from peak; 2nd breath 3 sec (500 mL), repeating only after the same wait; abandon the technique if there is no SpO₂ rise after the 2nd breath or any doubt",
+            "Convert to a size 5 Melker airway using the Seldinger technique",
+            "2. Scalpel–bougie (palpable anatomy): prepare gauze/suction for blood; horizontal stab incision through the cricothyroid membrane with a 10-blade scalpel; rotate the blade to vertical (caudad) and pass the bougie alongside it; remove the scalpel and railroad a size 6 ETT over the bougie",
+            "3. Scalpel–finger–cannula/scalpel (non-palpable anatomy): prepare for significant blood; vertical midline 8–10 cm incision through skin and subcutaneous tissue; blunt-dissect with both hands down to the airway and secure the cartilage; insert a cannula or scalpel through the cricothyroid membrane or trachea; then follow step 1 or 2 above to oxygenate"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Choice of first method is operator preference – decide and practise (mentally or in simulation) before a crisis",
+            "If the first method fails, move to the alternative method immediately",
+            "If there is no palpable anatomy, the scalpel–finger method is recommended"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": []
+        }
+      }
+    },
+    {
+      "id": "3e",
+      "section": "airway",
+      "title": "Laryngospasm",
+      "priority": "Break laryngospasm and maintain SpO₂",
+      "doing": [
+        "Ask the surgeon to stop",
+        "Get drugs and airway equipment",
+        "Manual procedures: remove the LMA and clear the airway; consider an OP/NP airway; jaw thrust with CPAP 30 cmH₂O – do not give a positive-pressure breath; apply bilateral, painful, inward pressure at Larson's point (immediately behind the ear lobule); in children, consider gentle chest compressions, which may be more effective than other manual manoeuvres",
+        "If SpO₂ is stable and >92%, try low-dose muscle relaxation: propofol 20% of the induction dose, or succinylcholine 35 mg IV (0.5 mg/kg) — note that obese, pediatric, or acutely unwell patients desaturate quickly and intubation may be a better first move",
+        "If SpO₂ is dropping or <92%, give full-dose muscle relaxation as soon as possible",
+        "Consider atropine for bradycardia",
+        "Consider gastric decompression after the event"
+      ],
+      "thinking": [
+        "Laryngospasm will eventually break with time and hypoxia, but may be preceded by bradycardia, cardiac arrest, aspiration, or pulmonary edema",
+        "Hypoxia can occur rapidly in pediatric, obese, and acutely unwell patients",
+        "Pre-prepare IV and IM succinylcholine doses in higher-risk cases"
+      ],
+      "drugs": [
+        {
+          "drug": "Succinylcholine (low-dose relaxation)",
+          "bolus": "0.5 mg/kg IV"
+        },
+        {
+          "drug": "Succinylcholine (full-dose intubation)",
+          "bolus": "Adult: 100 mg (or induction dose)",
+          "peds": "IV 2 mg/kg; IM 4 mg/kg"
+        },
+        {
+          "drug": "Propofol",
+          "bolus": "20% of induction dose"
+        },
+        {
+          "drug": "Atropine",
+          "bolus": "600 mcg",
+          "peds": "20 mcg/kg"
+        },
+        {
+          "drug": "Pediatric uncuffed ETT size",
+          "bolus": "Preterm 2.5; <1 yr 3.5–4; >1 yr (age/4)+4"
+        }
+      ],
+      "crossRefs": [
+        "9e"
+      ],
+      "sectionLabel": "Airway",
+      "book": "emergencies",
+      "sectionTag": "A",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Ask the surgeon to stop",
+            "Get drugs and airway equipment",
+            "Manual procedures: remove the LMA and clear the airway; consider an OP/NP airway; jaw thrust with CPAP 30 cmH₂O – do not give a positive-pressure breath; apply bilateral, painful, inward pressure at Larson's point (immediately behind the ear lobule); in children, consider gentle chest compressions, which may be more effective than other manual manoeuvres",
+            "If SpO₂ is stable and >92%, try low-dose muscle relaxation: propofol 20% of the induction dose, or succinylcholine 35 mg IV (0.5 mg/kg) — note that obese, pediatric, or acutely unwell patients desaturate quickly and intubation may be a better first move",
+            "If SpO₂ is dropping or <92%, give full-dose muscle relaxation as soon as possible",
+            "Consider atropine for bradycardia",
+            "Consider gastric decompression after the event"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Laryngospasm will eventually break with time and hypoxia, but may be preceded by bradycardia, cardiac arrest, aspiration, or pulmonary edema",
+            "Hypoxia can occur rapidly in pediatric, obese, and acutely unwell patients",
+            "Pre-prepare IV and IM succinylcholine doses in higher-risk cases"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Succinylcholine (low-dose relaxation)",
+              "bolus": "0.5 mg/kg IV"
+            },
+            {
+              "drug": "Succinylcholine (full-dose intubation)",
+              "bolus": "Adult: 100 mg (or induction dose)",
+              "peds": "IV 2 mg/kg; IM 4 mg/kg"
+            },
+            {
+              "drug": "Propofol",
+              "bolus": "20% of induction dose"
+            },
+            {
+              "drug": "Atropine",
+              "bolus": "600 mcg",
+              "peds": "20 mcg/kg"
+            },
+            {
+              "drug": "Pediatric uncuffed ETT size",
+              "bolus": "Preterm 2.5; <1 yr 3.5–4; >1 yr (age/4)+4"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "4e",
+      "section": "breathing",
+      "title": "Bronchospasm",
+      "priority": "SpO₂ > 95% with peak airway pressures < 40 cmH₂O",
+      "doing": [
+        "Inform the surgeon; minimize surgical stimulation",
+        "Check airway position, the EtCO₂ trace (severe bronchospasm can present with low/absent EtCO₂), and airway pressures",
+        "Manually ventilate to confirm high pressures and ensure adequate tidal volume",
+        "Deepen anesthesia; if using desflurane, switch to an alternative agent",
+        "Emergency drug therapy: inhaled albuterol via the circuit, inhaled ipratropium via the circuit, IV albuterol slow bolus (repeat at 10 min), IV epinephrine 0.1–0.5 mL of 1:10,000",
+        "Optimise ventilator settings: pressure-control mode, long expiratory phase, low respiratory rate, low PEEP, small tidal volumes, intermittent disconnection",
+        "Other bolus adjuncts: magnesium, ketamine, hydrocortisone, aminophylline",
+        "If no improvement, use infusions of albuterol, epinephrine, or aminophylline",
+        "Place an arterial line and take serial blood gases"
+      ],
+      "thinking": [
+        "Always consider other causes of high airway pressure: anaphylaxis, laryngospasm (on an LMA), tube position, chest wall rigidity, pneumothorax, acute pulmonary edema",
+        "Permissive hypercapnia may be needed to reduce airway pressures",
+        "Assess response by falling airway pressures, blood gases, and improving EtCO₂ trace"
+      ],
+      "drugs": [
+        {
+          "drug": "Albuterol (inhaled)",
+          "bolus": "12 puffs via circuit",
+          "peds": "<6 yr = 6 puffs; >6 yr = 12 puffs"
+        },
+        {
+          "drug": "Ipratropium (inhaled)",
+          "bolus": "6 puffs via circuit",
+          "peds": "4 puffs"
+        },
+        {
+          "drug": "Albuterol IV",
+          "bolus": "100–250 mcg slow bolus, may repeat at 10 min",
+          "infusion": "5 mg in 50 mL saline, infuse 0–10 mL/hr",
+          "peds": "10 mcg/kg over 2 min (max 500 mcg single dose); repeat at 10 min; infusion 5–10 mcg/kg/min for 1 hr then 1–2 mcg/kg/min"
+        },
+        {
+          "drug": "Epinephrine IV",
+          "bolus": "0.1–0.5 mL of 1:10,000",
+          "peds": "0.01–0.05 mL/kg of 1:10,000"
+        },
+        {
+          "drug": "Magnesium 49.3%",
+          "bolus": "5 mL over 20 min",
+          "peds": "0.1 mL/kg (max 5 mL) in 50 mL saline over 20 min"
+        },
+        {
+          "drug": "Ketamine (must be anesthetised)",
+          "bolus": "35–70 mg IV",
+          "peds": "0.5–2 mg/kg"
+        },
+        {
+          "drug": "Hydrocortisone",
+          "bolus": "200 mg IV",
+          "peds": "4 mg/kg"
+        },
+        {
+          "drug": "Aminophylline",
+          "bolus": "400 mg load over 15 min (max 500 mg)",
+          "infusion": "50 mg in 50 mL at 35 mL/hr",
+          "peds": "load 10 mg/kg over 1 hr diluted to 50 mL; infusion varies by age"
+        },
+        {
+          "drug": "Epinephrine infusion",
+          "infusion": "5 mg in 50 mL saline, 0–20 mL/hr (not generally recommended in children)"
+        }
+      ],
+      "crossRefs": [
+        "25d",
+        "36r"
+      ],
+      "sectionLabel": "Breathing",
+      "book": "emergencies",
+      "sectionTag": "B",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Inform the surgeon; minimize surgical stimulation",
+            "Check airway position, the EtCO₂ trace (severe bronchospasm can present with low/absent EtCO₂), and airway pressures",
+            "Manually ventilate to confirm high pressures and ensure adequate tidal volume",
+            "Deepen anesthesia; if using desflurane, switch to an alternative agent",
+            "Emergency drug therapy: inhaled albuterol via the circuit, inhaled ipratropium via the circuit, IV albuterol slow bolus (repeat at 10 min), IV epinephrine 0.1–0.5 mL of 1:10,000",
+            "Optimise ventilator settings: pressure-control mode, long expiratory phase, low respiratory rate, low PEEP, small tidal volumes, intermittent disconnection",
+            "Other bolus adjuncts: magnesium, ketamine, hydrocortisone, aminophylline",
+            "If no improvement, use infusions of albuterol, epinephrine, or aminophylline",
+            "Place an arterial line and take serial blood gases"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Always consider other causes of high airway pressure: anaphylaxis, laryngospasm (on an LMA), tube position, chest wall rigidity, pneumothorax, acute pulmonary edema",
+            "Permissive hypercapnia may be needed to reduce airway pressures",
+            "Assess response by falling airway pressures, blood gases, and improving EtCO₂ trace"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Albuterol (inhaled)",
+              "bolus": "12 puffs via circuit",
+              "peds": "<6 yr = 6 puffs; >6 yr = 12 puffs"
+            },
+            {
+              "drug": "Ipratropium (inhaled)",
+              "bolus": "6 puffs via circuit",
+              "peds": "4 puffs"
+            },
+            {
+              "drug": "Albuterol IV",
+              "bolus": "100–250 mcg slow bolus, may repeat at 10 min",
+              "infusion": "5 mg in 50 mL saline, infuse 0–10 mL/hr",
+              "peds": "10 mcg/kg over 2 min (max 500 mcg single dose); repeat at 10 min; infusion 5–10 mcg/kg/min for 1 hr then 1–2 mcg/kg/min"
+            },
+            {
+              "drug": "Epinephrine IV",
+              "bolus": "0.1–0.5 mL of 1:10,000",
+              "peds": "0.01–0.05 mL/kg of 1:10,000"
+            },
+            {
+              "drug": "Magnesium 49.3%",
+              "bolus": "5 mL over 20 min",
+              "peds": "0.1 mL/kg (max 5 mL) in 50 mL saline over 20 min"
+            },
+            {
+              "drug": "Ketamine (must be anesthetised)",
+              "bolus": "35–70 mg IV",
+              "peds": "0.5–2 mg/kg"
+            },
+            {
+              "drug": "Hydrocortisone",
+              "bolus": "200 mg IV",
+              "peds": "4 mg/kg"
+            },
+            {
+              "drug": "Aminophylline",
+              "bolus": "400 mg load over 15 min (max 500 mg)",
+              "infusion": "50 mg in 50 mL at 35 mL/hr",
+              "peds": "load 10 mg/kg over 1 hr diluted to 50 mL; infusion varies by age"
+            },
+            {
+              "drug": "Epinephrine infusion",
+              "infusion": "5 mg in 50 mL saline, 0–20 mL/hr (not generally recommended in children)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5e",
+      "section": "breathing",
+      "title": "Aspiration",
+      "priority": "Minimise aspiration while maintaining SpO₂",
+      "doing": [
+        "Call for help from surgical team members immediately",
+        "If practical, move the patient to head-down, left-lateral position as soon as possible",
+        "Remove the LMA/OP airway and suction the pharynx",
+        "If time allows and SpO₂ is stable >97%: cricoid pressure (if not actively vomiting), succinylcholine IV, intubate, suction through the ETT with the largest possible catheter, only then ventilate with 100% O₂",
+        "If SpO₂ is dropping or <90%: do not delay oxygenation regardless of particulate matter — bag-mask ventilate with 100% O₂, or give manual breaths via the ETT with 100% O₂",
+        "Consider bronchoscopy",
+        "Consider abandoning surgery",
+        "Pass an NG tube at the earliest convenience"
+      ],
+      "thinking": [
+        "Monitor the patient for 2 hours post-event in PACU – if asymptomatic with normal vital signs and a normal CXR, ICU admission is unlikely to be required",
+        "Steroids and antibiotics are not routinely used in aspiration"
+      ],
+      "drugs": [
+        {
+          "drug": "Succinylcholine",
+          "bolus": "100 mg IV",
+          "peds": "IV 2 mg/kg; IM 4 mg/kg"
+        }
+      ],
+      "crossRefs": [],
+      "sectionLabel": "Breathing",
+      "book": "emergencies",
+      "sectionTag": "B",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Call for help from surgical team members immediately",
+            "If practical, move the patient to head-down, left-lateral position as soon as possible",
+            "Remove the LMA/OP airway and suction the pharynx",
+            "If time allows and SpO₂ is stable >97%: cricoid pressure (if not actively vomiting), succinylcholine IV, intubate, suction through the ETT with the largest possible catheter, only then ventilate with 100% O₂",
+            "If SpO₂ is dropping or <90%: do not delay oxygenation regardless of particulate matter — bag-mask ventilate with 100% O₂, or give manual breaths via the ETT with 100% O₂",
+            "Consider bronchoscopy",
+            "Consider abandoning surgery",
+            "Pass an NG tube at the earliest convenience"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Monitor the patient for 2 hours post-event in PACU – if asymptomatic with normal vital signs and a normal CXR, ICU admission is unlikely to be required",
+            "Steroids and antibiotics are not routinely used in aspiration"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Succinylcholine",
+              "bolus": "100 mg IV",
+              "peds": "IV 2 mg/kg; IM 4 mg/kg"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "6e",
+      "section": "circulation",
+      "title": "Adult Cardiac Arrest – VF/VT",
+      "priority": "Early defibrillation",
+      "doing": [
+        "Ask surgeons to stop (if appropriate)",
+        "Start chest compressions at 100/min, monitor EtCO₂, ensure full chest recoil",
+        "Attach the defibrillator; shock immediately at 200 J (or maximum setting)",
+        "100% O₂; stop all anesthetic agents",
+        "If using a mask/LMA: 30 compressions : 2 breaths. If the ETT is patent and secure: ventilate at 10 breaths/min and do not pause compressions",
+        "Follow 2-minute cycles: charge defibrillator → rhythm check → shock → restart compressions",
+        "Give epinephrine 1 mg immediately after the 2nd shock, then every 4 min",
+        "Give amiodarone 300 mg immediately after the 3rd shock",
+        "If the ECG shows an organized QRS complex, go to the Asystole/PEA card to check for pulse/ROSC",
+        "Read out and consider reversible causes (see Thinking)",
+        "Get the ultrasound to help rule out causes, if skilled",
+        "If ROSC, consider post-resuscitation care: abandon surgery, urgent cardiology referral (consider PCI), full ABCDE assessment, blood gases, 12-lead ECG; avoid SpO₂ >99%, hyperglycaemia (>10 mmol/L), hypercarbia, and temperature >37.5 °C / 99.5 °F for 72 hours"
+      ],
+      "thinking": [
+        "Reversible causes: hypoxia; hypovolaemia or hemorrhage; hypo/hyperthermia; electrolyte/metabolic disturbance (K⁺, Mg²⁺, glucose, pH, Ca²⁺); tension pneumothorax; cardiac tamponade; anaphylaxis and toxins (opioids, local anesthetics, calcium-channel or beta blockers, other drug errors); cardiac or pulmonary thrombosis; if pregnant, perform manual uterine displacement and start preparations to deliver the baby by 5 minutes"
+      ],
+      "drugs": [
+        {
+          "drug": "Epinephrine IV (follow all drugs with a 20 mL flush)",
+          "bolus": "1 mg (10 mL of 1:10,000)"
+        },
+        {
+          "drug": "Amiodarone IV",
+          "bolus": "300 mg"
+        },
+        {
+          "drug": "Magnesium IV (torsades)",
+          "bolus": "10 mmol (5 mL of 49.3%) over 2 min"
+        },
+        {
+          "drug": "Calcium chloride IV (hyperkalaemia or CCB overdose)",
+          "bolus": "10 mL of 10%"
+        },
+        {
+          "drug": "Sodium bicarbonate 8.4% IV (hyperkalaemia, TCA overdose, or low pH)",
+          "bolus": "50 mL slow push, may repeat every 2 min until pH 7.45–7.55"
+        },
+        {
+          "drug": "1% lidocaine IV (if amiodarone unavailable)",
+          "bolus": "7 mL bolus (0.1 mL/kg), may repeat every 10 min (max 0.3 mL/kg)"
+        },
+        {
+          "drug": "Intralipid 20% IV (LA toxicity)",
+          "bolus": "100 mL (1.5 mL/kg)",
+          "infusion": "1000 mL/hr (15 mL/kg/hr)"
+        },
+        {
+          "drug": "Alteplase (suspected thrombosis)",
+          "bolus": "50 mg slow push, may repeat at 15 min – be prepared for prolonged CPR up to 60 min"
+        }
+      ],
+      "crossRefs": [
+        "7e",
+        "15e",
+        "19e"
+      ],
+      "sectionLabel": "Circulation",
+      "book": "emergencies",
+      "sectionTag": "C",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Ask surgeons to stop (if appropriate)",
+            "Start chest compressions at 100/min, monitor EtCO₂, ensure full chest recoil",
+            "Attach the defibrillator; shock immediately at 200 J (or maximum setting)",
+            "100% O₂; stop all anesthetic agents",
+            "If using a mask/LMA: 30 compressions : 2 breaths. If the ETT is patent and secure: ventilate at 10 breaths/min and do not pause compressions",
+            "Follow 2-minute cycles: charge defibrillator → rhythm check → shock → restart compressions",
+            "Give epinephrine 1 mg immediately after the 2nd shock, then every 4 min",
+            "Give amiodarone 300 mg immediately after the 3rd shock",
+            "If the ECG shows an organized QRS complex, go to the Asystole/PEA card to check for pulse/ROSC",
+            "Read out and consider reversible causes (see Thinking)",
+            "Get the ultrasound to help rule out causes, if skilled",
+            "If ROSC, consider post-resuscitation care: abandon surgery, urgent cardiology referral (consider PCI), full ABCDE assessment, blood gases, 12-lead ECG; avoid SpO₂ >99%, hyperglycaemia (>10 mmol/L), hypercarbia, and temperature >37.5 °C / 99.5 °F for 72 hours"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Reversible causes: hypoxia; hypovolaemia or hemorrhage; hypo/hyperthermia; electrolyte/metabolic disturbance (K⁺, Mg²⁺, glucose, pH, Ca²⁺); tension pneumothorax; cardiac tamponade; anaphylaxis and toxins (opioids, local anesthetics, calcium-channel or beta blockers, other drug errors); cardiac or pulmonary thrombosis; if pregnant, perform manual uterine displacement and start preparations to deliver the baby by 5 minutes"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Epinephrine IV (follow all drugs with a 20 mL flush)",
+              "bolus": "1 mg (10 mL of 1:10,000)"
+            },
+            {
+              "drug": "Amiodarone IV",
+              "bolus": "300 mg"
+            },
+            {
+              "drug": "Magnesium IV (torsades)",
+              "bolus": "10 mmol (5 mL of 49.3%) over 2 min"
+            },
+            {
+              "drug": "Calcium chloride IV (hyperkalaemia or CCB overdose)",
+              "bolus": "10 mL of 10%"
+            },
+            {
+              "drug": "Sodium bicarbonate 8.4% IV (hyperkalaemia, TCA overdose, or low pH)",
+              "bolus": "50 mL slow push, may repeat every 2 min until pH 7.45–7.55"
+            },
+            {
+              "drug": "1% lidocaine IV (if amiodarone unavailable)",
+              "bolus": "7 mL bolus (0.1 mL/kg), may repeat every 10 min (max 0.3 mL/kg)"
+            },
+            {
+              "drug": "Intralipid 20% IV (LA toxicity)",
+              "bolus": "100 mL (1.5 mL/kg)",
+              "infusion": "1000 mL/hr (15 mL/kg/hr)"
+            },
+            {
+              "drug": "Alteplase (suspected thrombosis)",
+              "bolus": "50 mg slow push, may repeat at 15 min – be prepared for prolonged CPR up to 60 min"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7e",
+      "section": "circulation",
+      "title": "Adult Cardiac Arrest – Asystole / PEA",
+      "priority": "Good quality CPR",
+      "doing": [
+        "Ask surgeons to stop all vagal stimuli",
+        "Start chest compressions at 100/min, monitor EtCO₂, ensure full chest recoil",
+        "Attach the defibrillator",
+        "100% O₂; stop all anesthetic agents",
+        "If using a mask/LMA: 30 compressions : 2 breaths. If the ETT is patent and secure: ventilate at 10 breaths/min, do not pause compressions",
+        "Follow 2-minute cycles: charge defibrillator → rhythm and pulse check → restart compressions",
+        "Give epinephrine 1 mg immediately, then every 4 min",
+        "If the ECG shows VF/VT, go to that card",
+        "In asystole, if P waves are present consider pacing",
+        "Read out and consider reversible causes",
+        "Get the ultrasound to help rule out causes, if skilled",
+        "If ROSC, consider post-resuscitation care as for VF/VT"
+      ],
+      "thinking": [
+        "Reversible causes: hypoxia; hypovolaemia/hemorrhage; hypo/hyperthermia; electrolyte/metabolic disturbance; tension pneumothorax; cardiac tamponade; anaphylaxis and toxins; thrombosis; if pregnant, manual uterine displacement and prepare for delivery by 5 minutes"
+      ],
+      "drugs": [
+        {
+          "drug": "Hyperkalaemia treatment",
+          "bolus": "10 mL 10% calcium chloride slow push; albuterol 12 puffs into circuit or 250 mcg IV bolus; 10 units actrapid in 250 mL 10% dextrose at 500 mL/hr"
+        },
+        {
+          "drug": "Naloxone (opiate toxicity)",
+          "bolus": "400 mcg"
+        },
+        {
+          "drug": "Intralipid 20% (LA toxicity)",
+          "bolus": "100 mL (1.5 mL/kg)",
+          "infusion": "1000 mL/hr (15 mL/kg/hr)"
+        },
+        {
+          "drug": "Beta-blocker overdose",
+          "notes": "Epinephrine infusion 5 mg/50 mL via CVL 0–20 mL/hr; isoprenaline bolus 200 mcg titrated 1 mL boluses; high-dose insulin – bolus 50 mL 50% dextrose + 70 u actrapid, infusion 100 u actrapid/50 mL at 35 mL/hr with 10% dextrose at 250 mL/hr (monitor glucose & K⁺ every 15–30 min)"
+        },
+        {
+          "drug": "Alteplase (thrombosis)",
+          "bolus": "50 mg slow push, may repeat at 15 min"
+        }
+      ],
+      "crossRefs": [
+        "6e",
+        "19e",
+        "30d",
+        "35r"
+      ],
+      "sectionLabel": "Circulation",
+      "book": "emergencies",
+      "sectionTag": "C",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Ask surgeons to stop all vagal stimuli",
+            "Start chest compressions at 100/min, monitor EtCO₂, ensure full chest recoil",
+            "Attach the defibrillator",
+            "100% O₂; stop all anesthetic agents",
+            "If using a mask/LMA: 30 compressions : 2 breaths. If the ETT is patent and secure: ventilate at 10 breaths/min, do not pause compressions",
+            "Follow 2-minute cycles: charge defibrillator → rhythm and pulse check → restart compressions",
+            "Give epinephrine 1 mg immediately, then every 4 min",
+            "If the ECG shows VF/VT, go to that card",
+            "In asystole, if P waves are present consider pacing",
+            "Read out and consider reversible causes",
+            "Get the ultrasound to help rule out causes, if skilled",
+            "If ROSC, consider post-resuscitation care as for VF/VT"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Reversible causes: hypoxia; hypovolaemia/hemorrhage; hypo/hyperthermia; electrolyte/metabolic disturbance; tension pneumothorax; cardiac tamponade; anaphylaxis and toxins; thrombosis; if pregnant, manual uterine displacement and prepare for delivery by 5 minutes"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Hyperkalaemia treatment",
+              "bolus": "10 mL 10% calcium chloride slow push; albuterol 12 puffs into circuit or 250 mcg IV bolus; 10 units actrapid in 250 mL 10% dextrose at 500 mL/hr"
+            },
+            {
+              "drug": "Naloxone (opiate toxicity)",
+              "bolus": "400 mcg"
+            },
+            {
+              "drug": "Intralipid 20% (LA toxicity)",
+              "bolus": "100 mL (1.5 mL/kg)",
+              "infusion": "1000 mL/hr (15 mL/kg/hr)"
+            },
+            {
+              "drug": "Beta-blocker overdose",
+              "notes": "Epinephrine infusion 5 mg/50 mL via CVL 0–20 mL/hr; isoprenaline bolus 200 mcg titrated 1 mL boluses; high-dose insulin – bolus 50 mL 50% dextrose + 70 u actrapid, infusion 100 u actrapid/50 mL at 35 mL/hr with 10% dextrose at 250 mL/hr (monitor glucose & K⁺ every 15–30 min)"
+            },
+            {
+              "drug": "Alteplase (thrombosis)",
+              "bolus": "50 mg slow push, may repeat at 15 min"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "8e",
+      "section": "circulation",
+      "title": "Pediatric Cardiac Arrest",
+      "priority": "Ensure adequate oxygenation and good CPR",
+      "doing": [
+        "Ask surgeons to stop all vagal stimuli",
+        "100% O₂, stop anesthetic agents, give 2 breaths",
+        "Start chest compressions at 120/min, monitor EtCO₂, ensure full chest recoil",
+        "If using a mask/LMA: 15 compressions : 2 breaths. If the ETT is patent and secure: ventilate at 15 breaths/min, do not pause compressions",
+        "Attach the defibrillator",
+        "Ensure IV access; if none, establish intraosseous access without delay",
+        "Follow 2-minute cycles: charge defibrillator at 4 J/kg → rhythm check ± shock → restart compressions",
+        "If VF/VT: shock immediately, then every cycle; give epinephrine 10 mcg/kg straight after the 2nd shock then every 4 min; give amiodarone 5 mg/kg straight after the 3rd shock",
+        "If asystole/PEA: give epinephrine as soon as possible, then every 4 min",
+        "Atropine 20 mcg/kg is only used for vagal-associated bradycardia",
+        "Read out and consider reversible causes",
+        "Get the ultrasound to rule out causes, if skilled",
+        "If ROSC, follow adult post-resuscitation care"
+      ],
+      "thinking": [
+        "Reversible causes (most common in bold): hypoxia & vagal tone; hypovolaemia/hemorrhage/anaphylaxis; hypo/hyperthermia; electrolyte/metabolic disturbance; tension pneumothorax; cardiac tamponade; anaphylaxis & toxins; thrombosis"
+      ],
+      "drugs": [
+        {
+          "drug": "Weight estimate",
+          "peds": "<1 yr = (months/2)+4; 1–5 yr = (yrs × 2)+8; 6–12 yr = (yrs × 3)+7"
+        },
+        {
+          "drug": "Defibrillation energy",
+          "peds": "4 J/kg; use attenuated pediatric pads for <8 yr if available"
+        },
+        {
+          "drug": "Uncuffed ETT",
+          "peds": "Preterm <1.5 kg = 2.5; preterm 1.5–3 kg = 3; <1 yr = 3.5–4; >1 yr = (age/4)+4"
+        },
+        {
+          "drug": "Fluid bolus",
+          "peds": "20 mL/kg"
+        },
+        {
+          "drug": "Epinephrine",
+          "peds": "IV = 10 mcg/kg (0.1 mL/kg of 1:10,000); ETT = 100 mcg/kg (0.1 mL/kg of 1:1,000)"
+        },
+        {
+          "drug": "Amiodarone",
+          "peds": "5 mg/kg"
+        },
+        {
+          "drug": "Atropine",
+          "peds": "20 mcg/kg IV or IM"
+        },
+        {
+          "drug": "Glucose 10%",
+          "peds": "2 mL/kg"
+        },
+        {
+          "drug": "Succinylcholine",
+          "peds": "IV 2 mg/kg; IM 4 mg/kg"
+        },
+        {
+          "drug": "Calcium chloride 10%",
+          "peds": "0.1–0.2 mL/kg"
+        },
+        {
+          "drug": "Naloxone",
+          "peds": "10 mcg/kg"
+        }
+      ],
+      "crossRefs": [
+        "7e",
+        "9e"
+      ],
+      "sectionLabel": "Circulation",
+      "book": "emergencies",
+      "sectionTag": "C",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Ask surgeons to stop all vagal stimuli",
+            "100% O₂, stop anesthetic agents, give 2 breaths",
+            "Start chest compressions at 120/min, monitor EtCO₂, ensure full chest recoil",
+            "If using a mask/LMA: 15 compressions : 2 breaths. If the ETT is patent and secure: ventilate at 15 breaths/min, do not pause compressions",
+            "Attach the defibrillator",
+            "Ensure IV access; if none, establish intraosseous access without delay",
+            "Follow 2-minute cycles: charge defibrillator at 4 J/kg → rhythm check ± shock → restart compressions",
+            "If VF/VT: shock immediately, then every cycle; give epinephrine 10 mcg/kg straight after the 2nd shock then every 4 min; give amiodarone 5 mg/kg straight after the 3rd shock",
+            "If asystole/PEA: give epinephrine as soon as possible, then every 4 min",
+            "Atropine 20 mcg/kg is only used for vagal-associated bradycardia",
+            "Read out and consider reversible causes",
+            "Get the ultrasound to rule out causes, if skilled",
+            "If ROSC, follow adult post-resuscitation care"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Reversible causes (most common in bold): hypoxia & vagal tone; hypovolaemia/hemorrhage/anaphylaxis; hypo/hyperthermia; electrolyte/metabolic disturbance; tension pneumothorax; cardiac tamponade; anaphylaxis & toxins; thrombosis"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Weight estimate",
+              "peds": "<1 yr = (months/2)+4; 1–5 yr = (yrs × 2)+8; 6–12 yr = (yrs × 3)+7"
+            },
+            {
+              "drug": "Defibrillation energy",
+              "peds": "4 J/kg; use attenuated pediatric pads for <8 yr if available"
+            },
+            {
+              "drug": "Uncuffed ETT",
+              "peds": "Preterm <1.5 kg = 2.5; preterm 1.5–3 kg = 3; <1 yr = 3.5–4; >1 yr = (age/4)+4"
+            },
+            {
+              "drug": "Fluid bolus",
+              "peds": "20 mL/kg"
+            },
+            {
+              "drug": "Epinephrine",
+              "peds": "IV = 10 mcg/kg (0.1 mL/kg of 1:10,000); ETT = 100 mcg/kg (0.1 mL/kg of 1:1,000)"
+            },
+            {
+              "drug": "Amiodarone",
+              "peds": "5 mg/kg"
+            },
+            {
+              "drug": "Atropine",
+              "peds": "20 mcg/kg IV or IM"
+            },
+            {
+              "drug": "Glucose 10%",
+              "peds": "2 mL/kg"
+            },
+            {
+              "drug": "Succinylcholine",
+              "peds": "IV 2 mg/kg; IM 4 mg/kg"
+            },
+            {
+              "drug": "Calcium chloride 10%",
+              "peds": "0.1–0.2 mL/kg"
+            },
+            {
+              "drug": "Naloxone",
+              "peds": "10 mcg/kg"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "9e",
+      "section": "circulation",
+      "title": "Pediatric Emergency Calculations",
+      "priority": "Reference table — weight-based equipment & drug doses by age",
+      "doing": [],
+      "thinking": [
+        "Follow all drugs with an appropriate large flush. ETT sizes shown are uncuffed; consider dropping 0.5–1 mm for cuffed tubes. Calculations are rounded for clinical use."
+      ],
+      "drugs": [],
+      "pedsTable": {
+        "columns": [
+          "Age/Weight",
+          "Normal HR",
+          "Energy (J)",
+          "ETT (mm)",
+          "ETT oral length (cm)",
+          "ETT nasal length (cm)",
+          "LMA size",
+          "Fluid bolus (mL)",
+          "Epinephrine 1:10,000 (mL)",
+          "Amiodarone (mg)",
+          "10% Glucose (mL)",
+          "Sux IV (mg)",
+          "Sux IM (mg)",
+          "Atropine (mcg)"
+        ],
+        "rows": [
+          [
+            "2 mo / 5 kg",
+            "100–160",
+            "20",
+            "3.5",
+            "10",
+            "12",
+            "1.5",
+            "100",
+            "0.5",
+            "25",
+            "10",
+            "10",
+            "20",
+            "100"
+          ],
+          [
+            "6 mo / 7 kg",
+            "100–160",
+            "28",
+            "3.5–4",
+            "10.5",
+            "12",
+            "1.5",
+            "140",
+            "0.7",
+            "35",
+            "14",
+            "14",
+            "28",
+            "140"
+          ],
+          [
+            "1 yr / 10 kg",
+            "90–140",
+            "40",
+            "4",
+            "11",
+            "14",
+            "2",
+            "200",
+            "1",
+            "50",
+            "20",
+            "20",
+            "40",
+            "200"
+          ],
+          [
+            "3 yr / 14 kg",
+            "90–140",
+            "55",
+            "4.5",
+            "13",
+            "16",
+            "2",
+            "280",
+            "1.4",
+            "70",
+            "30",
+            "30",
+            "55",
+            "280"
+          ],
+          [
+            "5 yr / 18 kg",
+            "80–130",
+            "70",
+            "5.5",
+            "15",
+            "19",
+            "2",
+            "360",
+            "1.8",
+            "90",
+            "35",
+            "35",
+            "72",
+            "360"
+          ],
+          [
+            "10 yr / 37 kg",
+            "80–130",
+            "150",
+            "6.5",
+            "17",
+            "21",
+            "3",
+            "740",
+            "3.7",
+            "185",
+            "75",
+            "75",
+            "150",
+            "600"
+          ]
+        ]
+      },
+      "crossRefs": [
+        "8e"
+      ],
+      "sectionLabel": "Circulation",
+      "book": "emergencies",
+      "sectionTag": "C",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": []
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Follow all drugs with an appropriate large flush. ETT sizes shown are uncuffed; consider dropping 0.5–1 mm for cuffed tubes. Calculations are rounded for clinical use."
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": []
+        }
+      }
+    },
+    {
+      "id": "10e",
+      "section": "circulation",
+      "title": "Anaphylaxis",
+      "priority": "Cease triggers, give epinephrine and IV fluid",
+      "doing": [
+        "Get the anaphylaxis box (or follow ANZAAG task cards)",
+        "Stop or remove causative agents (drugs, blood products, latex, chlorhexidine, etc.)",
+        "Consider early intubation (risk of airway edema)",
+        "Ensure large-bore IV access; consider intraosseous access if none",
+        "Treat based on grade of anaphylaxis (see grading table)",
+        "Give IV epinephrine and fluids as soon as possible (if no IV: IM epinephrine 0.5 mL of 1:1,000, repeat every 5 min)",
+        "Repeat epinephrine and fluid boluses every 1–2 minutes as required",
+        "If more than 3 epinephrine boluses are given, start an epinephrine infusion",
+        "Refractory bronchospasm: albuterol puffs → IV bolus → infusion",
+        "Refractory hypotension: epinephrine infusion → repeat fluid bolus → norepinephrine ± vasopressin infusion",
+        "Monitor treatment success: MAP, SpO₂, airway pressures, EtCO₂ waveform, echo",
+        "Place an arterial line",
+        "Consider abandoning surgery",
+        "Once stabilized: dexamethasone 12 mg (0.6 mg/kg)"
+      ],
+      "thinking": [
+        "Consider differentials such as tension pneumothorax or auto-PEEP",
+        "Collect tryptase levels (yellow-top tube) at time of event, 4 hours, and 24 hours"
+      ],
+      "drugs": [
+        {
+          "drug": "IV epinephrine by grade — Grade 2 (mod/severe)",
+          "bolus": "10–20 mcg (0.1–0.2 mL of 1:10,000)",
+          "peds": "2 mcg/kg (dilute 1 mg in 50 mL = 20 mcg/mL, give 0.1 mL/kg)"
+        },
+        {
+          "drug": "IV epinephrine by grade — Grade 3 (life-threatening)",
+          "bolus": "50–100 mcg (0.5–1 mL of 1:10,000)",
+          "peds": "4–10 mcg/kg (0.2–0.5 mL/kg of the 20 mcg/mL dilution)"
+        },
+        {
+          "drug": "IV epinephrine by grade — Grade 4 (cardiac arrest)",
+          "bolus": "1 mg (10 mL of 1:10,000)",
+          "peds": "0.1 mL/kg of 1:10,000"
+        },
+        {
+          "drug": "Fluid bolus by grade — Grade 2",
+          "bolus": "Rapid 1 L",
+          "peds": "20 mL/kg"
+        },
+        {
+          "drug": "Fluid bolus by grade — Grade 3",
+          "bolus": "Rapid 1–2 L",
+          "peds": "20 mL/kg"
+        },
+        {
+          "drug": "Fluid bolus by grade — Grade 4",
+          "bolus": "Rapid 2–3 L",
+          "peds": "20 mL/kg"
+        },
+        {
+          "drug": "Epinephrine / Norepinephrine infusion (no CVL needed to start)",
+          "infusion": "3 mg in 50 mL saline, infuse 3–40 mL/hr",
+          "peds": "0.15 mg/kg made to 50 mL, infuse 1–40 mL/hr"
+        },
+        {
+          "drug": "Albuterol IV",
+          "bolus": "100–250 mcg",
+          "infusion": "5 mg in 50 mL saline, infuse 1–10 mL/hr",
+          "peds": "<2 yr = 5 mcg/kg; 2–18 yr = 15 mcg/kg (max 250 mcg); infusion 5 mcg/kg/min for 1 hr then 1–2 mcg/kg/min"
+        },
+        {
+          "drug": "Vasopressin (no CVL needed to start)",
+          "bolus": "20 units in 20 mL saline, bolus 1 mL",
+          "infusion": "1–4 mL/hr",
+          "peds": "1 unit/kg made to 50 mL, bolus 2 mL, infuse 1–3 mL/hr"
+        },
+        {
+          "drug": "Dexamethasone (once stabilized)",
+          "bolus": "12 mg",
+          "peds": "0.6 mg/kg"
+        }
+      ],
+      "grading": {
+        "columns": [
+          "Grade 1 (Mild)",
+          "Grade 2 (Mod/severe)",
+          "Grade 3 (Life-threatening)",
+          "Grade 4 (Cardiac arrest)"
+        ],
+        "rows": [
+          [
+            "Mucocutaneous signs ± angioedema; bronchospasm",
+            "Mucocutaneous signs; ↓MAP, ↑HR; severe bronchospasm",
+            "± Mucocutaneous signs; arrhythmias & CVS collapse",
+            "PEA cardiac arrest; adult SBP <50 mmHg; absent EtCO₂"
+          ]
+        ]
+      },
+      "crossRefs": [
+        "4e",
+        "11e"
+      ],
+      "sectionLabel": "Circulation",
+      "book": "emergencies",
+      "sectionTag": "C",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Get the anaphylaxis box (or follow ANZAAG task cards)",
+            "Stop or remove causative agents (drugs, blood products, latex, chlorhexidine, etc.)",
+            "Consider early intubation (risk of airway edema)",
+            "Ensure large-bore IV access; consider intraosseous access if none",
+            "Treat based on grade of anaphylaxis (see grading table)",
+            "Give IV epinephrine and fluids as soon as possible (if no IV: IM epinephrine 0.5 mL of 1:1,000, repeat every 5 min)",
+            "Repeat epinephrine and fluid boluses every 1–2 minutes as required",
+            "If more than 3 epinephrine boluses are given, start an epinephrine infusion",
+            "Refractory bronchospasm: albuterol puffs → IV bolus → infusion",
+            "Refractory hypotension: epinephrine infusion → repeat fluid bolus → norepinephrine ± vasopressin infusion",
+            "Monitor treatment success: MAP, SpO₂, airway pressures, EtCO₂ waveform, echo",
+            "Place an arterial line",
+            "Consider abandoning surgery",
+            "Once stabilized: dexamethasone 12 mg (0.6 mg/kg)"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Consider differentials such as tension pneumothorax or auto-PEEP",
+            "Collect tryptase levels (yellow-top tube) at time of event, 4 hours, and 24 hours"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "IV epinephrine by grade — Grade 2 (mod/severe)",
+              "bolus": "10–20 mcg (0.1–0.2 mL of 1:10,000)",
+              "peds": "2 mcg/kg (dilute 1 mg in 50 mL = 20 mcg/mL, give 0.1 mL/kg)"
+            },
+            {
+              "drug": "IV epinephrine by grade — Grade 3 (life-threatening)",
+              "bolus": "50–100 mcg (0.5–1 mL of 1:10,000)",
+              "peds": "4–10 mcg/kg (0.2–0.5 mL/kg of the 20 mcg/mL dilution)"
+            },
+            {
+              "drug": "IV epinephrine by grade — Grade 4 (cardiac arrest)",
+              "bolus": "1 mg (10 mL of 1:10,000)",
+              "peds": "0.1 mL/kg of 1:10,000"
+            },
+            {
+              "drug": "Fluid bolus by grade — Grade 2",
+              "bolus": "Rapid 1 L",
+              "peds": "20 mL/kg"
+            },
+            {
+              "drug": "Fluid bolus by grade — Grade 3",
+              "bolus": "Rapid 1–2 L",
+              "peds": "20 mL/kg"
+            },
+            {
+              "drug": "Fluid bolus by grade — Grade 4",
+              "bolus": "Rapid 2–3 L",
+              "peds": "20 mL/kg"
+            },
+            {
+              "drug": "Epinephrine / Norepinephrine infusion (no CVL needed to start)",
+              "infusion": "3 mg in 50 mL saline, infuse 3–40 mL/hr",
+              "peds": "0.15 mg/kg made to 50 mL, infuse 1–40 mL/hr"
+            },
+            {
+              "drug": "Albuterol IV",
+              "bolus": "100–250 mcg",
+              "infusion": "5 mg in 50 mL saline, infuse 1–10 mL/hr",
+              "peds": "<2 yr = 5 mcg/kg; 2–18 yr = 15 mcg/kg (max 250 mcg); infusion 5 mcg/kg/min for 1 hr then 1–2 mcg/kg/min"
+            },
+            {
+              "drug": "Vasopressin (no CVL needed to start)",
+              "bolus": "20 units in 20 mL saline, bolus 1 mL",
+              "infusion": "1–4 mL/hr",
+              "peds": "1 unit/kg made to 50 mL, bolus 2 mL, infuse 1–3 mL/hr"
+            },
+            {
+              "drug": "Dexamethasone (once stabilized)",
+              "bolus": "12 mg",
+              "peds": "0.6 mg/kg"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "11e",
+      "section": "everything",
+      "title": "Myocardial Ischaemia – Intraoperative",
+      "priority": "Decrease myocardial O₂ consumption and increase myocardial O₂ supply",
+      "doing": [
+        "Titrate inspired O₂ to a normal SpO₂ of 97–99% (PaO₂ 80–100 mmHg)",
+        "Check depth of anesthesia; ensure adequate analgesia",
+        "Control heart rate, target 60–80 bpm: minimize surgical stimulation where possible; esmolol or metoprolol boluses titrated to effect",
+        "Target MAP 65–75 mmHg: if MAP <65, use vasopressors or ephedrine cautiously; if refractory, consider an inotrope (e.g. dobutamine) or inodilator (e.g. milrinone), or cardiothoracic referral for an intra-aortic balloon pump; if MAP >75, use a GTN infusion",
+        "Avoid hypovolaemia — replace surgical losses and transfuse to Hb 80–90 g/L",
+        "If ongoing signs of ischaemia, start a GTN infusion regardless of MAP and support MAP with drugs/IABP as required",
+        "Expedite the end of surgery"
+      ],
+      "thinking": [
+        "Other intra-op tasks: discuss anticoagulation with the surgeon (heparin ± aspirin, clopidogrel, enoxaparin); echo to assess myocardial performance/volume status; further hemodynamic monitoring; baseline troponin then at 3 or 6 hours",
+        "Post-op tasks: 12-lead ECG and ongoing telemetry; immediate cardiology referral (consider PCI)"
+      ],
+      "drugs": [
+        {
+          "drug": "Esmolol",
+          "bolus": "20 mg boluses titrated"
+        },
+        {
+          "drug": "Metoprolol",
+          "bolus": "2.5 mg boluses titrated (max 15 mg)"
+        },
+        {
+          "drug": "Phenylephrine",
+          "bolus": "50 mcg bolus"
+        },
+        {
+          "drug": "Metaraminol",
+          "bolus": "0.5 mg bolus"
+        },
+        {
+          "drug": "Ephedrine",
+          "bolus": "6 mg bolus, titrate"
+        },
+        {
+          "drug": "Norepinephrine",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr, preferably via CVL"
+        },
+        {
+          "drug": "Epinephrine",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr, preferably via CVL"
+        },
+        {
+          "drug": "Dobutamine",
+          "infusion": "250 mg in 50 mL saline, infuse 0–10 mL/hr (peripheral OK)"
+        },
+        {
+          "drug": "Milrinone",
+          "infusion": "10 mg in 50 mL saline, infuse at 5 or 10 mL/hr only"
+        },
+        {
+          "drug": "GTN",
+          "infusion": "50 mg in 50 mL saline, infuse 1–12 mL/hr titrated to MAP/ECG"
+        }
+      ],
+      "crossRefs": [],
+      "sectionLabel": "Everything Else",
+      "book": "emergencies",
+      "sectionTag": "E",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Titrate inspired O₂ to a normal SpO₂ of 97–99% (PaO₂ 80–100 mmHg)",
+            "Check depth of anesthesia; ensure adequate analgesia",
+            "Control heart rate, target 60–80 bpm: minimize surgical stimulation where possible; esmolol or metoprolol boluses titrated to effect",
+            "Target MAP 65–75 mmHg: if MAP <65, use vasopressors or ephedrine cautiously; if refractory, consider an inotrope (e.g. dobutamine) or inodilator (e.g. milrinone), or cardiothoracic referral for an intra-aortic balloon pump; if MAP >75, use a GTN infusion",
+            "Avoid hypovolaemia — replace surgical losses and transfuse to Hb 80–90 g/L",
+            "If ongoing signs of ischaemia, start a GTN infusion regardless of MAP and support MAP with drugs/IABP as required",
+            "Expedite the end of surgery"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Other intra-op tasks: discuss anticoagulation with the surgeon (heparin ± aspirin, clopidogrel, enoxaparin); echo to assess myocardial performance/volume status; further hemodynamic monitoring; baseline troponin then at 3 or 6 hours",
+            "Post-op tasks: 12-lead ECG and ongoing telemetry; immediate cardiology referral (consider PCI)"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Esmolol",
+              "bolus": "20 mg boluses titrated"
+            },
+            {
+              "drug": "Metoprolol",
+              "bolus": "2.5 mg boluses titrated (max 15 mg)"
+            },
+            {
+              "drug": "Phenylephrine",
+              "bolus": "50 mcg bolus"
+            },
+            {
+              "drug": "Metaraminol",
+              "bolus": "0.5 mg bolus"
+            },
+            {
+              "drug": "Ephedrine",
+              "bolus": "6 mg bolus, titrate"
+            },
+            {
+              "drug": "Norepinephrine",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr, preferably via CVL"
+            },
+            {
+              "drug": "Epinephrine",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr, preferably via CVL"
+            },
+            {
+              "drug": "Dobutamine",
+              "infusion": "250 mg in 50 mL saline, infuse 0–10 mL/hr (peripheral OK)"
+            },
+            {
+              "drug": "Milrinone",
+              "infusion": "10 mg in 50 mL saline, infuse at 5 or 10 mL/hr only"
+            },
+            {
+              "drug": "GTN",
+              "infusion": "50 mg in 50 mL saline, infuse 1–12 mL/hr titrated to MAP/ECG"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "12e",
+      "section": "circulation",
+      "title": "Massive Hemorrhage",
+      "priority": "Volume replacement and good teamwork",
+      "doing": [
+        "IV access: two 16G cannulae ± rapid infusion catheter (use the largest IV available, remove any extension)",
+        "Talk to the surgeon — all efforts being made for surgical control of bleeding (compression, packing, direct pressure, arterial/aortic clamping)?",
+        "Give tranexamic acid: 1 g (standard & obstetric) or 2 g (trauma)",
+        "Call the blood bank: \"I am requesting a (Crimson/Standard/Obstetric) Stat Pack\"",
+        "If ongoing massive bleeding with shock: call the blood bank and state \"I am activating a (Crimson/Standard/Obstetric) Massive Hemorrhage Protocol\"; assemble a team with clear roles (transfusion coordinator, MHP runner, blood checkers, people to hang blood); with all MHP packs, give IV calcium chloride 10 mL via a fast, separate IV",
+        "Set up a rapid infusion device ± cell saver",
+        "Insert an arterial line",
+        "Use permissive hypotension — MAP 55–65 mmHg until haemostasis is established (except head injuries, where the target is MAP 80–90 mmHg)",
+        "Aggressively keep the patient warm (>36 °C / 96.8 °F): warm fluids, warm OR, forced-air warmer",
+        "Check bloods every 30 min: coagulation studies (TEG if available), FBC, blood gas, ionised calcium",
+        "Stand down the MHP once clinically stable and change to targeted transfusion"
+      ],
+      "thinking": [
+        "Code Crimson (trauma): use an ABC score ≥2 as the threshold for calling the stat pack — 1 point each for penetrating mechanism, SBP ≤90 mmHg, positive eFAST, HR ≥120 bpm",
+        "Smaller centres should only give platelets if the platelet count is <75 ×10⁹/L",
+        "A new platelet infusion set is preferred but not essential",
+        "Do not give calcium chloride through the same line as blood products; keep a separate IV running crystalloid quickly"
+      ],
+      "drugs": [
+        {
+          "drug": "Tranexamic acid",
+          "bolus": "1 g over 10 min (standard/obstetric) or 2 g (trauma)",
+          "peds": "15 mg/kg diluted, over 10 min (max 1 g)"
+        },
+        {
+          "drug": "FFP (INR >1.5 or APTT >40)",
+          "bolus": "4 units",
+          "peds": "20 mL/kg"
+        },
+        {
+          "drug": "Cryoprecipitate (fibrinogen <2 g/L)",
+          "bolus": "3 units",
+          "peds": "5 mL/kg"
+        },
+        {
+          "drug": "Platelets (<75)",
+          "bolus": "1 adult pack",
+          "peds": "10 mL/kg"
+        },
+        {
+          "drug": "Calcium chloride (ionised Ca <1.1 mmol/L)",
+          "bolus": "10 mL",
+          "peds": "0.1 mL/kg"
+        },
+        {
+          "drug": "Factor VIIa (in consultation with haematologist)",
+          "bolus": "6 mg (90 mcg/kg)"
+        }
+      ],
+      "bloodCompat": {
+        "rbc": [
+          [
+            "A",
+            "A, O"
+          ],
+          [
+            "B",
+            "B, O"
+          ],
+          [
+            "AB",
+            "A, B, AB, O"
+          ],
+          [
+            "O",
+            "O"
+          ]
+        ],
+        "ffp": [
+          [
+            "A",
+            "A, AB"
+          ],
+          [
+            "B",
+            "B, AB"
+          ],
+          [
+            "AB",
+            "AB"
+          ],
+          [
+            "O",
+            "O, A, B, AB"
+          ]
+        ],
+        "note": "Platelets/cryoprecipitate: in a crisis, ABO and Rh group are not critical — check with the blood bank"
+      },
+      "crossRefs": [
+        "19e",
+        "22e"
+      ],
+      "sectionLabel": "Circulation",
+      "book": "emergencies",
+      "sectionTag": "C",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "IV access: two 16G cannulae ± rapid infusion catheter (use the largest IV available, remove any extension)",
+            "Talk to the surgeon — all efforts being made for surgical control of bleeding (compression, packing, direct pressure, arterial/aortic clamping)?",
+            "Give tranexamic acid: 1 g (standard & obstetric) or 2 g (trauma)",
+            "Call the blood bank: \"I am requesting a (Crimson/Standard/Obstetric) Stat Pack\"",
+            "If ongoing massive bleeding with shock: call the blood bank and state \"I am activating a (Crimson/Standard/Obstetric) Massive Hemorrhage Protocol\"; assemble a team with clear roles (transfusion coordinator, MHP runner, blood checkers, people to hang blood); with all MHP packs, give IV calcium chloride 10 mL via a fast, separate IV",
+            "Set up a rapid infusion device ± cell saver",
+            "Insert an arterial line",
+            "Use permissive hypotension — MAP 55–65 mmHg until haemostasis is established (except head injuries, where the target is MAP 80–90 mmHg)",
+            "Aggressively keep the patient warm (>36 °C / 96.8 °F): warm fluids, warm OR, forced-air warmer",
+            "Check bloods every 30 min: coagulation studies (TEG if available), FBC, blood gas, ionised calcium",
+            "Stand down the MHP once clinically stable and change to targeted transfusion"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Code Crimson (trauma): use an ABC score ≥2 as the threshold for calling the stat pack — 1 point each for penetrating mechanism, SBP ≤90 mmHg, positive eFAST, HR ≥120 bpm",
+            "Smaller centres should only give platelets if the platelet count is <75 ×10⁹/L",
+            "A new platelet infusion set is preferred but not essential",
+            "Do not give calcium chloride through the same line as blood products; keep a separate IV running crystalloid quickly"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Tranexamic acid",
+              "bolus": "1 g over 10 min (standard/obstetric) or 2 g (trauma)",
+              "peds": "15 mg/kg diluted, over 10 min (max 1 g)"
+            },
+            {
+              "drug": "FFP (INR >1.5 or APTT >40)",
+              "bolus": "4 units",
+              "peds": "20 mL/kg"
+            },
+            {
+              "drug": "Cryoprecipitate (fibrinogen <2 g/L)",
+              "bolus": "3 units",
+              "peds": "5 mL/kg"
+            },
+            {
+              "drug": "Platelets (<75)",
+              "bolus": "1 adult pack",
+              "peds": "10 mL/kg"
+            },
+            {
+              "drug": "Calcium chloride (ionised Ca <1.1 mmol/L)",
+              "bolus": "10 mL",
+              "peds": "0.1 mL/kg"
+            },
+            {
+              "drug": "Factor VIIa (in consultation with haematologist)",
+              "bolus": "6 mg (90 mcg/kg)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "13e",
+      "section": "everything",
+      "title": "Air / Gas Embolism",
+      "priority": "Restore cardio-respiratory stability",
+      "doing": [
+        "100% oxygen",
+        "Stop nitrous oxide",
+        "Stop the source of air/gas entry: lower the surgical site below the level of the heart and flood with irrigation fluid; search for an entry point such as an open venous line; in neurosurgery, consider intermittent jugular venous compression",
+        "Place the patient head-down, left tilt",
+        "Remove pneumoperitoneum if in use",
+        "If a CVL is in place, aspirate the line",
+        "Consider chest compressions at 100/min even if not in arrest — this is known to help break up volumes of air",
+        "Aim for MAP >65 mmHg: assess fluid responsiveness with a 500 mL crystalloid bolus; use vasoactive medications such as norepinephrine, epinephrine, or dobutamine",
+        "Consider early transoesophageal echo to rule out other causes",
+        "Consider referral for hyperbaric oxygen therapy"
+      ],
+      "thinking": [
+        "Signs: respiratory — falling EtCO₂ (most sensitive), falling SpO₂, pulmonary edema, bronchospasm; cardiovascular — shock, tachycardia, rising pulmonary artery pressures, cardiovascular collapse",
+        "Use of PEEP is controversial — may increase the risk of paradoxical air embolism through a patent foramen ovale (present in 10–30% of the population)",
+        "Hyperbaric oxygen treatment up to 6 hours post-event may improve outcomes in paradoxical air embolism"
+      ],
+      "drugs": [
+        {
+          "drug": "Epinephrine",
+          "bolus": "10–100 mcg (0.1–1 mL of 1:10,000)",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr",
+          "peds": "0.01–0.05 mL/kg of 1:10,000"
+        },
+        {
+          "drug": "Norepinephrine",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+        },
+        {
+          "drug": "Dobutamine",
+          "infusion": "250 mg in 50 mL saline, infuse 0–10 mL/hr (peripheral OK)"
+        },
+        {
+          "drug": "Crystalloid bolus",
+          "bolus": "500 mL",
+          "peds": "20 mL/kg"
+        }
+      ],
+      "crossRefs": [],
+      "sectionLabel": "Everything Else",
+      "book": "emergencies",
+      "sectionTag": "E",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "100% oxygen",
+            "Stop nitrous oxide",
+            "Stop the source of air/gas entry: lower the surgical site below the level of the heart and flood with irrigation fluid; search for an entry point such as an open venous line; in neurosurgery, consider intermittent jugular venous compression",
+            "Place the patient head-down, left tilt",
+            "Remove pneumoperitoneum if in use",
+            "If a CVL is in place, aspirate the line",
+            "Consider chest compressions at 100/min even if not in arrest — this is known to help break up volumes of air",
+            "Aim for MAP >65 mmHg: assess fluid responsiveness with a 500 mL crystalloid bolus; use vasoactive medications such as norepinephrine, epinephrine, or dobutamine",
+            "Consider early transoesophageal echo to rule out other causes",
+            "Consider referral for hyperbaric oxygen therapy"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Signs: respiratory — falling EtCO₂ (most sensitive), falling SpO₂, pulmonary edema, bronchospasm; cardiovascular — shock, tachycardia, rising pulmonary artery pressures, cardiovascular collapse",
+            "Use of PEEP is controversial — may increase the risk of paradoxical air embolism through a patent foramen ovale (present in 10–30% of the population)",
+            "Hyperbaric oxygen treatment up to 6 hours post-event may improve outcomes in paradoxical air embolism"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Epinephrine",
+              "bolus": "10–100 mcg (0.1–1 mL of 1:10,000)",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr",
+              "peds": "0.01–0.05 mL/kg of 1:10,000"
+            },
+            {
+              "drug": "Norepinephrine",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+            },
+            {
+              "drug": "Dobutamine",
+              "infusion": "250 mg in 50 mL saline, infuse 0–10 mL/hr (peripheral OK)"
+            },
+            {
+              "drug": "Crystalloid bolus",
+              "bolus": "500 mL",
+              "peds": "20 mL/kg"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "14e",
+      "section": "everything",
+      "title": "Hemolytic Transfusion Reaction",
+      "priority": "Early recognition and full ABC resuscitation",
+      "doing": [
+        "Stop the transfusion and flush the line",
+        "Recheck the blood product against the patient",
+        "Minimise volatile agent but maintain anesthesia",
+        "Resuscitate by ABCs: consider early intubation; treat bronchospasm if present; address cardiovascular instability targeting MAP >65 mmHg with leg elevation ± 500 mL fluid bolus, then an epinephrine infusion (recommended first-line given diagnostic overlap with anaphylaxis); maintain urine output (aim 1 mL/kg/hr) with IV furosemide",
+        "Place an arterial line, CVL, and urinary catheter (collect urine for analysis)",
+        "Take bloods: U&E, FBC, coagulation studies, and a sample for repeat cross-match",
+        "Watch for coagulopathy and consult haematology early",
+        "Consider IV methylprednisolone 250 mg slow injection",
+        "Collate all blood products and return them to the lab",
+        "Contact ICU"
+      ],
+      "thinking": [
+        "Signs are very similar to anaphylaxis: CVS — shock, tachycardia/arrhythmias, cardiac arrest; respiratory — bronchospasm, wheeze, cough/stridor, hypoxia, raised airway pressure; other — urticaria, edema, bleeding from wound sites/membranes, dark-coloured urine",
+        "Consider differentials such as anaphylaxis or cardiogenic shock"
+      ],
+      "drugs": [
+        {
+          "drug": "Epinephrine/Norepinephrine infusion",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+        },
+        {
+          "drug": "Fluid bolus",
+          "bolus": "500 mL ± leg elevation",
+          "peds": "20 mL/kg"
+        },
+        {
+          "drug": "Furosemide",
+          "bolus": "35 mg IV"
+        },
+        {
+          "drug": "Albuterol",
+          "bolus": "250 mcg slow push",
+          "infusion": "5 mg in 50 mL saline, infuse 0–10 mL/hr",
+          "peds": "<2 yr = 5 mcg/kg; <18 yr = 15 mcg/kg (max 250 mcg)"
+        },
+        {
+          "drug": "Methylprednisolone",
+          "bolus": "250 mg IV slow injection"
+        }
+      ],
+      "crossRefs": [
+        "4e",
+        "10e",
+        "12e"
+      ],
+      "sectionLabel": "Everything Else",
+      "book": "emergencies",
+      "sectionTag": "E",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Stop the transfusion and flush the line",
+            "Recheck the blood product against the patient",
+            "Minimise volatile agent but maintain anesthesia",
+            "Resuscitate by ABCs: consider early intubation; treat bronchospasm if present; address cardiovascular instability targeting MAP >65 mmHg with leg elevation ± 500 mL fluid bolus, then an epinephrine infusion (recommended first-line given diagnostic overlap with anaphylaxis); maintain urine output (aim 1 mL/kg/hr) with IV furosemide",
+            "Place an arterial line, CVL, and urinary catheter (collect urine for analysis)",
+            "Take bloods: U&E, FBC, coagulation studies, and a sample for repeat cross-match",
+            "Watch for coagulopathy and consult haematology early",
+            "Consider IV methylprednisolone 250 mg slow injection",
+            "Collate all blood products and return them to the lab",
+            "Contact ICU"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Signs are very similar to anaphylaxis: CVS — shock, tachycardia/arrhythmias, cardiac arrest; respiratory — bronchospasm, wheeze, cough/stridor, hypoxia, raised airway pressure; other — urticaria, edema, bleeding from wound sites/membranes, dark-coloured urine",
+            "Consider differentials such as anaphylaxis or cardiogenic shock"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Epinephrine/Norepinephrine infusion",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+            },
+            {
+              "drug": "Fluid bolus",
+              "bolus": "500 mL ± leg elevation",
+              "peds": "20 mL/kg"
+            },
+            {
+              "drug": "Furosemide",
+              "bolus": "35 mg IV"
+            },
+            {
+              "drug": "Albuterol",
+              "bolus": "250 mcg slow push",
+              "infusion": "5 mg in 50 mL saline, infuse 0–10 mL/hr",
+              "peds": "<2 yr = 5 mcg/kg; <18 yr = 15 mcg/kg (max 250 mcg)"
+            },
+            {
+              "drug": "Methylprednisolone",
+              "bolus": "250 mg IV slow injection"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "15e",
+      "section": "everything",
+      "title": "Local Anesthetic Toxicity",
+      "color": "yellowHead",
+      "priority": "Good quality CPR and early intralipid",
+      "doing": [
+        "Stop administering LA and get the LA toxicity box (or follow AAGBI task cards)",
+        "If signs of cardiac output: consider intubation; ventilate if needed (aim EtCO₂ ~30 mmHg); confirm IV access; consider giving 20% intralipid early (bolus then infusion); if arrhythmia, use standard protocols (consider amiodarone 300 mg slow IV — avoid lidocaine, use beta-blockers with caution); support MAP with fluids and vasopressors; treat seizures with midazolam IV, repeated every minute (max 10 mg) — if refractory, perform RSI",
+        "If cardiac arrest: start CPR and be prepared to continue for up to 60 minutes; give 20% IV intralipid bolus, may repeat every 5 min up to twice; infusion 1000 mL/hr neat intralipid, double the rate at 5 min if no improvement, do not exceed the maximum dose of 840 mL; mobilise the cardiopulmonary bypass/ECMO team if available; send a blood gas and keep pH >7.25 with sodium bicarbonate 8.4% (may repeat every 2 min, ensure adequate ventilation)"
+      ],
+      "thinking": [
+        "Signs — CNS: numb tongue, tinnitus, metallic taste, slurred speech, seizures, unconsciousness. CVS: falling MAP, broad QRS, bradycardia deteriorating to PEA and asystole",
+        "Temporary pacing may be required for symptomatic bradycardia"
+      ],
+      "drugs": [
+        {
+          "drug": "Intralipid 20% (cardiac output present)",
+          "bolus": "Bolus then infusion as per dosing"
+        },
+        {
+          "drug": "Intralipid 20% (cardiac arrest)",
+          "bolus": "100 mL bolus, may repeat every 5 min, max twice",
+          "infusion": "1000 mL/hr neat, double rate at 5 min if no improvement (max total dose 840 mL)",
+          "peds": "bolus 1.5 mL/kg, repeat ×2 max every 5 min; infusion 15 mL/kg/hr, double at 5 min (max total 12 mL/kg)"
+        },
+        {
+          "drug": "Midazolam (seizures)",
+          "bolus": "2 mg IV bolus, repeat every minute (max 10 mg)",
+          "peds": "IV 0.1 mg/kg; IM 0.2 mg/kg; buccal 0.5 mg/kg, may repeat at 5 min"
+        },
+        {
+          "drug": "Sodium bicarbonate 8.4%",
+          "bolus": "50 mL slow push, may repeat every 2 min",
+          "peds": "1 mL/kg"
+        }
+      ],
+      "crossRefs": [
+        "6e",
+        "7e",
+        "8e",
+        "29d",
+        "30d",
+        "36r"
+      ],
+      "sectionLabel": "Everything Else",
+      "book": "emergencies",
+      "sectionTag": "E",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Stop administering LA and get the LA toxicity box (or follow AAGBI task cards)",
+            "If signs of cardiac output: consider intubation; ventilate if needed (aim EtCO₂ ~30 mmHg); confirm IV access; consider giving 20% intralipid early (bolus then infusion); if arrhythmia, use standard protocols (consider amiodarone 300 mg slow IV — avoid lidocaine, use beta-blockers with caution); support MAP with fluids and vasopressors; treat seizures with midazolam IV, repeated every minute (max 10 mg) — if refractory, perform RSI",
+            "If cardiac arrest: start CPR and be prepared to continue for up to 60 minutes; give 20% IV intralipid bolus, may repeat every 5 min up to twice; infusion 1000 mL/hr neat intralipid, double the rate at 5 min if no improvement, do not exceed the maximum dose of 840 mL; mobilise the cardiopulmonary bypass/ECMO team if available; send a blood gas and keep pH >7.25 with sodium bicarbonate 8.4% (may repeat every 2 min, ensure adequate ventilation)"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Signs — CNS: numb tongue, tinnitus, metallic taste, slurred speech, seizures, unconsciousness. CVS: falling MAP, broad QRS, bradycardia deteriorating to PEA and asystole",
+            "Temporary pacing may be required for symptomatic bradycardia"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Intralipid 20% (cardiac output present)",
+              "bolus": "Bolus then infusion as per dosing"
+            },
+            {
+              "drug": "Intralipid 20% (cardiac arrest)",
+              "bolus": "100 mL bolus, may repeat every 5 min, max twice",
+              "infusion": "1000 mL/hr neat, double rate at 5 min if no improvement (max total dose 840 mL)",
+              "peds": "bolus 1.5 mL/kg, repeat ×2 max every 5 min; infusion 15 mL/kg/hr, double at 5 min (max total 12 mL/kg)"
+            },
+            {
+              "drug": "Midazolam (seizures)",
+              "bolus": "2 mg IV bolus, repeat every minute (max 10 mg)",
+              "peds": "IV 0.1 mg/kg; IM 0.2 mg/kg; buccal 0.5 mg/kg, may repeat at 5 min"
+            },
+            {
+              "drug": "Sodium bicarbonate 8.4%",
+              "bolus": "50 mL slow push, may repeat every 2 min",
+              "peds": "1 mL/kg"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "16e",
+      "section": "everything",
+      "title": "Malignant Hyperthermia",
+      "color": "yellowHead",
+      "priority": "Early recognition, removal of triggers, dantrolene",
+      "doing": [
+        "Recognise the problem — if in doubt, treat",
+        "Call for the MH trolley (or distribute/follow MH task cards)",
+        "Delegate and organize help into teams",
+        "Stop volatile agents and wash out the circuit with 100% oxygen at 15 L/min; switch to TIVA",
+        "Add charcoal filters to the circuit; change soda lime if easy — do not waste time changing the machine or circuit",
+        "Give IV dantrolene and get more from the on-call pharmacist; reconstitute each vial into a 60 mL syringe with water; repeat every 10 min until control is achieved",
+        "Increase monitoring: arterial line ± CVL with serial bloods (gas every 30 min, coagulation, CK); urinary catheter aiming for output >2 mL/kg/hr; core temperature probe (rectal or bladder)",
+        "Treat complications: temperature >38.5 °C / 101.3 °F — refrigerated IV fluids (and intraperitoneal if surgical access), surface ice, cold OR; pH <7.2 — ventilate EtCO₂ to 30 cmH₂O ± sodium bicarbonate; K⁺ >7 or ECG changes — calcium chloride, insulin-dextrose infusion, albuterol puffs; arrhythmias — defibrillate, consider amiodarone ± lidocaine ± esmolol; MAP <65 mmHg — start a norepinephrine infusion",
+        "Consider abandoning surgery and ICU referral"
+      ],
+      "thinking": [
+        "Rapid diagnosis: blood gas shows a mixed respiratory and metabolic acidosis",
+        "Signs suggesting MH — Early: rising EtCO₂, masseter spasm, rising HR/arrhythmia. Developing: rising temperature/sweating, CVS instability, falling pH, rising K⁺. Late: cola-coloured urine, coagulopathy with very high CK, cardiac arrest"
+      ],
+      "drugs": [
+        {
+          "drug": "Dantrolene",
+          "bolus": "2.5 mg/kg, repeat every 10 min until control (max total 10 mg/kg / 35 vials); 9 × 20 mg vials per dose, reconstitute each in a 60 mL syringe with water"
+        },
+        {
+          "drug": "Sodium bicarbonate 8.4% (pH <7.2)",
+          "bolus": "50 mL, repeat every 2 min",
+          "peds": "1 mL/kg"
+        },
+        {
+          "drug": "Calcium chloride 10% (K⁺ >7)",
+          "bolus": "10 mL IV",
+          "peds": "0.2 mL/kg"
+        },
+        {
+          "drug": "Actrapid insulin (K⁺ >7)",
+          "notes": "10 units in 250 mL 10% dextrose over 30 min",
+          "peds": "0.1 u/kg in 2 mL/kg dextrose over 30 min"
+        },
+        {
+          "drug": "Albuterol (K⁺ >7)",
+          "bolus": "12 puffs into circuit, repeat every 20 min",
+          "peds": "2–6 puffs"
+        },
+        {
+          "drug": "Amiodarone (arrhythmias)",
+          "bolus": "300 mg slow IV push",
+          "peds": "5 mg/kg"
+        },
+        {
+          "drug": "1% Lidocaine (arrhythmias)",
+          "bolus": "7 mL slow IV push, may repeat every 10 min (max 0.3 mL/kg)",
+          "peds": "0.1–0.2 mL/kg"
+        },
+        {
+          "drug": "Esmolol (arrhythmias)",
+          "bolus": "10 mg increments"
+        },
+        {
+          "drug": "Norepinephrine (MAP <65)",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+        }
+      ],
+      "crossRefs": [],
+      "sectionLabel": "Everything Else",
+      "book": "emergencies",
+      "sectionTag": "E",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Recognise the problem — if in doubt, treat",
+            "Call for the MH trolley (or distribute/follow MH task cards)",
+            "Delegate and organize help into teams",
+            "Stop volatile agents and wash out the circuit with 100% oxygen at 15 L/min; switch to TIVA",
+            "Add charcoal filters to the circuit; change soda lime if easy — do not waste time changing the machine or circuit",
+            "Give IV dantrolene and get more from the on-call pharmacist; reconstitute each vial into a 60 mL syringe with water; repeat every 10 min until control is achieved",
+            "Increase monitoring: arterial line ± CVL with serial bloods (gas every 30 min, coagulation, CK); urinary catheter aiming for output >2 mL/kg/hr; core temperature probe (rectal or bladder)",
+            "Treat complications: temperature >38.5 °C / 101.3 °F — refrigerated IV fluids (and intraperitoneal if surgical access), surface ice, cold OR; pH <7.2 — ventilate EtCO₂ to 30 cmH₂O ± sodium bicarbonate; K⁺ >7 or ECG changes — calcium chloride, insulin-dextrose infusion, albuterol puffs; arrhythmias — defibrillate, consider amiodarone ± lidocaine ± esmolol; MAP <65 mmHg — start a norepinephrine infusion",
+            "Consider abandoning surgery and ICU referral"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Rapid diagnosis: blood gas shows a mixed respiratory and metabolic acidosis",
+            "Signs suggesting MH — Early: rising EtCO₂, masseter spasm, rising HR/arrhythmia. Developing: rising temperature/sweating, CVS instability, falling pH, rising K⁺. Late: cola-coloured urine, coagulopathy with very high CK, cardiac arrest"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Dantrolene",
+              "bolus": "2.5 mg/kg, repeat every 10 min until control (max total 10 mg/kg / 35 vials); 9 × 20 mg vials per dose, reconstitute each in a 60 mL syringe with water"
+            },
+            {
+              "drug": "Sodium bicarbonate 8.4% (pH <7.2)",
+              "bolus": "50 mL, repeat every 2 min",
+              "peds": "1 mL/kg"
+            },
+            {
+              "drug": "Calcium chloride 10% (K⁺ >7)",
+              "bolus": "10 mL IV",
+              "peds": "0.2 mL/kg"
+            },
+            {
+              "drug": "Actrapid insulin (K⁺ >7)",
+              "notes": "10 units in 250 mL 10% dextrose over 30 min",
+              "peds": "0.1 u/kg in 2 mL/kg dextrose over 30 min"
+            },
+            {
+              "drug": "Albuterol (K⁺ >7)",
+              "bolus": "12 puffs into circuit, repeat every 20 min",
+              "peds": "2–6 puffs"
+            },
+            {
+              "drug": "Amiodarone (arrhythmias)",
+              "bolus": "300 mg slow IV push",
+              "peds": "5 mg/kg"
+            },
+            {
+              "drug": "1% Lidocaine (arrhythmias)",
+              "bolus": "7 mL slow IV push, may repeat every 10 min (max 0.3 mL/kg)",
+              "peds": "0.1–0.2 mL/kg"
+            },
+            {
+              "drug": "Esmolol (arrhythmias)",
+              "bolus": "10 mg increments"
+            },
+            {
+              "drug": "Norepinephrine (MAP <65)",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "17e",
+      "section": "everything",
+      "title": "Hyperkalaemia",
+      "color": "yellowHead",
+      "priority": "Monitor ECG and treat",
+      "doing": [
+        "Consider haemolysis or a faulty sample and the need to re-check",
+        "Stop any source of K⁺ infusion; re-check recent drug calculations",
+        "Increase minute ventilation; aim for EtCO₂ ~30 mmHg",
+        "If K⁺ >6.5 mmol/L ± marked ECG changes, start drug therapy: 10% calcium chloride 10 mL slow bolus; infuse quickly 10 units of undiluted actrapid in 250 mL 10% dextrose; 100–250 mcg IV albuterol, repeat every 20 min",
+        "If refractory: 50 mL 8.4% sodium bicarbonate (ensure adequate ventilation); 20–40 mg IV furosemide; referral for dialysis",
+        "Correct any reversible precipitating factors"
+      ],
+      "thinking": [
+        "ECG signs: peaked T waves, prolonged PR, wide QRS, loss of P waves, decreased R-wave amplitude, asystole",
+        "Precipitating factors: trauma, burns, succinylcholine use in burns/spinal injury/neurological disease, MH, rhabdomyolysis, acidosis, acute renal failure, organ reperfusion (e.g. after clamp/tourniquet release), haemolysis/massive transfusion, medications",
+        "Avoid further doses of succinylcholine and respiratory acidosis"
+      ],
+      "drugs": [
+        {
+          "drug": "Calcium chloride 10%",
+          "bolus": "10 mL slow bolus",
+          "peds": "0.2 mL/kg slow bolus"
+        },
+        {
+          "drug": "Actrapid insulin",
+          "notes": "10 units (0.1 mL undiluted) in 250 mL 10% dextrose, infuse quickly",
+          "peds": "Periph IV 0.1 u/kg in 5 mL/kg 10% dextrose; central line 0.1 u/kg in 2 mL/kg 50% dextrose"
+        },
+        {
+          "drug": "Albuterol IV",
+          "bolus": "100–250 mcg, repeat every 20 min",
+          "peds": "<5 yr 6 puffs every 20 min; >5 yr 6–12 puffs every 20 min"
+        },
+        {
+          "drug": "Sodium bicarbonate 8.4% (refractory)",
+          "bolus": "50 mL slow push",
+          "peds": "1 mL/kg, may repeat every 2 min"
+        },
+        {
+          "drug": "Furosemide (refractory)",
+          "bolus": "20–40 mg IV",
+          "peds": "1 mg/kg IV bolus"
+        }
+      ],
+      "crossRefs": [],
+      "sectionLabel": "Everything Else",
+      "book": "emergencies",
+      "sectionTag": "E",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Consider haemolysis or a faulty sample and the need to re-check",
+            "Stop any source of K⁺ infusion; re-check recent drug calculations",
+            "Increase minute ventilation; aim for EtCO₂ ~30 mmHg",
+            "If K⁺ >6.5 mmol/L ± marked ECG changes, start drug therapy: 10% calcium chloride 10 mL slow bolus; infuse quickly 10 units of undiluted actrapid in 250 mL 10% dextrose; 100–250 mcg IV albuterol, repeat every 20 min",
+            "If refractory: 50 mL 8.4% sodium bicarbonate (ensure adequate ventilation); 20–40 mg IV furosemide; referral for dialysis",
+            "Correct any reversible precipitating factors"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "ECG signs: peaked T waves, prolonged PR, wide QRS, loss of P waves, decreased R-wave amplitude, asystole",
+            "Precipitating factors: trauma, burns, succinylcholine use in burns/spinal injury/neurological disease, MH, rhabdomyolysis, acidosis, acute renal failure, organ reperfusion (e.g. after clamp/tourniquet release), haemolysis/massive transfusion, medications",
+            "Avoid further doses of succinylcholine and respiratory acidosis"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Calcium chloride 10%",
+              "bolus": "10 mL slow bolus",
+              "peds": "0.2 mL/kg slow bolus"
+            },
+            {
+              "drug": "Actrapid insulin",
+              "notes": "10 units (0.1 mL undiluted) in 250 mL 10% dextrose, infuse quickly",
+              "peds": "Periph IV 0.1 u/kg in 5 mL/kg 10% dextrose; central line 0.1 u/kg in 2 mL/kg 50% dextrose"
+            },
+            {
+              "drug": "Albuterol IV",
+              "bolus": "100–250 mcg, repeat every 20 min",
+              "peds": "<5 yr 6 puffs every 20 min; >5 yr 6–12 puffs every 20 min"
+            },
+            {
+              "drug": "Sodium bicarbonate 8.4% (refractory)",
+              "bolus": "50 mL slow push",
+              "peds": "1 mL/kg, may repeat every 2 min"
+            },
+            {
+              "drug": "Furosemide (refractory)",
+              "bolus": "20–40 mg IV",
+              "peds": "1 mg/kg IV bolus"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "18e",
+      "section": "everything",
+      "title": "Fire — Airway or Patient",
+      "color": "yellowHead",
+      "priority": "Airway: disconnect circuit and flood with saline. Patient: recognise fire and extinguish",
+      "doing": [
+        "AIRWAY FIRE — stop the ignition source (laser/diathermy); turn off oxygen and disconnect the breathing circuit from the airway device",
+        "Extinguish: flood with saline (50 mL into the mouth, 10–20 mL down the ETT) or use a CO₂ extinguisher (safe in the airway)",
+        "Remove the airway device and keep it for inspection (only leave the ETT in place if difficult intubation and very low risk of fire extending into the tube)",
+        "Remove flammable material from the mouth — packs, gauze, sponges; retrieve debris with a Yankauer or large-bore suction catheter",
+        "Convert to TIVA",
+        "Restart ventilation only once the fire is fully extinguished (wait 1–3 min if SpO₂ allows): bag-mask initially, prepare for early re-intubation, use the lowest possible oxygen for normal SpO₂",
+        "If unable to re-intubate: emergency — infraglottic technique; urgent — call ENT for tracheostomy",
+        "Terminate or expedite the end of surgery",
+        "Post-crisis: bronchoscopic exam to assess mucosal airway damage; do not extubate, refer to ICU",
+        "PATIENT FIRE — stop any flow of oxygen or nitrous near/into the fire; remove all drapes and flammable material",
+        "Extinguish with saline, a fire blanket, or CO₂ extinguisher (safe in wounds and around electrical equipment) — do not use alcohol-based liquids or any liquid on/around electrical equipment",
+        "If fire persists: activate the fire alarm, turn off the gas supply to the room, evacuate"
+      ],
+      "thinking": [
+        "To reduce airway fire risk: lowest possible oxygen, avoid nitrous, saline in ETT/LMA cuffs, wet throat packs, laser-resistant ETT with methylene blue in the proximal cuff and saline in the distal cuff for LASER surgery",
+        "To reduce patient fire risk: allow skin preps to fully dry, use moistened sponges/gauzes near ignition sources"
+      ],
+      "drugs": [
+        {
+          "drug": "Saline flush (airway fire)",
+          "bolus": "50 mL into mouth; 10–20 mL down ETT",
+          "peds": "1 mL/kg, max 20 mL"
+        }
+      ],
+      "crossRefs": [
+        "2e"
+      ],
+      "sectionLabel": "Everything Else",
+      "book": "emergencies",
+      "sectionTag": "E",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "AIRWAY FIRE — stop the ignition source (laser/diathermy); turn off oxygen and disconnect the breathing circuit from the airway device",
+            "Extinguish: flood with saline (50 mL into the mouth, 10–20 mL down the ETT) or use a CO₂ extinguisher (safe in the airway)",
+            "Remove the airway device and keep it for inspection (only leave the ETT in place if difficult intubation and very low risk of fire extending into the tube)",
+            "Remove flammable material from the mouth — packs, gauze, sponges; retrieve debris with a Yankauer or large-bore suction catheter",
+            "Convert to TIVA",
+            "Restart ventilation only once the fire is fully extinguished (wait 1–3 min if SpO₂ allows): bag-mask initially, prepare for early re-intubation, use the lowest possible oxygen for normal SpO₂",
+            "If unable to re-intubate: emergency — infraglottic technique; urgent — call ENT for tracheostomy",
+            "Terminate or expedite the end of surgery",
+            "Post-crisis: bronchoscopic exam to assess mucosal airway damage; do not extubate, refer to ICU",
+            "PATIENT FIRE — stop any flow of oxygen or nitrous near/into the fire; remove all drapes and flammable material",
+            "Extinguish with saline, a fire blanket, or CO₂ extinguisher (safe in wounds and around electrical equipment) — do not use alcohol-based liquids or any liquid on/around electrical equipment",
+            "If fire persists: activate the fire alarm, turn off the gas supply to the room, evacuate"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "To reduce airway fire risk: lowest possible oxygen, avoid nitrous, saline in ETT/LMA cuffs, wet throat packs, laser-resistant ETT with methylene blue in the proximal cuff and saline in the distal cuff for LASER surgery",
+            "To reduce patient fire risk: allow skin preps to fully dry, use moistened sponges/gauzes near ignition sources"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Saline flush (airway fire)",
+              "bolus": "50 mL into mouth; 10–20 mL down ETT",
+              "peds": "1 mL/kg, max 20 mL"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "19e",
+      "section": "obstetrics",
+      "title": "Maternal Collapse",
+      "priority": "Good CPR, diagnose the cause, prepare for delivery",
+      "doing": [
+        "Review all infusions/medications recently administered",
+        "Consider hemorrhage (possibly concealed) — call the blood bank for an Obstetric Stat Pack",
+        "If no cardiac output: call 777 and declare 'maternal cardiac arrest'; start preparations to deliver the baby now (peri-mortem caesarean or instrumental delivery); remove all fetal monitoring; start CPR, apply the defibrillator, check rhythm, and follow VF/VT or Asystole/PEA as appropriate; ensure IV access, consider IO if none; consider reversible causes and treat as soon as possible",
+        "Maternal-specific tasks during CPR: lift the uterus skyward and displace to the left; intubate early and ventilate with an EtCO₂ target of 30 mmHg; perform chest compressions higher on the chest and push deeper; if the patient is >24 weeks and there is no rapid ROSC, start immediate preparations to deliver the baby within 5 minutes",
+        "If peri- or post-arrest: start standard peri-arrest care, supporting ABCs as appropriate (intubate early); consider reversible causes; continue lifting the uterus skyward and displacing left if the baby is not yet delivered"
+      ],
+      "thinking": [
+        "Delivery of the baby is performed to improve maternal prognosis, not the baby's",
+        "Reversible causes (Ts & Hs in pregnancy): Hypoxia (aspiration, high spinal); Hypovolaemia/hypotension (bleeding, high spinal); Metabolic (AKI from severe pre-eclampsia, low glucose); Hypertension (intracranial hemorrhage, eclamptic seizure); Toxicity (anaphylaxis, raised Mg²⁺, LA toxicity); Thromboembolism (VTE/PE, amniotic fluid or air embolism); Tamponade (cardiac, secondary to aortic dissection or trauma); Tension pneumothorax (trauma)"
+      ],
+      "drugs": [
+        {
+          "drug": "Magnesium 49.3% (eclampsia loading)",
+          "infusion": "8 mL in 12 mL saline, infuse at 120 mL/hr"
+        },
+        {
+          "drug": "Calcium chloride 10% (Mg toxicity antidote)",
+          "bolus": "5 mL slow push, may repeat"
+        },
+        {
+          "drug": "Intralipid 20% (LA toxicity)",
+          "bolus": "100 mL (1.5 mL/kg), repeat max twice every 5 min",
+          "infusion": "1000 mL/hr (15 mL/kg/hr), double at 5 min if no improvement (max total 12 mL/kg)"
+        },
+        {
+          "drug": "Alteplase (thrombosis) — arrest",
+          "bolus": "50 mg slow push, may repeat at 15 min, continue CPR up to 60 min"
+        },
+        {
+          "drug": "Alteplase — peri-arrest",
+          "bolus": "20 mg slow push",
+          "infusion": "then 80 mg in 20 mL saline at 10 mL/hr"
+        },
+        {
+          "drug": "Alteplase reversal",
+          "notes": "Stop infusion; give 1 g tranexamic acid; call haematologist for cryoprecipitate ± platelets"
+        }
+      ],
+      "crossRefs": [
+        "6e",
+        "7e",
+        "12e",
+        "23e"
+      ],
+      "sectionLabel": "Obstetrics",
+      "book": "emergencies",
+      "sectionTag": "O",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Review all infusions/medications recently administered",
+            "Consider hemorrhage (possibly concealed) — call the blood bank for an Obstetric Stat Pack",
+            "If no cardiac output: call 777 and declare 'maternal cardiac arrest'; start preparations to deliver the baby now (peri-mortem caesarean or instrumental delivery); remove all fetal monitoring; start CPR, apply the defibrillator, check rhythm, and follow VF/VT or Asystole/PEA as appropriate; ensure IV access, consider IO if none; consider reversible causes and treat as soon as possible",
+            "Maternal-specific tasks during CPR: lift the uterus skyward and displace to the left; intubate early and ventilate with an EtCO₂ target of 30 mmHg; perform chest compressions higher on the chest and push deeper; if the patient is >24 weeks and there is no rapid ROSC, start immediate preparations to deliver the baby within 5 minutes",
+            "If peri- or post-arrest: start standard peri-arrest care, supporting ABCs as appropriate (intubate early); consider reversible causes; continue lifting the uterus skyward and displacing left if the baby is not yet delivered"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Delivery of the baby is performed to improve maternal prognosis, not the baby's",
+            "Reversible causes (Ts & Hs in pregnancy): Hypoxia (aspiration, high spinal); Hypovolaemia/hypotension (bleeding, high spinal); Metabolic (AKI from severe pre-eclampsia, low glucose); Hypertension (intracranial hemorrhage, eclamptic seizure); Toxicity (anaphylaxis, raised Mg²⁺, LA toxicity); Thromboembolism (VTE/PE, amniotic fluid or air embolism); Tamponade (cardiac, secondary to aortic dissection or trauma); Tension pneumothorax (trauma)"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Magnesium 49.3% (eclampsia loading)",
+              "infusion": "8 mL in 12 mL saline, infuse at 120 mL/hr"
+            },
+            {
+              "drug": "Calcium chloride 10% (Mg toxicity antidote)",
+              "bolus": "5 mL slow push, may repeat"
+            },
+            {
+              "drug": "Intralipid 20% (LA toxicity)",
+              "bolus": "100 mL (1.5 mL/kg), repeat max twice every 5 min",
+              "infusion": "1000 mL/hr (15 mL/kg/hr), double at 5 min if no improvement (max total 12 mL/kg)"
+            },
+            {
+              "drug": "Alteplase (thrombosis) — arrest",
+              "bolus": "50 mg slow push, may repeat at 15 min, continue CPR up to 60 min"
+            },
+            {
+              "drug": "Alteplase — peri-arrest",
+              "bolus": "20 mg slow push",
+              "infusion": "then 80 mg in 20 mL saline at 10 mL/hr"
+            },
+            {
+              "drug": "Alteplase reversal",
+              "notes": "Stop infusion; give 1 g tranexamic acid; call haematologist for cryoprecipitate ± platelets"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "20e",
+      "section": "obstetrics",
+      "title": "Neonatal Life Support",
+      "priority": "Dry the baby, oxygenate, reassess every 30 seconds",
+      "doing": [
+        "Pre-set the Neopuff: gas supply at 10 L/min, PEEP 5, PIP 30 cmH₂O; have a heater and suction ready",
+        "In the first minute: vigorously dry the baby and apply warm, dry towels",
+        "Work in 30-second cycles — intervene, then reassess: tone (upper and lower limbs); heart rate (via SpO₂ probe or stethoscope); respiratory rate (gasping or apnoeic?)",
+        "If HR >100, good tone, regular respiration: give routine care",
+        "If well except for increased work of breathing: open the airway and give 5 cmH₂O CPAP with room air",
+        "If any of HR <100, poor tone, or gasping/apnoeic: start ventilating with EtCO₂ monitoring — fine-tune the neutral head position with jaw thrust; start with room air, increase O₂ every 30 sec if no improvement (40→60→80→100%); give 5 inflation breaths of 2–3 sec at PIP 30 cmH₂O; once adequate chest rise, ventilate at RR 40–60/min with PIP 15–20 cmH₂O",
+        "If HR <60: 100% O₂, consider an LMA or intubation if skilled; start chest compressions at 100/min (two-thumb technique with a second person for the airway is preferred); use a ratio of 3 compressions : 1 breath",
+        "If HR remains <60: give 1:10,000 epinephrine based on gestation; umbilical venous catheter is preferred (one vein, two arteries); consider an umbilical saline bolus of 10 mL/kg"
+      ],
+      "thinking": [
+        "If preterm, use lower inflation pressures: 28–32 weeks = 25/5; <28 weeks = 20/5",
+        "For significant meconium delivery, only suction a flat baby prior to oxygenating",
+        "Place an NG tube to decompress the stomach if ventilation is difficult",
+        "An assistant can place the SpO₂ probe on the right arm at any point — targets: 1 min 60–70%, 2 min 65–85%, 3 min 70–90%, 4 min 75–90%, 5 min 80–90%, 10 min 85–90%"
+      ],
+      "drugs": [
+        {
+          "drug": "Naloxone",
+          "peds": "Full term = 200 mcg IM; otherwise 10 mcg/kg IM/IV"
+        },
+        {
+          "drug": "ETT (uncuffed)",
+          "peds": "Term: 3–3.5 mm, length at lips 9 cm; preterm: 2.5 mm, length at lips 7 cm"
+        },
+        {
+          "drug": "Umbilical epinephrine (1:10,000) by gestation",
+          "peds": "23–26 wk = 0.1 mL; 27–37 wk = 0.25 mL; 38–43 wk = 0.5 mL"
+        },
+        {
+          "drug": "ETT epinephrine (1:10,000)",
+          "peds": "1 mL/kg (100 mcg/kg)"
+        }
+      ],
+      "crossRefs": [
+        "9e"
+      ],
+      "sectionLabel": "Obstetrics",
+      "book": "emergencies",
+      "sectionTag": "O",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Pre-set the Neopuff: gas supply at 10 L/min, PEEP 5, PIP 30 cmH₂O; have a heater and suction ready",
+            "In the first minute: vigorously dry the baby and apply warm, dry towels",
+            "Work in 30-second cycles — intervene, then reassess: tone (upper and lower limbs); heart rate (via SpO₂ probe or stethoscope); respiratory rate (gasping or apnoeic?)",
+            "If HR >100, good tone, regular respiration: give routine care",
+            "If well except for increased work of breathing: open the airway and give 5 cmH₂O CPAP with room air",
+            "If any of HR <100, poor tone, or gasping/apnoeic: start ventilating with EtCO₂ monitoring — fine-tune the neutral head position with jaw thrust; start with room air, increase O₂ every 30 sec if no improvement (40→60→80→100%); give 5 inflation breaths of 2–3 sec at PIP 30 cmH₂O; once adequate chest rise, ventilate at RR 40–60/min with PIP 15–20 cmH₂O",
+            "If HR <60: 100% O₂, consider an LMA or intubation if skilled; start chest compressions at 100/min (two-thumb technique with a second person for the airway is preferred); use a ratio of 3 compressions : 1 breath",
+            "If HR remains <60: give 1:10,000 epinephrine based on gestation; umbilical venous catheter is preferred (one vein, two arteries); consider an umbilical saline bolus of 10 mL/kg"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "If preterm, use lower inflation pressures: 28–32 weeks = 25/5; <28 weeks = 20/5",
+            "For significant meconium delivery, only suction a flat baby prior to oxygenating",
+            "Place an NG tube to decompress the stomach if ventilation is difficult",
+            "An assistant can place the SpO₂ probe on the right arm at any point — targets: 1 min 60–70%, 2 min 65–85%, 3 min 70–90%, 4 min 75–90%, 5 min 80–90%, 10 min 85–90%"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Naloxone",
+              "peds": "Full term = 200 mcg IM; otherwise 10 mcg/kg IM/IV"
+            },
+            {
+              "drug": "ETT (uncuffed)",
+              "peds": "Term: 3–3.5 mm, length at lips 9 cm; preterm: 2.5 mm, length at lips 7 cm"
+            },
+            {
+              "drug": "Umbilical epinephrine (1:10,000) by gestation",
+              "peds": "23–26 wk = 0.1 mL; 27–37 wk = 0.25 mL; 38–43 wk = 0.5 mL"
+            },
+            {
+              "drug": "ETT epinephrine (1:10,000)",
+              "peds": "1 mL/kg (100 mcg/kg)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "21e",
+      "section": "obstetrics",
+      "title": "Total / High Spinal",
+      "priority": "Rapid management of ABCs",
+      "doing": [
+        "If on the delivery suite: call 777 and declare \"obstetric & neonatal emergency\"",
+        "Review all infusions/medications and consider reversible causes",
+        "If no cardiac output: start CPR, apply the defibrillator, check rhythm and follow VF/VT or Asystole/PEA; if obstetric, follow maternal-specific CPR tasks (uterine displacement, early intubation with EtCO₂ target 30 mmHg, higher/deeper compressions, prepare for delivery by 5 min if no rapid ROSC and >24 weeks); total-spinal-specific tasks — give epinephrine 1 mg as soon as possible and start early rapid infusion of 2–3 L fluid",
+        "If respiratory arrest, distress, or falling SpO₂: elevate the head of the bed to 30°; assist ventilation with 100% O₂ via bag-mask while preparing to RSI; consider induction with midazolam, alfentanil, and succinylcholine",
+        "If cardiovascularly unstable (falling HR and MAP): elevate the legs, rapidly infuse 2–3 L fluid; if obstetric, lift the uterus skyward and displace left; if HR <60 give atropine, repeat if required; give a vasopressor depending on HR, repeat as required; for refractory hypotension use epinephrine boluses ± infusion"
+      ],
+      "thinking": [
+        "Diagnosis is clear if there is a witnessed, rapidly ascending block following a neuraxial procedure",
+        "If unwitnessed collapse, consider other causes: vasovagal, hemorrhage (external or concealed), LA toxicity, amniotic fluid embolism, magnesium toxicity, IVC compression, massive pulmonary embolus, drug error"
+      ],
+      "drugs": [
+        {
+          "drug": "Epinephrine (cardiac arrest)",
+          "bolus": "1 mg (10 mL of 1:10,000)",
+          "peds": "10 mcg/kg"
+        },
+        {
+          "drug": "Fluid bolus",
+          "bolus": "2–3 L",
+          "peds": "20 mL/kg"
+        },
+        {
+          "drug": "Atropine (HR <60)",
+          "bolus": "600 mcg, may repeat (max adult 3 mg)",
+          "peds": "20 mcg/kg"
+        },
+        {
+          "drug": "Vasopressor — phenylephrine",
+          "bolus": "100 mcg",
+          "peds": "10 mcg/kg"
+        },
+        {
+          "drug": "Vasopressor — phenylephrine or norepinephrine (metaraminol is not US-available)",
+          "bolus": "1 mg",
+          "peds": "10 mcg/kg"
+        },
+        {
+          "drug": "Vasopressor — ephedrine",
+          "bolus": "9 mg",
+          "peds": "0.1 mg/kg"
+        },
+        {
+          "drug": "Epinephrine — bolus/infusion",
+          "bolus": "0.1–0.5 mL of 1:10,000 (10–50 mcg)",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+        }
+      ],
+      "crossRefs": [
+        "6e",
+        "7e",
+        "19e",
+        "12e",
+        "15e",
+        "22e",
+        "24e"
+      ],
+      "sectionLabel": "Obstetrics",
+      "book": "emergencies",
+      "sectionTag": "O",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "If on the delivery suite: call 777 and declare \"obstetric & neonatal emergency\"",
+            "Review all infusions/medications and consider reversible causes",
+            "If no cardiac output: start CPR, apply the defibrillator, check rhythm and follow VF/VT or Asystole/PEA; if obstetric, follow maternal-specific CPR tasks (uterine displacement, early intubation with EtCO₂ target 30 mmHg, higher/deeper compressions, prepare for delivery by 5 min if no rapid ROSC and >24 weeks); total-spinal-specific tasks — give epinephrine 1 mg as soon as possible and start early rapid infusion of 2–3 L fluid",
+            "If respiratory arrest, distress, or falling SpO₂: elevate the head of the bed to 30°; assist ventilation with 100% O₂ via bag-mask while preparing to RSI; consider induction with midazolam, alfentanil, and succinylcholine",
+            "If cardiovascularly unstable (falling HR and MAP): elevate the legs, rapidly infuse 2–3 L fluid; if obstetric, lift the uterus skyward and displace left; if HR <60 give atropine, repeat if required; give a vasopressor depending on HR, repeat as required; for refractory hypotension use epinephrine boluses ± infusion"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Diagnosis is clear if there is a witnessed, rapidly ascending block following a neuraxial procedure",
+            "If unwitnessed collapse, consider other causes: vasovagal, hemorrhage (external or concealed), LA toxicity, amniotic fluid embolism, magnesium toxicity, IVC compression, massive pulmonary embolus, drug error"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Epinephrine (cardiac arrest)",
+              "bolus": "1 mg (10 mL of 1:10,000)",
+              "peds": "10 mcg/kg"
+            },
+            {
+              "drug": "Fluid bolus",
+              "bolus": "2–3 L",
+              "peds": "20 mL/kg"
+            },
+            {
+              "drug": "Atropine (HR <60)",
+              "bolus": "600 mcg, may repeat (max adult 3 mg)",
+              "peds": "20 mcg/kg"
+            },
+            {
+              "drug": "Vasopressor — phenylephrine",
+              "bolus": "100 mcg",
+              "peds": "10 mcg/kg"
+            },
+            {
+              "drug": "Vasopressor — phenylephrine or norepinephrine (metaraminol is not US-available)",
+              "bolus": "1 mg",
+              "peds": "10 mcg/kg"
+            },
+            {
+              "drug": "Vasopressor — ephedrine",
+              "bolus": "9 mg",
+              "peds": "0.1 mg/kg"
+            },
+            {
+              "drug": "Epinephrine — bolus/infusion",
+              "bolus": "0.1–0.5 mL of 1:10,000 (10–50 mcg)",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "22e",
+      "section": "obstetrics",
+      "title": "Post Partum Hemorrhage",
+      "priority": "Prepare for massive, rapid blood loss",
+      "doing": [
+        "Two 16G IV cannulae — consider intraosseous access or a rapid infusion catheter",
+        "If out of OR: call 777 and declare an \"obstetric emergency\"",
+        "Encourage surgical control of uterine tone and bleeding",
+        "Review with the surgeon every 10 minutes: diagnosis and plan",
+        "If massive bleeding with shock: call the blood bank — \"I am requesting an Obstetric Stat Pack\"; give 1 g tranexamic acid slow push",
+        "If ongoing massive bleeding with shock: call the blood bank — \"I am activating the Obstetric MHP\"; repeat 1 g tranexamic acid; refer to generic MHP steps (teamwork, regular calcium, rapid infusion device, arterial line, permissive hypotension, warming, bloods every 30 min)",
+        "Use oxytocics for uterine atony: oxytocin slow IV push, then an infusion; ergometrine IM (avoid if hypertensive); carboprost IM (avoid if asthmatic, may repeat every 15 min, max 8 doses); misoprostol PR/vaginal",
+        "Perform RSI to enable surgical control (spinal only if haemodynamically normal): induction with ketamine and succinylcholine; maintenance with TIVA or volatile/nitrous"
+      ],
+      "thinking": [
+        "Major causes of PPH: tone (75%); tissue/retained placenta (15%); trauma/laceration (5–10%); thrombosis/coagulopathy; splenic artery rupture (rare)",
+        "Surgical control options: pre-OR — uterine massage, bimanual compression, aortal compression; intra-op — BAKRI balloon, B-Lynch suture, aortal compression, artery ligation, hysterectomy"
+      ],
+      "drugs": [
+        {
+          "drug": "Oxytocin",
+          "bolus": "5 units slow IV push",
+          "infusion": "40 units in 500 mL saline, infuse at 125 mL/hr"
+        },
+        {
+          "drug": "Ergometrine",
+          "bolus": "500 mcg IM (avoid if raised MAP)"
+        },
+        {
+          "drug": "Carboprost",
+          "bolus": "250 mcg IM (avoid if asthmatic), may repeat every 15 min, max 8 doses"
+        },
+        {
+          "drug": "Misoprostol",
+          "bolus": "1000 mcg PR/vaginal"
+        },
+        {
+          "drug": "Vasopressors",
+          "bolus": "Metaraminol 1 mg; phenylephrine 100 mcg; epinephrine 10–100 mcg titrated"
+        },
+        {
+          "drug": "Epinephrine/Norepinephrine infusion",
+          "infusion": "5 mg in 50 mL saline, infuse 10–20 mL/hr, preferably via CVC"
+        },
+        {
+          "drug": "Ketamine (induction)",
+          "bolus": "100 mg (1–2 mg/kg)"
+        },
+        {
+          "drug": "Succinylcholine (induction)",
+          "bolus": "100 mg"
+        }
+      ],
+      "crossRefs": [
+        "12e"
+      ],
+      "sectionLabel": "Obstetrics",
+      "book": "emergencies",
+      "sectionTag": "O",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Two 16G IV cannulae — consider intraosseous access or a rapid infusion catheter",
+            "If out of OR: call 777 and declare an \"obstetric emergency\"",
+            "Encourage surgical control of uterine tone and bleeding",
+            "Review with the surgeon every 10 minutes: diagnosis and plan",
+            "If massive bleeding with shock: call the blood bank — \"I am requesting an Obstetric Stat Pack\"; give 1 g tranexamic acid slow push",
+            "If ongoing massive bleeding with shock: call the blood bank — \"I am activating the Obstetric MHP\"; repeat 1 g tranexamic acid; refer to generic MHP steps (teamwork, regular calcium, rapid infusion device, arterial line, permissive hypotension, warming, bloods every 30 min)",
+            "Use oxytocics for uterine atony: oxytocin slow IV push, then an infusion; ergometrine IM (avoid if hypertensive); carboprost IM (avoid if asthmatic, may repeat every 15 min, max 8 doses); misoprostol PR/vaginal",
+            "Perform RSI to enable surgical control (spinal only if haemodynamically normal): induction with ketamine and succinylcholine; maintenance with TIVA or volatile/nitrous"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Major causes of PPH: tone (75%); tissue/retained placenta (15%); trauma/laceration (5–10%); thrombosis/coagulopathy; splenic artery rupture (rare)",
+            "Surgical control options: pre-OR — uterine massage, bimanual compression, aortal compression; intra-op — BAKRI balloon, B-Lynch suture, aortal compression, artery ligation, hysterectomy"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Oxytocin",
+              "bolus": "5 units slow IV push",
+              "infusion": "40 units in 500 mL saline, infuse at 125 mL/hr"
+            },
+            {
+              "drug": "Ergometrine",
+              "bolus": "500 mcg IM (avoid if raised MAP)"
+            },
+            {
+              "drug": "Carboprost",
+              "bolus": "250 mcg IM (avoid if asthmatic), may repeat every 15 min, max 8 doses"
+            },
+            {
+              "drug": "Misoprostol",
+              "bolus": "1000 mcg PR/vaginal"
+            },
+            {
+              "drug": "Vasopressors",
+              "bolus": "Metaraminol 1 mg; phenylephrine 100 mcg; epinephrine 10–100 mcg titrated"
+            },
+            {
+              "drug": "Epinephrine/Norepinephrine infusion",
+              "infusion": "5 mg in 50 mL saline, infuse 10–20 mL/hr, preferably via CVC"
+            },
+            {
+              "drug": "Ketamine (induction)",
+              "bolus": "100 mg (1–2 mg/kg)"
+            },
+            {
+              "drug": "Succinylcholine (induction)",
+              "bolus": "100 mg"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "23e",
+      "section": "obstetrics",
+      "title": "Peri-Partum Seizure",
+      "priority": "Oxygenation, magnesium, and treating hypertension",
+      "doing": [
+        "Call 777 and state \"obstetric emergency\"",
+        "Call for the eclampsia box",
+        "Give O₂ 15 L/min via a non-rebreathe facemask",
+        "Apply monitoring: SpO₂, ECG, NIBP",
+        "Start a timer to measure the length of the seizure (eclamptic seizures normally self-terminate)",
+        "Maximise patient safety while displacing the gravid uterus if antenatal: pillows and covered bed sides; depending on staff safety, lift the uterus up and to the left or place the patient in full left lateral",
+        "Prepare and give magnesium (49.3%) as soon as possible: loading dose, then a maintenance infusion; if no IV, give IM into each gluteal region; if a repeat seizure occurs, give the rescue dose",
+        "If ongoing seizures or a seizure lasting >10 minutes, escalate treatment: midazolam IV bolus repeated every minute (max 10 mg), or high-concentration midazolam nasally/IM if no IV; then perform RSI and refer to ICU",
+        "Post-seizure: review ABCs and check blood glucose; send blood tests (FBC, LFTs, U&Es, uric acid, coagulation screen, magnesium, group & hold); consider aspiration risk; if BP >160/100 mmHg, consider labetalol and/or hydralazine; restrict total fluid input to 80 mL/hr and monitor hourly urine via catheter",
+        "If antenatal: discuss delivery planning with the obstetric team",
+        "Consider other causes of seizure besides eclampsia, discuss with neurology"
+      ],
+      "thinking": [
+        "Check reflexes, sedation score, and vital signs — initially every 30 min, then hourly",
+        "Serum magnesium levels are only needed if there is concurrent renal dysfunction; therapeutic level is 2–4 mmol/L; send a sample 1 hour after starting maintenance, repeat every 4 hours if there is concern",
+        "If concerned about magnesium toxicity: stop the infusion and give calcium chloride 10% 5 mL IV push"
+      ],
+      "drugs": [
+        {
+          "drug": "Magnesium 49.3% — loading",
+          "bolus": "8 mL with 12 mL saline, infuse at 120 mL/hr"
+        },
+        {
+          "drug": "Magnesium 49.3% — maintenance",
+          "infusion": "add 16 mL to 100 mL saline, infuse at 14.5 mL/hr"
+        },
+        {
+          "drug": "Magnesium 49.3% — rescue (repeat seizure)",
+          "bolus": "4 mL with 6 mL saline, slow IV push over 5 min"
+        },
+        {
+          "drug": "Midazolam",
+          "bolus": "2 mg IV bolus, repeat every minute (max 10 mg); or 5 mg/mL nasal 2 mL via atomiser, or IM 2 mL into deltoid if no IV"
+        },
+        {
+          "drug": "Labetalol (BP >160/100)",
+          "bolus": "4 mL (neat 5 mg/mL) over 2 min, repeat every 10 min (max 3 doses)"
+        },
+        {
+          "drug": "Hydralazine (BP >160/100)",
+          "bolus": "Dilute to 1 mg/mL, give 5 mL slow push, repeat every 20 min"
+        }
+      ],
+      "crossRefs": [
+        "19e"
+      ],
+      "sectionLabel": "Obstetrics",
+      "book": "emergencies",
+      "sectionTag": "O",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Call 777 and state \"obstetric emergency\"",
+            "Call for the eclampsia box",
+            "Give O₂ 15 L/min via a non-rebreathe facemask",
+            "Apply monitoring: SpO₂, ECG, NIBP",
+            "Start a timer to measure the length of the seizure (eclamptic seizures normally self-terminate)",
+            "Maximise patient safety while displacing the gravid uterus if antenatal: pillows and covered bed sides; depending on staff safety, lift the uterus up and to the left or place the patient in full left lateral",
+            "Prepare and give magnesium (49.3%) as soon as possible: loading dose, then a maintenance infusion; if no IV, give IM into each gluteal region; if a repeat seizure occurs, give the rescue dose",
+            "If ongoing seizures or a seizure lasting >10 minutes, escalate treatment: midazolam IV bolus repeated every minute (max 10 mg), or high-concentration midazolam nasally/IM if no IV; then perform RSI and refer to ICU",
+            "Post-seizure: review ABCs and check blood glucose; send blood tests (FBC, LFTs, U&Es, uric acid, coagulation screen, magnesium, group & hold); consider aspiration risk; if BP >160/100 mmHg, consider labetalol and/or hydralazine; restrict total fluid input to 80 mL/hr and monitor hourly urine via catheter",
+            "If antenatal: discuss delivery planning with the obstetric team",
+            "Consider other causes of seizure besides eclampsia, discuss with neurology"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Check reflexes, sedation score, and vital signs — initially every 30 min, then hourly",
+            "Serum magnesium levels are only needed if there is concurrent renal dysfunction; therapeutic level is 2–4 mmol/L; send a sample 1 hour after starting maintenance, repeat every 4 hours if there is concern",
+            "If concerned about magnesium toxicity: stop the infusion and give calcium chloride 10% 5 mL IV push"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Magnesium 49.3% — loading",
+              "bolus": "8 mL with 12 mL saline, infuse at 120 mL/hr"
+            },
+            {
+              "drug": "Magnesium 49.3% — maintenance",
+              "infusion": "add 16 mL to 100 mL saline, infuse at 14.5 mL/hr"
+            },
+            {
+              "drug": "Magnesium 49.3% — rescue (repeat seizure)",
+              "bolus": "4 mL with 6 mL saline, slow IV push over 5 min"
+            },
+            {
+              "drug": "Midazolam",
+              "bolus": "2 mg IV bolus, repeat every minute (max 10 mg); or 5 mg/mL nasal 2 mL via atomiser, or IM 2 mL into deltoid if no IV"
+            },
+            {
+              "drug": "Labetalol (BP >160/100)",
+              "bolus": "4 mL (neat 5 mg/mL) over 2 min, repeat every 10 min (max 3 doses)"
+            },
+            {
+              "drug": "Hydralazine (BP >160/100)",
+              "bolus": "Dilute to 1 mg/mL, give 5 mL slow push, repeat every 20 min"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "24e",
+      "section": "obstetrics",
+      "title": "Amniotic Fluid Embolism",
+      "priority": "Recognition and aggressive resuscitation",
+      "doing": [
+        "Get senior help or call 777 and declare an \"obstetric ± neonatal emergency\"",
+        "For all: start treatment for hemorrhage and coagulopathy — call the blood bank stating \"I am requesting an Obstetric Stat Pack\" and \"I am activating the Obstetric MHP\"; give IV tranexamic acid 1 g slow push, repeat 30 minutes later; send urgent bloods including FBC, coagulation studies, and TEG if available",
+        "If no cardiac output: start CPR and consider reversible causes; if antenatal, perform maternal-specific CPR tasks (remove fetal monitoring, lift uterus skyward and displace left, intubate early with EtCO₂ target <30 mmHg, higher/deeper compressions, prepare for delivery within 5 min if no rapid ROSC)",
+        "If signs of cardiac output: start resuscitation — ensure a patent airway and consider early intubation; address oxygenation with high-flow oxygen, BiPAP, CPAP, or high PEEP; give blood and products per the MHP, use vasopressors/inotropes as required; perform an early echo (TTE/TOE) for right heart dysfunction or pulmonary hypertension",
+        "Discuss with obstetrics: urgent delivery if antenatal; rule out other sources of hemorrhage (placenta, uterine rupture or tone, trauma); consider hysterectomy if bleeding is uncontrollable",
+        "Refer to ICU early — is ECMO a consideration? Does pulmonary hypertension need treatment?"
+      ],
+      "thinking": [
+        "AFE is rare but life-threatening — always consider it in your differential",
+        "Suggestive features: sudden agitation (non-compliance, pulling at lines), symptoms with no other clear explanation, onset during labour, delivery, or within 30 minutes of birth",
+        "Systems affected: general (restless, anxious, chest pain, vomiting); respiratory (hypoxia, bronchospasm, pulmonary edema, ARDS — with pulmonary hypertension and right heart strain on investigation); cardiovascular (hypotension, chest pain, cardiac arrest — coagulopathy); neurological (headache, seizure, loss of consciousness — DIC); fetal (acute bradycardia)"
+      ],
+      "drugs": [
+        {
+          "drug": "Tranexamic acid",
+          "bolus": "1 g slow push, repeat 30 min later"
+        },
+        {
+          "drug": "Bolus vasopressors",
+          "bolus": "Metaraminol 1 mg; phenylephrine 100 mcg; ephedrine 9 mg; epinephrine 10–50 mcg"
+        },
+        {
+          "drug": "Norepinephrine/Epinephrine infusion",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+        }
+      ],
+      "crossRefs": [
+        "6e",
+        "7e",
+        "12e"
+      ],
+      "sectionLabel": "Obstetrics",
+      "book": "emergencies",
+      "sectionTag": "O",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Get senior help or call 777 and declare an \"obstetric ± neonatal emergency\"",
+            "For all: start treatment for hemorrhage and coagulopathy — call the blood bank stating \"I am requesting an Obstetric Stat Pack\" and \"I am activating the Obstetric MHP\"; give IV tranexamic acid 1 g slow push, repeat 30 minutes later; send urgent bloods including FBC, coagulation studies, and TEG if available",
+            "If no cardiac output: start CPR and consider reversible causes; if antenatal, perform maternal-specific CPR tasks (remove fetal monitoring, lift uterus skyward and displace left, intubate early with EtCO₂ target <30 mmHg, higher/deeper compressions, prepare for delivery within 5 min if no rapid ROSC)",
+            "If signs of cardiac output: start resuscitation — ensure a patent airway and consider early intubation; address oxygenation with high-flow oxygen, BiPAP, CPAP, or high PEEP; give blood and products per the MHP, use vasopressors/inotropes as required; perform an early echo (TTE/TOE) for right heart dysfunction or pulmonary hypertension",
+            "Discuss with obstetrics: urgent delivery if antenatal; rule out other sources of hemorrhage (placenta, uterine rupture or tone, trauma); consider hysterectomy if bleeding is uncontrollable",
+            "Refer to ICU early — is ECMO a consideration? Does pulmonary hypertension need treatment?"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "AFE is rare but life-threatening — always consider it in your differential",
+            "Suggestive features: sudden agitation (non-compliance, pulling at lines), symptoms with no other clear explanation, onset during labour, delivery, or within 30 minutes of birth",
+            "Systems affected: general (restless, anxious, chest pain, vomiting); respiratory (hypoxia, bronchospasm, pulmonary edema, ARDS — with pulmonary hypertension and right heart strain on investigation); cardiovascular (hypotension, chest pain, cardiac arrest — coagulopathy); neurological (headache, seizure, loss of consciousness — DIC); fetal (acute bradycardia)"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Tranexamic acid",
+              "bolus": "1 g slow push, repeat 30 min later"
+            },
+            {
+              "drug": "Bolus vasopressors",
+              "bolus": "Metaraminol 1 mg; phenylephrine 100 mcg; ephedrine 9 mg; epinephrine 10–50 mcg"
+            },
+            {
+              "drug": "Norepinephrine/Epinephrine infusion",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "25d",
+      "section": "diagnosing",
+      "title": "High Airway Pressure",
+      "priority": "Systematic diagnosis",
+      "doing": [
+        "Listen to the chest; watch for bilateral chest rise and fall",
+        "Switch to the bag — manually ventilate to confirm high pressure",
+        "Examine the EtCO₂ waveform for bronchospasm or a kinked ETT",
+        "Exclude light anesthesia and inadequate muscle relaxation",
+        "Perform a systematic visual check: airway device (position/kinking) → filter → circuit → valves → ventilator",
+        "Check airway patency: suction the full length of the ETT or perform a bronchoscopic exam",
+        "If autoPEEP is suspected, watch for persistent expiratory flow at end-expiration; try disconnecting the circuit",
+        "If the problem is not identified: exclude the circuit (replace with an Ambu-bag, convert to TIVA if needed); exclude the filter (replace/remove); exclude the airway (replace the ETT, or convert an LMA to an ETT); if still unresolved, consider a patient problem"
+      ],
+      "thinking": [
+        "Consider the timing of the event — CVL insertion, position change, surgical event",
+        "Circuit causes: ventilator settings, kinked tube, valve failures, obstructed filter, O₂ flush failure",
+        "Airway causes: laryngospasm, tube position, tube size, blocked/kinked tube",
+        "Patient causes: chest wall rigidity, bronchospasm, anaphylaxis, pneumothorax, pneumoperitoneum, obesity, alveolar pathology (edema, infection, ARDS, contusion), tracheal pathology (foreign body, secretions, tumour)"
+      ],
+      "drugs": [],
+      "crossRefs": [
+        "4e"
+      ],
+      "sectionLabel": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "sectionTag": "D",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Listen to the chest; watch for bilateral chest rise and fall",
+            "Switch to the bag — manually ventilate to confirm high pressure",
+            "Examine the EtCO₂ waveform for bronchospasm or a kinked ETT",
+            "Exclude light anesthesia and inadequate muscle relaxation",
+            "Perform a systematic visual check: airway device (position/kinking) → filter → circuit → valves → ventilator",
+            "Check airway patency: suction the full length of the ETT or perform a bronchoscopic exam",
+            "If autoPEEP is suspected, watch for persistent expiratory flow at end-expiration; try disconnecting the circuit",
+            "If the problem is not identified: exclude the circuit (replace with an Ambu-bag, convert to TIVA if needed); exclude the filter (replace/remove); exclude the airway (replace the ETT, or convert an LMA to an ETT); if still unresolved, consider a patient problem"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Consider the timing of the event — CVL insertion, position change, surgical event",
+            "Circuit causes: ventilator settings, kinked tube, valve failures, obstructed filter, O₂ flush failure",
+            "Airway causes: laryngospasm, tube position, tube size, blocked/kinked tube",
+            "Patient causes: chest wall rigidity, bronchospasm, anaphylaxis, pneumothorax, pneumoperitoneum, obesity, alveolar pathology (edema, infection, ARDS, contusion), tracheal pathology (foreign body, secretions, tumour)"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": []
+        }
+      }
+    },
+    {
+      "id": "26d",
+      "section": "diagnosing",
+      "title": "Low SpO₂",
+      "priority": "Systematic diagnosis",
+      "doing": [
+        "Check FiO₂ and turn to 100% O₂",
+        "Check patient color, peripheral temperature, and probe position",
+        "Switch to the bag to test circuit integrity and lung compliance",
+        "Check the SpO₂ and EtCO₂ waveforms to guide diagnosis",
+        "If the EtCO₂ waveform is abnormal or absent: exclude a disconnected circuit, cardiac arrest, or low cardiac output; consider laryngospasm or bronchospasm (convert an LMA to an ETT); check airway position and patency, visualise the cords to rule out esophageal intubation, look in the mouth for kinks/gastric contents, suction the ETT or bronchoscope; check ventilator mode/settings; ventilate via an Ambu-bag to exclude a ventilator/circuit/probe problem",
+        "If the EtCO₂ waveform is normal (circuit integrity intact): check fresh gas flow/FiO₂; exclude an endobronchial ETT; exclude pneumothorax (neck veins, chest rise, auscultate or ultrasound)",
+        "Work through the full diagnostic checklist to exclude other causes"
+      ],
+      "thinking": [
+        "Airway causes: airway obstruction, laryngospasm, bronchospasm, endobronchial intubation, esophageal intubation, aspiration",
+        "Ventilator/circuit/probe causes: probe displacement, inadequate reversal, malfunction/setting error, auto-PEEP, low fresh gas flow, oxygen supply failure, circuit obstruction/disconnection",
+        "Lung/breathing causes: apnoea/hypoventilation, atelectasis, pneumothorax, pulmonary edema, sepsis/ARDS, contusion, pneumonia, interstitial lung disease",
+        "Circulatory causes: cardiac arrest, heart failure, anaphylaxis, embolism (pulmonary, air, CO₂, cement), hypothermia/poor peripheral circulation, methaemoglobinaemia (e.g. prilocaine)"
+      ],
+      "drugs": [],
+      "crossRefs": [],
+      "sectionLabel": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "sectionTag": "D",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Check FiO₂ and turn to 100% O₂",
+            "Check patient color, peripheral temperature, and probe position",
+            "Switch to the bag to test circuit integrity and lung compliance",
+            "Check the SpO₂ and EtCO₂ waveforms to guide diagnosis",
+            "If the EtCO₂ waveform is abnormal or absent: exclude a disconnected circuit, cardiac arrest, or low cardiac output; consider laryngospasm or bronchospasm (convert an LMA to an ETT); check airway position and patency, visualise the cords to rule out esophageal intubation, look in the mouth for kinks/gastric contents, suction the ETT or bronchoscope; check ventilator mode/settings; ventilate via an Ambu-bag to exclude a ventilator/circuit/probe problem",
+            "If the EtCO₂ waveform is normal (circuit integrity intact): check fresh gas flow/FiO₂; exclude an endobronchial ETT; exclude pneumothorax (neck veins, chest rise, auscultate or ultrasound)",
+            "Work through the full diagnostic checklist to exclude other causes"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Airway causes: airway obstruction, laryngospasm, bronchospasm, endobronchial intubation, esophageal intubation, aspiration",
+            "Ventilator/circuit/probe causes: probe displacement, inadequate reversal, malfunction/setting error, auto-PEEP, low fresh gas flow, oxygen supply failure, circuit obstruction/disconnection",
+            "Lung/breathing causes: apnoea/hypoventilation, atelectasis, pneumothorax, pulmonary edema, sepsis/ARDS, contusion, pneumonia, interstitial lung disease",
+            "Circulatory causes: cardiac arrest, heart failure, anaphylaxis, embolism (pulmonary, air, CO₂, cement), hypothermia/poor peripheral circulation, methaemoglobinaemia (e.g. prilocaine)"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": []
+        }
+      }
+    },
+    {
+      "id": "27d",
+      "section": "diagnosing",
+      "title": "High EtCO₂",
+      "priority": "Generally not a crisis — use the time to consider causes",
+      "doing": [
+        "Quick check of patient monitors — Anesthetist's ABCDE: Airway/EtCO₂, Breathing/vent settings, Circulation/MAP, Depth of anesthesia, tEmperature",
+        "Frequency gamble: check the EtCO₂ waveform; fresh gas flow (correct for circuit type and patient size); ventilator settings/mode (respiratory rate, tidal volume)",
+        "Check whether the soda lime is exhausted",
+        "Review anesthetic depth and recent drug doses for errors",
+        "Systematically work through all remaining causes"
+      ],
+      "thinking": [
+        "Increased production — endogenous: sepsis/raised temperature, MH, thyroid storm, malignant neuroleptic syndrome, reperfusion. Exogenous: CO₂ insufflation, bicarbonate administration",
+        "Decreased elimination — lungs: hypoventilation, bronchospasm/asthma, COPD. Circuit/machine: low fresh gas flow/rebreathing, incorrect ventilator settings, soda lime exhaustion, airway obstruction, increased dead space, valve malfunction"
+      ],
+      "drugs": [],
+      "crossRefs": [],
+      "sectionLabel": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "sectionTag": "D",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Quick check of patient monitors — Anesthetist's ABCDE: Airway/EtCO₂, Breathing/vent settings, Circulation/MAP, Depth of anesthesia, tEmperature",
+            "Frequency gamble: check the EtCO₂ waveform; fresh gas flow (correct for circuit type and patient size); ventilator settings/mode (respiratory rate, tidal volume)",
+            "Check whether the soda lime is exhausted",
+            "Review anesthetic depth and recent drug doses for errors",
+            "Systematically work through all remaining causes"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Increased production — endogenous: sepsis/raised temperature, MH, thyroid storm, malignant neuroleptic syndrome, reperfusion. Exogenous: CO₂ insufflation, bicarbonate administration",
+            "Decreased elimination — lungs: hypoventilation, bronchospasm/asthma, COPD. Circuit/machine: low fresh gas flow/rebreathing, incorrect ventilator settings, soda lime exhaustion, airway obstruction, increased dead space, valve malfunction"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": []
+        }
+      }
+    },
+    {
+      "id": "28d",
+      "section": "diagnosing",
+      "title": "Low EtCO₂",
+      "priority": "\"No trace, wrong place\"",
+      "doing": [
+        "Quick check of patient monitors — Anesthetist's ABCDE",
+        "If no EtCO₂ waveform, diagnose immediately: incorrect ETT placement — if in doubt, replace; severe bronchospasm — confirm the airway; check circuit and EtCO₂ sample-line connections",
+        "If low EtCO₂, first frequency gamble: cardiac or peri-arrest?; check the sampling line is securely connected and patent; examine the patient (airway position/patency, bilateral chest rise to rule out laryngospasm/bronchospasm); check the ventilator is switched on with correct tidal volume/respiratory rate",
+        "If the problem is not identified, work through the causes systematically"
+      ],
+      "thinking": [
+        "Even in cardiac arrest without CPR, EtCO₂ should still be recordable",
+        "If not urgent, correlate EtCO₂ with an ABG and PaCO₂",
+        "No EtCO₂: esophageal intubation, no ventilation/no airway, cardiac arrest, circuit/sampling-line disconnection, ventilator failure or not switched on, apnoea",
+        "Decreased production: hypothermia, deep anesthesia, low thyroid",
+        "Sampling dilution: high fresh gas flow, sampler placed incorrectly, dilution with air, circuit disconnected",
+        "Increased elimination: hyperventilation",
+        "Decreased CO₂ transport in blood: severe hypotension, anaphylaxis, cardiac arrest, air/pulmonary embolism, tamponade/tension pneumothorax",
+        "Decreased CO₂ diffusion in lung: low tidal volumes/dead space, laryngospasm, severe bronchospasm, ETT obstruction, endobronchial intubation"
+      ],
+      "drugs": [],
+      "crossRefs": [
+        "6e",
+        "7e",
+        "4e"
+      ],
+      "sectionLabel": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "sectionTag": "D",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Quick check of patient monitors — Anesthetist's ABCDE",
+            "If no EtCO₂ waveform, diagnose immediately: incorrect ETT placement — if in doubt, replace; severe bronchospasm — confirm the airway; check circuit and EtCO₂ sample-line connections",
+            "If low EtCO₂, first frequency gamble: cardiac or peri-arrest?; check the sampling line is securely connected and patent; examine the patient (airway position/patency, bilateral chest rise to rule out laryngospasm/bronchospasm); check the ventilator is switched on with correct tidal volume/respiratory rate",
+            "If the problem is not identified, work through the causes systematically"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Even in cardiac arrest without CPR, EtCO₂ should still be recordable",
+            "If not urgent, correlate EtCO₂ with an ABG and PaCO₂",
+            "No EtCO₂: esophageal intubation, no ventilation/no airway, cardiac arrest, circuit/sampling-line disconnection, ventilator failure or not switched on, apnoea",
+            "Decreased production: hypothermia, deep anesthesia, low thyroid",
+            "Sampling dilution: high fresh gas flow, sampler placed incorrectly, dilution with air, circuit disconnected",
+            "Increased elimination: hyperventilation",
+            "Decreased CO₂ transport in blood: severe hypotension, anaphylaxis, cardiac arrest, air/pulmonary embolism, tamponade/tension pneumothorax",
+            "Decreased CO₂ diffusion in lung: low tidal volumes/dead space, laryngospasm, severe bronchospasm, ETT obstruction, endobronchial intubation"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": []
+        }
+      }
+    },
+    {
+      "id": "29d",
+      "section": "diagnosing",
+      "title": "Tachycardia",
+      "priority": "Differentiate sinus tachycardia from complex tachy-arrhythmia",
+      "doing": [
+        "Check patient monitors — Anesthetist's ABCDE",
+        "If there is diagnostic uncertainty and MAP <65 mmHg with HR >150, give a synchronised DC shock; may repeat up to 3 times and give amiodarone",
+        "Differentiate sinus tachycardia from complex tachy-arrhythmia: current surgical/pain stimulation; sinus rhythm?; QRS regularity?; QRS width?",
+        "If sinus tachycardia, consider causes",
+        "If complex tachy-arrhythmia, treat based on MAP: MAP <65 mmHg → synchronised DC shock; MAP >65 mmHg → manage by QRS width/regularity — Broad regular (VT/WPW: amiodarone; SVT with bundle block: treat as narrow), Broad irregular (AF with bundle block: treat as narrow; torsades: magnesium), Narrow regular (SVT: vagal manoeuvres → adenosine → beta-blocker), Narrow irregular (AF: beta-blocker or amiodarone)",
+        "Send an urgent blood gas — ensure high-normal K⁺ and Mg²⁺"
+      ],
+      "thinking": [
+        "Primary causes: IHD, cardiomyopathy, sick sinus syndrome, accessory conduction pathways, myocarditis, pericarditis, valvular disease, congenital heart disease",
+        "Secondary causes: hypovolaemia, anesthesia depth, drugs (including drug error), pain, anaphylaxis, electrolyte abnormalities, cardiac tamponade, sepsis, thyroid storm, MH",
+        "Synchronised shock guide: AF/monomorphic VT 100→150→200 J; SVT/flutter 100→200 J; polymorphic VT/unstable 150→200 J"
+      ],
+      "drugs": [
+        {
+          "drug": "Adenosine",
+          "bolus": "6 mg, then 12 mg, then 18 mg, then consider other causes",
+          "peds": "0.1→0.2→0.3 mg/kg"
+        },
+        {
+          "drug": "Beta-blocker",
+          "bolus": "Esmolol 10 mg titrated; metoprolol 2.5 mg boluses titrated (max 15 mg)"
+        },
+        {
+          "drug": "Amiodarone",
+          "bolus": "300 mg over 10 min",
+          "peds": "5 mg/kg"
+        },
+        {
+          "drug": "Magnesium (torsades)",
+          "bolus": "10 mmol (5 mL of 49.3%) over 2 min",
+          "peds": "0.1 mL/kg (give slower for non-torsades causes)"
+        }
+      ],
+      "crossRefs": [
+        "30d"
+      ],
+      "sectionLabel": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "sectionTag": "D",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Check patient monitors — Anesthetist's ABCDE",
+            "If there is diagnostic uncertainty and MAP <65 mmHg with HR >150, give a synchronised DC shock; may repeat up to 3 times and give amiodarone",
+            "Differentiate sinus tachycardia from complex tachy-arrhythmia: current surgical/pain stimulation; sinus rhythm?; QRS regularity?; QRS width?",
+            "If sinus tachycardia, consider causes",
+            "If complex tachy-arrhythmia, treat based on MAP: MAP <65 mmHg → synchronised DC shock; MAP >65 mmHg → manage by QRS width/regularity — Broad regular (VT/WPW: amiodarone; SVT with bundle block: treat as narrow), Broad irregular (AF with bundle block: treat as narrow; torsades: magnesium), Narrow regular (SVT: vagal manoeuvres → adenosine → beta-blocker), Narrow irregular (AF: beta-blocker or amiodarone)",
+            "Send an urgent blood gas — ensure high-normal K⁺ and Mg²⁺"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Primary causes: IHD, cardiomyopathy, sick sinus syndrome, accessory conduction pathways, myocarditis, pericarditis, valvular disease, congenital heart disease",
+            "Secondary causes: hypovolaemia, anesthesia depth, drugs (including drug error), pain, anaphylaxis, electrolyte abnormalities, cardiac tamponade, sepsis, thyroid storm, MH",
+            "Synchronised shock guide: AF/monomorphic VT 100→150→200 J; SVT/flutter 100→200 J; polymorphic VT/unstable 150→200 J"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Adenosine",
+              "bolus": "6 mg, then 12 mg, then 18 mg, then consider other causes",
+              "peds": "0.1→0.2→0.3 mg/kg"
+            },
+            {
+              "drug": "Beta-blocker",
+              "bolus": "Esmolol 10 mg titrated; metoprolol 2.5 mg boluses titrated (max 15 mg)"
+            },
+            {
+              "drug": "Amiodarone",
+              "bolus": "300 mg over 10 min",
+              "peds": "5 mg/kg"
+            },
+            {
+              "drug": "Magnesium (torsades)",
+              "bolus": "10 mmol (5 mL of 49.3%) over 2 min",
+              "peds": "0.1 mL/kg (give slower for non-torsades causes)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "30d",
+      "section": "diagnosing",
+      "title": "Bradycardia",
+      "priority": "Treat if MAP <65 mmHg or evidence of poor perfusion",
+      "doing": [
+        "Quick check of patient monitors — Anesthetist's ABCDE",
+        "If MAP >65 mmHg, there is time to consider causes",
+        "If MAP <65 mmHg ± evidence of decreased perfusion: atropine; glycopyrrolate; ephedrine bolus titrated; epinephrine infusion; isoprenaline infusion; dopamine infusion",
+        "If drug toxicity/overdose: beta-blocker — as above plus high-dose insulin infusion and sodium bicarbonate if propranolol overdose; calcium-channel blocker — as for beta-blocker plus IV calcium chloride slow push (may repeat)",
+        "If severe refractory bradycardia, try external temporary pacing: attach defib/ECG leads, set to pacer mode, select rate 60/min, increase mA of output until capture (normally 65–100 mA), set final output 10 mA above capture, confirm pulse",
+        "If PEA occurs at any point, start CPR"
+      ],
+      "thinking": [
+        "Primary causes: athlete, IHD, AV block, pacemaker malfunction, cardiomyopathy, sick sinus syndrome, myocarditis, pericarditis, valvular disease, pulmonary hypertension",
+        "Secondary causes: vagal stimulation, drugs (error, overdose, anti-arrhythmics), electrolyte abnormality, low thyroid, hypothermia, raised ICP, cardiac tamponade, tension pneumothorax",
+        "Anesthetic causes: vasopressors, volatile agents, succinylcholine, opioids, high/total spinal, anticholinesterases, hypoxia, auto-PEEP, MH, abnormal K⁺"
+      ],
+      "drugs": [
+        {
+          "drug": "Atropine",
+          "bolus": "600 mcg up to 3 mg",
+          "peds": "20 mcg/kg"
+        },
+        {
+          "drug": "Glycopyrrolate",
+          "bolus": "200 mcg up to 1 mg",
+          "peds": "10 mcg/kg"
+        },
+        {
+          "drug": "Ephedrine",
+          "bolus": "9 mg bolus titrated",
+          "peds": "0.1 mg/kg"
+        },
+        {
+          "drug": "Isoprenaline",
+          "infusion": "dilute 1 mg (5 vials) into 50 mL, infuse 0–60 mL/hr"
+        },
+        {
+          "drug": "Epinephrine",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+        },
+        {
+          "drug": "Dopamine",
+          "infusion": "100 mg in 50 mL saline, infuse 0–20 mL/hr"
+        },
+        {
+          "drug": "Sodium bicarbonate 8.4% (beta-blocker OD)",
+          "bolus": "50 mL slow push, repeat every 2 min (target pH 7.45–7.55)"
+        },
+        {
+          "drug": "High-dose insulin (beta-blocker/CCB OD)",
+          "bolus": "50 mL 50% dextrose + 70 u actrapid",
+          "infusion": "100 u actrapid in 50 mL saline at 35 mL/hr, with 10% dextrose at 250 mL/hr (monitor glucose & K⁺ every 30 min)"
+        },
+        {
+          "drug": "Calcium chloride 10% (CCB OD)",
+          "bolus": "10 mL slow push, may repeat"
+        }
+      ],
+      "crossRefs": [
+        "7e",
+        "8e",
+        "9e",
+        "36r"
+      ],
+      "sectionLabel": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "sectionTag": "D",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Quick check of patient monitors — Anesthetist's ABCDE",
+            "If MAP >65 mmHg, there is time to consider causes",
+            "If MAP <65 mmHg ± evidence of decreased perfusion: atropine; glycopyrrolate; ephedrine bolus titrated; epinephrine infusion; isoprenaline infusion; dopamine infusion",
+            "If drug toxicity/overdose: beta-blocker — as above plus high-dose insulin infusion and sodium bicarbonate if propranolol overdose; calcium-channel blocker — as for beta-blocker plus IV calcium chloride slow push (may repeat)",
+            "If severe refractory bradycardia, try external temporary pacing: attach defib/ECG leads, set to pacer mode, select rate 60/min, increase mA of output until capture (normally 65–100 mA), set final output 10 mA above capture, confirm pulse",
+            "If PEA occurs at any point, start CPR"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Primary causes: athlete, IHD, AV block, pacemaker malfunction, cardiomyopathy, sick sinus syndrome, myocarditis, pericarditis, valvular disease, pulmonary hypertension",
+            "Secondary causes: vagal stimulation, drugs (error, overdose, anti-arrhythmics), electrolyte abnormality, low thyroid, hypothermia, raised ICP, cardiac tamponade, tension pneumothorax",
+            "Anesthetic causes: vasopressors, volatile agents, succinylcholine, opioids, high/total spinal, anticholinesterases, hypoxia, auto-PEEP, MH, abnormal K⁺"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Atropine",
+              "bolus": "600 mcg up to 3 mg",
+              "peds": "20 mcg/kg"
+            },
+            {
+              "drug": "Glycopyrrolate",
+              "bolus": "200 mcg up to 1 mg",
+              "peds": "10 mcg/kg"
+            },
+            {
+              "drug": "Ephedrine",
+              "bolus": "9 mg bolus titrated",
+              "peds": "0.1 mg/kg"
+            },
+            {
+              "drug": "Isoprenaline",
+              "infusion": "dilute 1 mg (5 vials) into 50 mL, infuse 0–60 mL/hr"
+            },
+            {
+              "drug": "Epinephrine",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+            },
+            {
+              "drug": "Dopamine",
+              "infusion": "100 mg in 50 mL saline, infuse 0–20 mL/hr"
+            },
+            {
+              "drug": "Sodium bicarbonate 8.4% (beta-blocker OD)",
+              "bolus": "50 mL slow push, repeat every 2 min (target pH 7.45–7.55)"
+            },
+            {
+              "drug": "High-dose insulin (beta-blocker/CCB OD)",
+              "bolus": "50 mL 50% dextrose + 70 u actrapid",
+              "infusion": "100 u actrapid in 50 mL saline at 35 mL/hr, with 10% dextrose at 250 mL/hr (monitor glucose & K⁺ every 30 min)"
+            },
+            {
+              "drug": "Calcium chloride 10% (CCB OD)",
+              "bolus": "10 mL slow push, may repeat"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "31d",
+      "section": "diagnosing",
+      "title": "Hypertension",
+      "priority": "Treat reversible causes first, then antihypertensives to SBP ~160 mmHg",
+      "doing": [
+        "Quick check of patient monitors — Anesthetist's ABCDE",
+        "Check accuracy of the reading — check equipment, including transducer height",
+        "Frequency gamble on common causes: painful surgical activity (give analgesia); recent drug infusions/doses for drug error (including LA with epinephrine); tourniquet time; bladder volume/fluids infused",
+        "Systematically work through possible causes",
+        "Once all reversible causes are addressed, consider IV antihypertensive agents to a systolic BP target of around 160 mmHg"
+      ],
+      "thinking": [
+        "Anesthesia causes: too light, pain, drugs (consider error), hypoxia, hypercapnia, MH, non-patent/tissued IV line, A-line transducer height",
+        "Surgical causes: pneumoperitoneum, tourniquet, aortic clamping, carotid endarterectomy, baroreceptor stimulation",
+        "Patient-related causes: essential hypertension, rebound hypertension (beta-blocker stopped), full bladder, pre-eclampsia, renal disease, phaeochromocytoma (always give an alpha-blocker before a beta-blocker), thyroid storm, raised ICP"
+      ],
+      "drugs": [
+        {
+          "drug": "Beta-blocker",
+          "bolus": "Esmolol 10 mg boluses titrated; metoprolol 2.5 mg boluses titrated (max 15 mg)"
+        },
+        {
+          "drug": "Alpha-blocker",
+          "bolus": "Labetalol (also a beta-blocker) 5 mg boluses titrated (max 100 mg); phentolamine 5–10 mg IV repeated every 5–15 min"
+        },
+        {
+          "drug": "Alpha-agonist",
+          "bolus": "Clonidine 30 mcg boluses titrated (max 150 mcg)"
+        },
+        {
+          "drug": "Vasodilators",
+          "notes": "GTN sublingual spray or IV infusion 50 mg in 50 mL saline at 3 mL/hr, titrate; magnesium slow bolus 5 mL of 49.3%, repeat if required"
+        }
+      ],
+      "crossRefs": [
+        "32d"
+      ],
+      "sectionLabel": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "sectionTag": "D",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Quick check of patient monitors — Anesthetist's ABCDE",
+            "Check accuracy of the reading — check equipment, including transducer height",
+            "Frequency gamble on common causes: painful surgical activity (give analgesia); recent drug infusions/doses for drug error (including LA with epinephrine); tourniquet time; bladder volume/fluids infused",
+            "Systematically work through possible causes",
+            "Once all reversible causes are addressed, consider IV antihypertensive agents to a systolic BP target of around 160 mmHg"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Anesthesia causes: too light, pain, drugs (consider error), hypoxia, hypercapnia, MH, non-patent/tissued IV line, A-line transducer height",
+            "Surgical causes: pneumoperitoneum, tourniquet, aortic clamping, carotid endarterectomy, baroreceptor stimulation",
+            "Patient-related causes: essential hypertension, rebound hypertension (beta-blocker stopped), full bladder, pre-eclampsia, renal disease, phaeochromocytoma (always give an alpha-blocker before a beta-blocker), thyroid storm, raised ICP"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Beta-blocker",
+              "bolus": "Esmolol 10 mg boluses titrated; metoprolol 2.5 mg boluses titrated (max 15 mg)"
+            },
+            {
+              "drug": "Alpha-blocker",
+              "bolus": "Labetalol (also a beta-blocker) 5 mg boluses titrated (max 100 mg); phentolamine 5–10 mg IV repeated every 5–15 min"
+            },
+            {
+              "drug": "Alpha-agonist",
+              "bolus": "Clonidine 30 mcg boluses titrated (max 150 mcg)"
+            },
+            {
+              "drug": "Vasodilators",
+              "notes": "GTN sublingual spray or IV infusion 50 mg in 50 mL saline at 3 mL/hr, titrate; magnesium slow bolus 5 mL of 49.3%, repeat if required"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "32d",
+      "section": "diagnosing",
+      "title": "Hypotension",
+      "priority": "Assess severity; treat reversible causes",
+      "doing": [
+        "Check patient monitors — Anesthetist's ABCDE",
+        "Check accuracy of the reading — check equipment, including transducer height",
+        "Assess severity: visualise the patient, check the ECG and EtCO₂/SpO₂ waveforms",
+        "No cardiac output or critical MAP: start CPR",
+        "MAP <65 mmHg with concern: leg elevation; rapid fluid infusion ± readiness to transfuse blood; IV vasopressors or inotropes",
+        "Consider reversible causes — frequency gamble on common causes, then systematically work through each cause in turn",
+        "Consider echo (if skilled) to differentiate causes, and other invasive monitoring (e.g. pulse pressure/stroke volume variation from an arterial line, cardiac index monitoring)"
+      ],
+      "thinking": [
+        "Always suspect concealed hemorrhage, particularly with scope surgery or after drug administration/surgical events",
+        "Decreased preload: blood loss/hypovolaemia, increased intrathoracic pressure, decreased venous return (IVC compression, position, pneumoperitoneum), tamponade/tension pneumothorax, embolism",
+        "Decreased contractility: drugs including volatiles, IHD, cardiomyopathy, myocarditis, arrhythmia, valvular disease",
+        "Decreased afterload: drugs (vasodilators including anesthetic agents, opioids, antihypertensives), neuraxial techniques, sepsis, tourniquet/clamp release, anaphylaxis, Addisonian crisis, low thyroid",
+        "Equipment/human factors: artefact or failure, wrong transducer height, wrong NIBP cuff size, drug error",
+        "PPV/SVV >12% suggests hypovolaemia (only valid if intubated, paralysed, tidal volume >8 mL/kg, sinus rhythm, normal abdominal pressure). Normal cardiac index is >2.6 L/min/m²"
+      ],
+      "drugs": [
+        {
+          "drug": "Pressors",
+          "bolus": "Metaraminol 0.5 mg (10 mcg/kg); phenylephrine 100 mcg; ephedrine 9 mg (0.25 mg/kg); epinephrine 10–50 mcg"
+        },
+        {
+          "drug": "Norepinephrine/Epinephrine infusion",
+          "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+        }
+      ],
+      "crossRefs": [
+        "6e",
+        "7e",
+        "12e"
+      ],
+      "sectionLabel": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "sectionTag": "D",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Check patient monitors — Anesthetist's ABCDE",
+            "Check accuracy of the reading — check equipment, including transducer height",
+            "Assess severity: visualise the patient, check the ECG and EtCO₂/SpO₂ waveforms",
+            "No cardiac output or critical MAP: start CPR",
+            "MAP <65 mmHg with concern: leg elevation; rapid fluid infusion ± readiness to transfuse blood; IV vasopressors or inotropes",
+            "Consider reversible causes — frequency gamble on common causes, then systematically work through each cause in turn",
+            "Consider echo (if skilled) to differentiate causes, and other invasive monitoring (e.g. pulse pressure/stroke volume variation from an arterial line, cardiac index monitoring)"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Always suspect concealed hemorrhage, particularly with scope surgery or after drug administration/surgical events",
+            "Decreased preload: blood loss/hypovolaemia, increased intrathoracic pressure, decreased venous return (IVC compression, position, pneumoperitoneum), tamponade/tension pneumothorax, embolism",
+            "Decreased contractility: drugs including volatiles, IHD, cardiomyopathy, myocarditis, arrhythmia, valvular disease",
+            "Decreased afterload: drugs (vasodilators including anesthetic agents, opioids, antihypertensives), neuraxial techniques, sepsis, tourniquet/clamp release, anaphylaxis, Addisonian crisis, low thyroid",
+            "Equipment/human factors: artefact or failure, wrong transducer height, wrong NIBP cuff size, drug error",
+            "PPV/SVV >12% suggests hypovolaemia (only valid if intubated, paralysed, tidal volume >8 mL/kg, sinus rhythm, normal abdominal pressure). Normal cardiac index is >2.6 L/min/m²"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Pressors",
+              "bolus": "Metaraminol 0.5 mg (10 mcg/kg); phenylephrine 100 mcg; ephedrine 9 mg (0.25 mg/kg); epinephrine 10–50 mcg"
+            },
+            {
+              "drug": "Norepinephrine/Epinephrine infusion",
+              "infusion": "5 mg in 50 mL saline, infuse 0–20 mL/hr"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "33d",
+      "section": "diagnosing",
+      "title": "Failure to Wake",
+      "priority": "Generally not a crisis — use the time to consider causes",
+      "doing": [
+        "Airway: ensure a patent, unobstructed airway",
+        "Breathing: ensure an established respiratory pattern; check SpO₂; check the EtCO₂ trace and value",
+        "Cardiovascular: ensure normal HR, MAP, and ECG",
+        "Drugs: review all drugs given during the anesthetic — check muscle relaxation with a nerve stimulator and give a reversal agent; consider timing and infusions of all agents; consider drug errors and interactions; consider patient factors (renal/hepatic failure, elderly)",
+        "Neurological: check pupils; apply BIS for signs of seizure (detects frontal lobe seizures only); consider the need for CT",
+        "Metabolic: send a blood gas — check PaO₂, PaCO₂, sodium, glucose",
+        "Temperature: ensure core temperature is >30 °C / >86 °F",
+        "Systematically work through all remaining causes"
+      ],
+      "thinking": [
+        "Drug causes: analgesic agents (opioids, alpha-2 agonists); anesthetic agents (volatile, propofol); muscle relaxants (succinylcholine apnoea, inadequate reversal); sedatives (benzodiazepines, anticholinergics, antihistamines, antidopaminergics); magnesium toxicity",
+        "Metabolic causes: abnormal blood glucose, abnormal sodium, raised urea",
+        "Respiratory failure: hypoxia or hypercapnia from decreased central drive (stroke, COPD), lung disease (PE, ARDS), or muscle power issues (obesity)",
+        "Neurological causes: stroke (infarct, bleed, embolism); seizure (non-convulsive status epilepticus or post-ictal); local anesthetic toxicity",
+        "Other uncommon causes: central anticholinergic syndrome, dissociative coma, thyroid failure, toxicity of other CNS drugs",
+        "Hypothermia"
+      ],
+      "drugs": [
+        {
+          "drug": "Sugammadex (rocuronium/vecuronium) — by total body weight",
+          "bolus": "PTC >2 = 4 mg/kg (70 kg = 280 mg); >T2 = 2 mg/kg (70 kg = 140 mg)"
+        },
+        {
+          "drug": "Neostigmine + glycopyrrolate (all non-depolarising relaxants)",
+          "bolus": "Neostigmine 2.5 mg (50 mcg/kg) with glycopyrrolate 500 mcg (10 mcg/kg); repeat at 15 min"
+        },
+        {
+          "drug": "Succinylcholine apnoea",
+          "notes": "No reversal agent available — continue anesthesia/sedation and refer to ICU"
+        }
+      ],
+      "crossRefs": [],
+      "sectionLabel": "Diagnosing a Problem",
+      "book": "diagnosing",
+      "sectionTag": "D",
+      "boxes": {
+        "doing": {
+          "color": "red",
+          "label": "Do now",
+          "items": [
+            "Airway: ensure a patent, unobstructed airway",
+            "Breathing: ensure an established respiratory pattern; check SpO₂; check the EtCO₂ trace and value",
+            "Cardiovascular: ensure normal HR, MAP, and ECG",
+            "Drugs: review all drugs given during the anesthetic — check muscle relaxation with a nerve stimulator and give a reversal agent; consider timing and infusions of all agents; consider drug errors and interactions; consider patient factors (renal/hepatic failure, elderly)",
+            "Neurological: check pupils; apply BIS for signs of seizure (detects frontal lobe seizures only); consider the need for CT",
+            "Metabolic: send a blood gas — check PaO₂, PaCO₂, sodium, glucose",
+            "Temperature: ensure core temperature is >30 °C / >86 °F",
+            "Systematically work through all remaining causes"
+          ]
+        },
+        "thinking": {
+          "color": "yellow",
+          "label": "Think / consider",
+          "items": [
+            "Drug causes: analgesic agents (opioids, alpha-2 agonists); anesthetic agents (volatile, propofol); muscle relaxants (succinylcholine apnoea, inadequate reversal); sedatives (benzodiazepines, anticholinergics, antihistamines, antidopaminergics); magnesium toxicity",
+            "Metabolic causes: abnormal blood glucose, abnormal sodium, raised urea",
+            "Respiratory failure: hypoxia or hypercapnia from decreased central drive (stroke, COPD), lung disease (PE, ARDS), or muscle power issues (obesity)",
+            "Neurological causes: stroke (infarct, bleed, embolism); seizure (non-convulsive status epilepticus or post-ictal); local anesthetic toxicity",
+            "Other uncommon causes: central anticholinergic syndrome, dissociative coma, thyroid failure, toxicity of other CNS drugs",
+            "Hypothermia"
+          ]
+        },
+        "drugs": {
+          "color": "green",
+          "label": "Doses & equipment",
+          "items": [
+            {
+              "drug": "Sugammadex (rocuronium/vecuronium) — by total body weight",
+              "bolus": "PTC >2 = 4 mg/kg (70 kg = 280 mg); >T2 = 2 mg/kg (70 kg = 140 mg)"
+            },
+            {
+              "drug": "Neostigmine + glycopyrrolate (all non-depolarising relaxants)",
+              "bolus": "Neostigmine 2.5 mg (50 mcg/kg) with glycopyrrolate 500 mcg (10 mcg/kg); repeat at 15 min"
+            },
+            {
+              "drug": "Succinylcholine apnoea",
+              "notes": "No reversal agent available — continue anesthesia/sedation and refer to ICU"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "adultDrugFormulary": [
+    {
+      "drug": "Adenosine",
+      "bolus": "6 mg, then 12 mg, then 18 mg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Epinephrine",
+      "bolus": "[Arrest] 10 mL of 1:10,000 (1 mg). [Other] 0.1–1 mL of 1:10,000 (10–100 mcg), titrate",
+      "infusion": "[Central] 5 mg/50 mL, 0–20 mL/hr. [Peripheral] 3 mg/50 mL, 3–40 mL/hr"
+    },
+    {
+      "drug": "Alteplase",
+      "bolus": "[Cardiac arrest] 50 mg slow push, may repeat at 15 min. [Peri-arrest] 20 mg slow push",
+      "infusion": "[Peri-arrest] 80 mg in 20 mL saline, infuse at 10 mL/hr"
+    },
+    {
+      "drug": "Aminophylline",
+      "bolus": "400 mg over 15 min",
+      "infusion": "50 mg in 50 mL at 35 mL/hr"
+    },
+    {
+      "drug": "Amiodarone",
+      "bolus": "300 mg over 10 min",
+      "infusion": "900 mg in 500 mL D5W over 24 hr"
+    },
+    {
+      "drug": "Calcium chloride 10%",
+      "bolus": "10 mL slow push",
+      "infusion": "–"
+    },
+    {
+      "drug": "Clonidine",
+      "bolus": "30 mcg, titrate (max 150 mcg)",
+      "infusion": "–"
+    },
+    {
+      "drug": "Dobutamine",
+      "bolus": "–",
+      "infusion": "250 mg in 50 mL saline, 0–10 mL/hr"
+    },
+    {
+      "drug": "Dopamine",
+      "bolus": "–",
+      "infusion": "100 mg in 50 mL saline, 0–20 mL/hr"
+    },
+    {
+      "drug": "Esmolol",
+      "bolus": "10 mg, titrate",
+      "infusion": "–"
+    },
+    {
+      "drug": "GTN",
+      "bolus": "[tocolytic] 100–250 mcg",
+      "infusion": "[ischaemia] 50 mg in 50 mL saline, 3–12 mL/hr, titrate to MAP/ECG"
+    },
+    {
+      "drug": "Hydralazine",
+      "bolus": "Dilute to 1 mg/mL, give 5 mL slow push, repeat every 20 min (max 30 mL)",
+      "infusion": "Dilute to 1 mg/mL, start at 5 mL/hr, change by 1 mL/hr every 20 min (max 20 mL/hr)"
+    },
+    {
+      "drug": "Hydrocortisone",
+      "bolus": "200 mg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Insulin (actrapid)",
+      "bolus": "[Beta-blocker/CCB OD] 50 mL 50% dextrose + 70 u actrapid (1 u/kg) bolus. [Hyperkalaemia] 10 u in 250 mL 10% dextrose, infuse quickly",
+      "infusion": "[Beta-blocker/CCB OD] 100 u in 50 mL saline at 35 mL/hr with 10% dextrose at 250 mL/hr, check glucose & K⁺ every 30 min"
+    },
+    {
+      "drug": "Intralipid 20%",
+      "bolus": "100 mL (1.5 mL/kg), repeat every 5 min, max ×2",
+      "infusion": "1000 mL/hr (15 mL/kg/hr), can double rate at 5 min (max total dose 12 mL/kg)"
+    },
+    {
+      "drug": "Isoprenaline",
+      "bolus": "–",
+      "infusion": "1 mg into 50 mL saline, infuse 0–60 mL/hr"
+    },
+    {
+      "drug": "Ketamine",
+      "bolus": "[induction] 70–140 mg (1–2 mg/kg). [bronchospasm] 35–70 mg (0.5–1 mg/kg)",
+      "infusion": "–"
+    },
+    {
+      "drug": "Labetalol",
+      "bolus": "5–20 mg slow push, titrate (max 100 mg)",
+      "infusion": "[eclampsia] 100 mg/100 mL at 20 mL/hr, double every 30 min (max 160 mL/hr)"
+    },
+    {
+      "drug": "Lidocaine 1% (1 mL = 10 mg)",
+      "bolus": "[arrhythmia] 7 mL (0.1 mL/kg), repeat every 10 min (max 0.3 mL/kg)",
+      "infusion": "Neat 1% at 6–24 mL/hr (max 30 mL in 1 hr = 3 mg/kg)"
+    },
+    {
+      "drug": "Magnesium 49.3% (1 mL = 2 mmol = 0.5 g)",
+      "bolus": "[bronchospasm] 5 mL over 20 min. [torsades] 5 mL slow push. [eclampsia loading] 8 mL/12 mL saline at 120 mL/hr",
+      "infusion": "[eclampsia maintenance] 16 mL/100 mL saline at 14.5 mL/hr; rescue 4 mL/6 mL saline over 5 min"
+    },
+    {
+      "drug": "Metaraminol",
+      "bolus": "0.5–1 mg, titrate",
+      "infusion": "10 mg in 20 mL saline, 0–40 mL/hr"
+    },
+    {
+      "drug": "Metoprolol",
+      "bolus": "1–2.5 mg, titrate (max 15 mg)",
+      "infusion": "–"
+    },
+    {
+      "drug": "Midazolam",
+      "bolus": "[seizures] 1–7 mg, titrate",
+      "infusion": "–"
+    },
+    {
+      "drug": "Milrinone",
+      "bolus": "–",
+      "infusion": "10 mg in 50 mL saline, 5 or 10 mL/hr only"
+    },
+    {
+      "drug": "Naloxone",
+      "bolus": "[emergency] 400 mcg. [titration] 40 mcg (max 800 mcg)",
+      "infusion": "Hourly rate = ⅔ of bolus dose required for initial effect"
+    },
+    {
+      "drug": "Norepinephrine",
+      "bolus": "–",
+      "infusion": "5 mg in 50 mL saline, 0–20 mL/hr"
+    },
+    {
+      "drug": "Oxytocin",
+      "bolus": "[elective] 3 units slow bolus (do not repeat). [emergency] 5 units slow bolus",
+      "infusion": "40 units in 500 mL saline, infuse 125 mL/hr"
+    },
+    {
+      "drug": "Phentolamine",
+      "bolus": "5–10 mg, repeat every 5–15 min as required",
+      "infusion": "–"
+    },
+    {
+      "drug": "Phenylephrine",
+      "bolus": "100 mcg, titrate",
+      "infusion": "10 mg in 100 mL saline (100 mcg/mL), 0–40 mL/hr"
+    },
+    {
+      "drug": "Albuterol",
+      "bolus": "250 mcg slow push (inhaled: 12 puffs via circuit)",
+      "infusion": "5 mg in 50 mL saline, 0–10 mL/hr"
+    },
+    {
+      "drug": "Sodium bicarbonate 8.4%",
+      "bolus": "25–50 mL slow push, repeat every 2 min (target pH 7.45–7.55)",
+      "infusion": "–"
+    },
+    {
+      "drug": "Sugammadex",
+      "bolus": "[emergency post-intubation] 16 mg/kg; [PTC>2] 4 mg/kg; [>T2] 2 mg/kg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Succinylcholine",
+      "bolus": "[laryngospasm] 35 mg (0.5 mg/kg)",
+      "infusion": "–"
+    },
+    {
+      "drug": "Tranexamic acid",
+      "bolus": "1 g over 10 min (15 mg/kg)",
+      "infusion": "1 g in 100 mL saline, infuse at 12.5 mL/hr (8 hr)"
+    },
+    {
+      "drug": "Vasopressin",
+      "bolus": "1 unit slow push",
+      "infusion": "20 units in 20 mL saline, 1–4 mL/hr"
+    }
+  ],
+  "pediatricDrugFormulary": [
+    {
+      "drug": "Adenosine",
+      "bolus": "0.1 mg/kg, then 0.2 mg/kg, then 0.3 mg/kg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Epinephrine",
+      "bolus": "[Arrest IV] 0.1 mL/kg of 1:10,000 (10 mcg/kg). [Arrest ETT] 0.1 mL/kg of 1:1,000 (100 mcg/kg). [Anaphylaxis gd 2–3] dilute 1 mg in 50 mL (20 mcg/mL), give 0.1–0.5 mL/kg. [IM] 0.01 mL/kg of 1:1,000 (10 mcg/kg)",
+      "infusion": "[hypotension] 0.15 mg/kg (max 5 mg) in 50 mL saline, 1–40 mL/hr"
+    },
+    {
+      "drug": "Aminophylline (25 mg/mL)",
+      "bolus": "10 mg/kg (max 500 mg) over 1 hr diluted to 50 mL with saline",
+      "infusion": "1–9 yr: 55 mg/kg/50 mL 5% dex, 1 mL/hr. 10–15 yr & <35 kg: 35 mg/50 mL, 1 mL/hr. 10–15 yr & >35 kg: neat, 0.028 mL/kg/hr"
+    },
+    {
+      "drug": "Amiodarone",
+      "bolus": "5 mg/kg slow push (max 300 mg)",
+      "infusion": "–"
+    },
+    {
+      "drug": "Atropine",
+      "bolus": "20 mcg/kg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Calcium chloride 10%",
+      "bolus": "0.05–0.2 mL/kg (max 10 mL) slow push",
+      "infusion": "–"
+    },
+    {
+      "drug": "Dobutamine",
+      "bolus": "–",
+      "infusion": "15 mg/kg in 50 mL saline, 0–4 mL/hr"
+    },
+    {
+      "drug": "Dopamine",
+      "bolus": "–",
+      "infusion": "15 mg/kg in 50 mL saline, 0–4 mL/hr"
+    },
+    {
+      "drug": "Ephedrine",
+      "bolus": "0.25 mg/kg (max 9 mg/dose)",
+      "infusion": "–"
+    },
+    {
+      "drug": "Esmolol",
+      "bolus": "500 mcg/kg slow push, titrate",
+      "infusion": "–"
+    },
+    {
+      "drug": "Glycopyrrolate",
+      "bolus": "10 mcg/kg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Hydrocortisone",
+      "bolus": "[asthma] 4 mg/kg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Insulin (actrapid)",
+      "bolus": "[hyperkalaemia] periph IV 0.1 u/kg in 5 mL/kg 10% dex; CVL 0.1 u/kg in 2 mL/kg 50% dex",
+      "infusion": "–"
+    },
+    {
+      "drug": "Intralipid 20%",
+      "bolus": "1.5 mL/kg bolus, repeat every 5 min, max ×2",
+      "infusion": "15 mL/kg/hr, can double rate at 5 min (max total dose 12 mL/kg)"
+    },
+    {
+      "drug": "Isoprenaline",
+      "bolus": "–",
+      "infusion": "300 mcg/kg in 50 mL saline, 1 mL/hr (0.1 mcg/kg/min), titrate up (max 10 mL/hr)"
+    },
+    {
+      "drug": "Ketamine",
+      "bolus": "[bronchospasm, anesthetised] 0.5–2 mg/kg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Labetalol",
+      "bolus": "0.25–0.5 mg/kg slow push, repeat every 10 min as needed",
+      "infusion": "50 mg/kg & saline to 50 mL, 0–3 mL/hr (0–3 mg/kg/hr)"
+    },
+    {
+      "drug": "Lidocaine 1% (1 mL = 10 mg)",
+      "bolus": "[arrhythmia] 0.1 mL/kg, repeat every 10 min (max 0.3 mL/kg)",
+      "infusion": "–"
+    },
+    {
+      "drug": "Magnesium 49.3%",
+      "bolus": "[asthma] 0.1 mL/kg (max 5 mL) in 50 mL saline over 20 min",
+      "infusion": "–"
+    },
+    {
+      "drug": "Metaraminol",
+      "bolus": "10 mcg/kg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Metoprolol",
+      "bolus": "0.1 mg over 5 min",
+      "infusion": "–"
+    },
+    {
+      "drug": "Midazolam",
+      "bolus": "[seizures] IV 0.1 mg/kg; IM 0.2 mg/kg; buccal 0.5 mg/kg, may repeat at 5 min",
+      "infusion": "–"
+    },
+    {
+      "drug": "Naloxone",
+      "bolus": "[emergency] 10 mcg/kg (max 400 mcg). [titrate] 2 mcg/kg",
+      "infusion": "300 mcg/kg to 30 mL 5% dex, run 0–1 mL/hr (10 mcg/kg/hr)"
+    },
+    {
+      "drug": "Norepinephrine",
+      "bolus": "–",
+      "infusion": "0.15 mg/kg (max 5 mg) in 50 mL saline, 1–40 mL/hr"
+    },
+    {
+      "drug": "Phenylephrine",
+      "bolus": "2–10 mcg/kg, titrate",
+      "infusion": "10 mg in 100 mL saline, 0–20 mL/hr (1–5 mcg/kg/min)"
+    },
+    {
+      "drug": "Albuterol",
+      "bolus": "Inhaled <5 yr = 6 puffs; >5 yr = 12 puffs. IV 10 mcg/kg over 2 min (max 500 mcg), repeat at 10 min",
+      "infusion": "5–10 mcg/kg/min for 1 hr, then 1–2 mcg/kg/min (see weight-based dilution table)"
+    },
+    {
+      "drug": "Sodium bicarbonate 8.4%",
+      "bolus": "1 mL/kg over 5 min, repeat every 2 min (target pH 7.45–7.55)",
+      "infusion": "–"
+    },
+    {
+      "drug": "Sugammadex",
+      "bolus": "[emergency post-intubation] 16 mg/kg; [PTC>2] 4 mg/kg; [>T2] 2 mg/kg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Succinylcholine",
+      "bolus": "[intubation] IV 2 mg/kg; IM 4 mg/kg. [non-emergency laryngospasm] 0.5 mg/kg",
+      "infusion": "–"
+    },
+    {
+      "drug": "Tranexamic acid",
+      "bolus": "15 mg/kg diluted in 20–50 mL saline over 10 min (max 1 g)",
+      "infusion": "2 mg/kg/hr in 500 mL saline for 8 hr"
+    },
+    {
+      "drug": "Vasopressin",
+      "bolus": "–",
+      "infusion": "1 unit/kg in 50 mL saline, bolus 2 mL, infuse 1–3 mL/hr"
+    }
+  ],
+  "concentrationNote": "US concentration note: epinephrine 1:10,000 = 0.1 mg/mL (the pre-filled 'code-dose' syringe, 1 mg/10 mL); 1:1,000 = 1 mg/mL. Local anesthetic and other drug concentrations follow standard US labeling (mg/mL)."
+}

@@ -19,6 +19,10 @@ struct EmergencyGuidesHubView: View {
     var hospitalID: UUID?
     /// When presented as a sheet, show a Done button.
     var presentedAsSheet: Bool = false
+    /// Optional crisis card to deep-link straight to (e.g. a tapped shortcut).
+    var initialCardID: String?
+
+    @State private var path = NavigationPath()
 
     private let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
 
@@ -26,12 +30,22 @@ struct EmergencyGuidesHubView: View {
         store.hospital(id: hospitalID ?? settings.activeHospitalId)
     }
 
+    /// The structured crisis manual for the active region, loaded offline.
+    private var manual: CrisisManual? {
+        CrisisManualStore.manual(for: settings.region)
+    }
+
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     intro
-                    guideGrid
+                    if let manual {
+                        shortcutGrid(manual: manual)
+                        CrisisGuidesListView(manual: manual)
+                    } else {
+                        guideGrid
+                    }
                     pinnedDocuments
                     emergencyEquipment
                     emergencyContacts
@@ -42,12 +56,37 @@ struct EmergencyGuidesHubView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Emergency Guides")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: CrisisCard.self) { card in
+                if let manual { CrisisCardDetailView(manual: manual, card: card) }
+            }
             .navigationDestination(for: KnowledgeArticle.self) { KnowledgeArticleView(article: $0) }
             .navigationDestination(for: KnowledgeDocument.self) { DocumentReaderView(documentID: $0.id) }
             .toolbar {
                 if presentedAsSheet {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Done") { dismiss() }.fontWeight(.semibold)
+                    }
+                }
+            }
+            .onAppear {
+                if let initialCardID, let card = manual?.card(id: initialCardID), path.isEmpty {
+                    path.append(card)
+                }
+            }
+        }
+    }
+
+    /// The five highest-priority crisis shortcuts, mapped to specific card ids.
+    private func shortcutGrid(manual: CrisisManual) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionLabel("Immediate access", icon: "bolt.fill")
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(CrisisShortcut.allCases) { shortcut in
+                    if let card = manual.card(id: shortcut.rawValue) {
+                        NavigationLink(value: card) {
+                            CrisisShortcutCard(shortcut: shortcut, title: card.title)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }

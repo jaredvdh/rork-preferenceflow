@@ -14,6 +14,11 @@ struct SearchView: View {
     @State private var hospitalFilter: UUID?
     @State private var specialtyFilter: Subspecialty?
 
+    /// Structured crisis manual for the active region, loaded offline.
+    private var crisisManual: CrisisManual? {
+        CrisisManualStore.manual(for: settings.region)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -30,6 +35,9 @@ struct SearchView: View {
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Search")
+            .navigationDestination(for: CrisisCard.self) { card in
+                if let crisisManual { CrisisCardDetailView(manual: crisisManual, card: card) }
+            }
             .searchable(text: $query, prompt: "Providers, hospitals, procedures…")
         }
     }
@@ -174,6 +182,16 @@ struct SearchView: View {
         }
     }
 
+    /// Structured crisis cards matched by title or section name. Specialty filter
+    /// doesn't apply to the manual, so it's only shown when no specialty is set.
+    private var matchingCrisisCards: [CrisisCard] {
+        guard !query.isBlank, specialtyFilter == nil, let crisisManual else { return [] }
+        return crisisManual.cards.filter {
+            $0.title.localizedCaseInsensitiveContains(query)
+            || $0.sectionLabel.localizedCaseInsensitiveContains(query)
+        }
+    }
+
     /// Imported PDF documents matched by title, category or extracted text.
     private var matchingDocuments: [KnowledgeDocument] {
         guard !query.isBlank else { return [] }
@@ -220,6 +238,7 @@ struct SearchView: View {
             || !matchingMedications.isEmpty || !matchingEquipment.isEmpty
             || !matchingEquipmentLocations.isEmpty || !matchingContacts.isEmpty
             || !matchingSickCall.isEmpty || !matchingDocuments.isEmpty
+            || !matchingCrisisCards.isEmpty
     }
 
     @ViewBuilder
@@ -359,6 +378,16 @@ struct SearchView: View {
                                 subtitle: [document.category.rawValue, store.hospital(id: document.hospitalId)?.name].compactMap { $0 }.joined(separator: " · "),
                                 icon: document.category.symbol
                             )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            if !matchingCrisisCards.isEmpty {
+                resultGroup("Emergency Guides", icon: "cross.case.fill") {
+                    ForEach(matchingCrisisCards) { card in
+                        NavigationLink(value: card) {
+                            searchSubRow(title: card.title, subtitle: card.sectionLabel, icon: "cross.case.fill")
                         }
                         .buttonStyle(.plain)
                     }
