@@ -105,36 +105,6 @@ nonisolated enum InheritanceStatus: Hashable {
     }
 }
 
-/// Compares a consultant against their linked department standard, section by
-/// section, so the UI can show what is inherited vs customised.
-nonisolated enum ProfileInheritance {
-    static func status(_ section: InheritedSection, doctor: Doctor, template: DepartmentTemplate?) -> InheritanceStatus {
-        guard let template else { return .standalone }
-        let matches: Bool
-        switch section {
-        case .general: matches = doctor.general == template.general
-        case .airway: matches = doctor.airway == template.airway
-        case .drugs: matches = (doctor.adultDrugs ?? DrugsFluidsSetup()) == template.adultDrugs
-        case .regional: matches = doctor.regionalBlocks == template.regionalBlocks
-        case .neuraxial: matches = doctor.neuraxial == template.neuraxial
-        }
-        return matches ? .inherited : .modified
-    }
-
-    /// Resets a single consultant section back to the department standard.
-    static func reset(_ section: InheritedSection, doctor: inout Doctor, template: DepartmentTemplate) {
-        switch section {
-        case .general: doctor.general = template.general
-        case .airway: doctor.airway = template.airway
-        case .drugs: doctor.adultDrugs = template.adultDrugs
-        case .regional: doctor.regionalBlocks = template.regionalBlocks
-        case .neuraxial: doctor.neuraxial = template.neuraxial
-        }
-    }
-
-    /// Count of sections a consultant has customised away from the standard.
-    static func modifiedCount(doctor: Doctor, template: DepartmentTemplate?) -> Int {
-        guard template != nil else { return 0 }
-        return InheritedSection.allCases.filter { status($0, doctor: doctor, template: template) == .modified }.count
-    }
-}
+/// `DepartmentTemplate.apply(to:)` / `makeDoctor(hospitalId:)` are still used to
+/// seed a brand-new consultant from a starting template. Once created, a profile
+/// stands on its own and is never re-compared against any template.

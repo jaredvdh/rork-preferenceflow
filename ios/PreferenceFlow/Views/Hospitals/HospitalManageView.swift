@@ -45,8 +45,8 @@ struct HospitalManageView: View {
                                 .background(Color(.systemGroupedBackground))
                         ),
                         icon: "doc.on.doc.fill", tint: Color(hex: "5E7CE2"),
-                        title: "Department Standards",
-                        subtitle: "Default setups consultants inherit",
+                        title: "Starting Templates",
+                        subtitle: "Reusable starting points for new consultants",
                         count: store.templates(forHospital: hospitalID).count
                     )
                     manageRow(

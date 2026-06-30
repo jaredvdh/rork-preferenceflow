@@ -13,7 +13,6 @@ struct GeneralTab: View {
     @State private var editing = false
 
     private var g: GeneralPreferences { doctor.general }
-    private var template: DepartmentTemplate? { store.template(for: doctor) }
 
     var body: some View {
         ScrollView {
@@ -46,11 +45,7 @@ struct GeneralTab: View {
     // MARK: - Status & highlights
 
     private var status: PrefStatus {
-        switch ProfileInheritance.status(.general, doctor: doctor, template: template) {
-        case .modified: return .modified("Updated by you")
-        case .inherited: return .departmentStandard
-        case .standalone: return .custom(text: "How this consultant likes to work", icon: "person.fill", color: Theme.accent)
-        }
+        .custom(text: "How this consultant likes to work", icon: "person.fill", color: Theme.accent)
     }
 
     private var highlightChips: [String] {

@@ -5,8 +5,9 @@
 
 import SwiftUI
 
-/// The department standards for a hospital. Editing a standard updates the default
-/// setup every inheriting consultant sees, without rebuilding their profiles.
+/// Reusable starting templates for a hospital. New consultant profiles can be
+/// created from one of these, then evolve independently — editing a template does
+/// not change existing profiles.
 struct DepartmentTemplatesTab: View {
     @Environment(DataStore.self) private var store
     let hospitalID: UUID
@@ -52,8 +53,8 @@ struct DepartmentTemplatesTab: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionLabel("Department Standards", icon: "doc.on.doc")
-            Text("The default setups consultants inherit. Update a standard here and every inheriting consultant follows the change.")
+            SectionLabel("Starting Templates", icon: "doc.on.doc")
+            Text("Templates new consultants can start from. Once a profile is created it stands on its own — editing a template here doesn't change existing profiles.")
                 .font(.caption).foregroundStyle(.secondary)
         }
     }
@@ -77,8 +78,8 @@ struct DepartmentTemplatesTab: View {
     }
 }
 
-/// A department standard row showing its headline setup and how many consultants
-/// currently inherit it.
+/// A starting-template row showing its headline setup and how many consultants
+/// were originally created from it.
 private struct DepartmentTemplateRow: View {
     let template: DepartmentTemplate
     let usedBy: Int
@@ -95,11 +96,10 @@ private struct DepartmentTemplateRow: View {
                     Text(template.name.isBlank ? "Untitled standard" : template.name)
                         .font(.headline).foregroundStyle(.primary)
                     if usedBy == 0 {
-                        Label("No consultants assigned", systemImage: "exclamationmark.triangle.fill")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(Color(hex: "E08B3E"))
+                        Text("Not used yet")
+                            .font(.caption).foregroundStyle(.secondary)
                     } else {
-                        Text(usedBy == 1 ? "1 consultant inherits" : "\(usedBy) consultants inherit")
+                        Text(usedBy == 1 ? "1 consultant started from this" : "\(usedBy) consultants started from this")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }

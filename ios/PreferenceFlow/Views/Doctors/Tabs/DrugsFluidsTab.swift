@@ -28,7 +28,6 @@ struct DrugsFluidsTab: View {
         }
     }
 
-    private var template: DepartmentTemplate? { store.template(for: doctor) }
 
     var body: some View {
         ScrollView {

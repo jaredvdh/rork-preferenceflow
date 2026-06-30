@@ -23,7 +23,6 @@ struct AirwayTab: View {
 
     private var a: AirwayPreferences { doctor.airway }
     private var hospital: Hospital? { store.hospital(id: doctor.hospitalId) }
-    private var template: DepartmentTemplate? { store.template(for: doctor) }
 
     var body: some View {
         ScrollView {
@@ -65,11 +64,7 @@ struct AirwayTab: View {
     // MARK: - Status & highlights
 
     private var status: PrefStatus {
-        switch ProfileInheritance.status(.airway, doctor: doctor, template: template) {
-        case .modified: return .modified("Updated by you")
-        case .inherited: return .departmentStandard
-        case .standalone: return .custom(text: "Standard airway setup", icon: "lungs.fill", color: Theme.accent)
-        }
+        .custom(text: "Standard airway setup", icon: "lungs.fill", color: Theme.accent)
     }
 
     private var highlightChips: [String] {

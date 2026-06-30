@@ -237,32 +237,6 @@ struct ChipMultiSelect: View {
     }
 }
 
-/// A small grey/blue pill showing whether a consultant section is inherited from
-/// the department standard or modified for the consultant.
-struct InheritanceBadge: View {
-    let status: InheritanceStatus
-    var compact: Bool = false
-
-    var body: some View {
-        if status != .standalone {
-            HStack(spacing: 4) {
-                Image(systemName: status == .inherited ? "building.2" : "pencil")
-                    .font(.system(size: 9, weight: .bold))
-                Text(compact ? status.shortLabel : status.label)
-                    .font(.caption2.weight(.semibold))
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(tint.opacity(0.16), in: .capsule)
-            .foregroundStyle(tint)
-        }
-    }
-
-    private var tint: Color {
-        status == .inherited ? Color.secondary : Theme.accentDeep
-    }
-}
-
 /// A read-only row that shows a label and a wrapped set of value chips, hidden
 /// when empty.
 struct ChipValueRow: View {

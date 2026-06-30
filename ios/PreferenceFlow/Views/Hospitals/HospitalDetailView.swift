@@ -265,8 +265,8 @@ struct HospitalDetailView: View {
                         .navigationTitle("Department Standards").navigationBarTitleDisplayMode(.inline)
                         .background(Color(.systemGroupedBackground))
                 } label: {
-                    SectionRow(icon: "doc.on.doc.fill", tint: Color(hex: "5E7CE2"), title: "Department Standards",
-                               subtitle: "Default setups consultants inherit", count: standards)
+                    SectionRow(icon: "doc.on.doc.fill", tint: Color(hex: "5E7CE2"), title: "Starting Templates",
+                               subtitle: "Reusable starting points for new consultants", count: standards)
                 }
                 .buttonStyle(.plain)
 

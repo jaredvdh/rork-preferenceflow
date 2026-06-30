@@ -139,15 +139,6 @@ final class DataStore {
         upsert(hospital)
     }
 
-    /// Resets a single consultant section back to its department standard and saves.
-    func resetSection(_ section: InheritedSection, for doctorID: UUID) {
-        guard let index = doctors.firstIndex(where: { $0.id == doctorID }),
-              let template = template(for: doctors[index]) else { return }
-        var updated = doctors[index]
-        ProfileInheritance.reset(section, doctor: &updated, template: template)
-        upsert(updated)
-    }
-
     // MARK: - Doctors
 
     func doctor(id: UUID) -> Doctor? {

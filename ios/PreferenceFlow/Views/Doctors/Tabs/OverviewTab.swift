@@ -593,13 +593,11 @@ private struct ReferencePhotoViewer: View {
 /// has been customised — without expanding first.
 private enum ProfileRowBadge {
     case none
-    case departmentStandard
     case updatedByYou
 
     @ViewBuilder var view: some View {
         switch self {
         case .none: EmptyView()
-        case .departmentStandard: PrefBadge("Department Standard", Theme.accent)
         case .updatedByYou: PrefBadge("Updated by you", .orange)
         }
     }
@@ -683,7 +681,7 @@ private struct NeuraxialExpandableRow: View {
             title: item.definition.title,
             icon: item.definition.icon,
             tint: PrefGroup.technique.tint,
-            badge: item.modified ? .updatedByYou : .departmentStandard,
+            badge: item.modified ? .updatedByYou : .none,
             collapsedSummary: NeuraxialSummary.collapsedSummary(for: item.resolved)
         ) {
             ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
