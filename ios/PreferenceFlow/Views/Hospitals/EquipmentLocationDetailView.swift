@@ -189,7 +189,7 @@ struct EquipmentLocationDetailView: View {
                     .background(emergency ? AnyShapeStyle(Color.red.gradient) : AnyShapeStyle(Theme.heroGradient), in: .circle)
 
                 Text(spot.location.isBlank ? "Location not set yet" : spot.location)
-                    .font(emergency ? .system(size: 20, weight: .bold) : .system(size: 18, weight: .semibold))
+                    .font(emergency ? .title3.weight(.bold) : .body.weight(.semibold))
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
