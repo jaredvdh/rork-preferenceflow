@@ -83,12 +83,10 @@ nonisolated enum DepartmentTemplateLibrary {
 
         let airway = standardAdultAirway(maleTube: "8.0", femaleTube: "7.0", video: .mcGrath)
 
-        var drugs = DrugsFluidsSetup()
-        drugs.induction = DrugSelection(selected: ["Propofol"], preparedBy: .assistant)
-        drugs.opioid = DrugSelection(selected: ["Fentanyl"], preparedBy: .assistant)
-        drugs.vasopressor = DrugSelection(selected: ["Metaraminol"], preparedBy: .assistant)
-        drugs.muscleRelaxant = DrugSelection(selected: ["Rocuronium"], preparedBy: .assistant)
-        drugs.fluids = DrugSelection(selected: ["Hartmann's"], preparedBy: .assistant)
+        // Drug selections and who prepares them are individual consultant
+        // preferences — left blank so a template-derived profile never implies
+        // a drug choice the consultant hasn't actually made.
+        let drugs = DrugsFluidsSetup()
 
         return DepartmentTemplate(
             id: id("01"),
@@ -98,7 +96,7 @@ nonisolated enum DepartmentTemplateLibrary {
             general: general,
             airway: airway,
             adultDrugs: drugs,
-            notes: "Standard adult general list setup. Starting point only — adjust for the consultant and case."
+            notes: "Standard adult general list setup. Starting point only — adjust for the consultant and case. Drug selections are intentionally left blank — set per consultant preference."
         )
     }
 
@@ -112,12 +110,7 @@ nonisolated enum DepartmentTemplateLibrary {
         var airway = standardAdultAirway(maleTube: "8.0", femaleTube: "7.5", video: .cMac)
         airway.adultMale.bladeSize = "4"
 
-        var drugs = DrugsFluidsSetup()
-        drugs.induction = DrugSelection(selected: ["Propofol", "Ketamine"], preparedBy: .doctor)
-        drugs.opioid = DrugSelection(selected: ["Fentanyl"], preparedBy: .doctor)
-        drugs.vasopressor = DrugSelection(selected: ["Metaraminol", "Noradrenaline"], preparedBy: .doctor)
-        drugs.muscleRelaxant = DrugSelection(selected: ["Rocuronium"], preparedBy: .doctor)
-        drugs.fluids = DrugSelection(selected: ["Plasma-Lyte"], preparedBy: .assistant)
+        let drugs = DrugsFluidsSetup()
 
         // Invasive lines are routine — start with an arterial line and CVC configured.
         var neuraxial = NeuraxialPreferences()
@@ -133,7 +126,7 @@ nonisolated enum DepartmentTemplateLibrary {
             airway: airway,
             adultDrugs: drugs,
             neuraxial: neuraxial,
-            notes: "Cardiac list standard — invasive monitoring, large-bore access and rapid infuser typically required."
+            notes: "Cardiac list standard — invasive monitoring, large-bore access and rapid infuser typically required. Drug selections are intentionally left blank — set per consultant preference."
         )
     }
 
@@ -153,12 +146,7 @@ nonisolated enum DepartmentTemplateLibrary {
         airway.supraglottic.adultFemale = SupraglotticChoice(device: .igel, size: "3")
         airway.supraglottic.adultMale = SupraglotticChoice(device: .igel, size: "4")
 
-        var drugs = DrugsFluidsSetup()
-        drugs.induction = DrugSelection(selected: ["Propofol"], preparedBy: .assistant)
-        drugs.opioid = DrugSelection(selected: ["Fentanyl"], preparedBy: .assistant)
-        drugs.vasopressor = DrugSelection(selected: ["Ephedrine"], preparedBy: .assistant)
-        drugs.muscleRelaxant = DrugSelection(selected: ["Rocuronium"], preparedBy: .assistant)
-        drugs.fluids = DrugSelection(selected: ["Plasma-Lyte"], preparedBy: .assistant)
+        let drugs = DrugsFluidsSetup()
 
         return DepartmentTemplate(
             id: id("03"),
@@ -168,7 +156,7 @@ nonisolated enum DepartmentTemplateLibrary {
             general: general,
             airway: airway,
             adultDrugs: drugs,
-            notes: "Paediatric list standard — tube and supraglottic sizes are weight/age based. Confirm against the patient and local policy."
+            notes: "Paediatric list standard — tube and supraglottic sizes are weight/age based. Confirm against the patient and local policy. Drug selections are intentionally left blank — set per consultant preference."
         )
     }
 
@@ -195,12 +183,7 @@ nonisolated enum DepartmentTemplateLibrary {
         neuraxial.spinal = spinal
         neuraxial.setCustomization(standardWorkflow("spinal"))
 
-        var drugs = DrugsFluidsSetup()
-        drugs.induction = DrugSelection(selected: ["Propofol", "Thiopentone"], preparedBy: .doctor)
-        drugs.opioid = DrugSelection(selected: ["Fentanyl"], preparedBy: .doctor)
-        drugs.vasopressor = DrugSelection(selected: ["Phenylephrine", "Metaraminol"], preparedBy: .assistant)
-        drugs.muscleRelaxant = DrugSelection(selected: ["Succinylcholine", "Rocuronium"], preparedBy: .doctor)
-        drugs.fluids = DrugSelection(selected: ["Hartmann's"], preparedBy: .assistant)
+        let drugs = DrugsFluidsSetup()
 
         return DepartmentTemplate(
             id: id("04"),
@@ -211,7 +194,7 @@ nonisolated enum DepartmentTemplateLibrary {
             airway: standardAdultAirway(maleTube: "7.0", femaleTube: "6.5", video: .cMac),
             adultDrugs: drugs,
             neuraxial: neuraxial,
-            notes: "Obstetric list standard — spinal for caesarean, phenylephrine for blood pressure support. Anticipate difficult airway."
+            notes: "Obstetric list standard — spinal for caesarean. Anticipate difficult airway. Drug selections are intentionally left blank — set per consultant preference."
         )
     }
 
@@ -224,12 +207,7 @@ nonisolated enum DepartmentTemplateLibrary {
 
         let airway = standardAdultAirway(maleTube: "8.0", femaleTube: "7.5", video: .cMac)
 
-        var drugs = DrugsFluidsSetup()
-        drugs.induction = DrugSelection(selected: ["Propofol"], preparedBy: .doctor)
-        drugs.opioid = DrugSelection(selected: ["Remifentanil"], preparedBy: .doctor)
-        drugs.vasopressor = DrugSelection(selected: ["Metaraminol", "Noradrenaline"], preparedBy: .doctor)
-        drugs.muscleRelaxant = DrugSelection(selected: ["Rocuronium"], preparedBy: .doctor)
-        drugs.fluids = DrugSelection(selected: ["Plasma-Lyte"], preparedBy: .assistant)
+        let drugs = DrugsFluidsSetup()
 
         // Arterial line for tight haemodynamic control is routine.
         var neuraxial = NeuraxialPreferences()
@@ -244,7 +222,7 @@ nonisolated enum DepartmentTemplateLibrary {
             airway: airway,
             adultDrugs: drugs,
             neuraxial: neuraxial,
-            notes: "Neuro list standard — arterial line and tight haemodynamic control typical."
+            notes: "Neuro list standard — arterial line and tight haemodynamic control typical. Drug selections are intentionally left blank — set per consultant preference."
         )
     }
 
@@ -255,10 +233,7 @@ nonisolated enum DepartmentTemplateLibrary {
         general.assistantMayPrepareMedications = true
         general.arriveBeforePatient = true
 
-        var drugs = DrugsFluidsSetup()
-        drugs.induction = DrugSelection(selected: ["Propofol"], preparedBy: .assistant)
-        drugs.opioid = DrugSelection(selected: ["Fentanyl"], preparedBy: .assistant)
-        drugs.fluids = DrugSelection(selected: ["Hartmann's"], preparedBy: .assistant)
+        let drugs = DrugsFluidsSetup()
 
         let blocks = [
             RegionalBlock(
@@ -306,7 +281,7 @@ nonisolated enum DepartmentTemplateLibrary {
             general: general,
             adultDrugs: drugs,
             regionalBlocks: blocks,
-            notes: "Regional list standard — ultrasound-guided blocks with echogenic needles. Confirm doses and concentrations locally."
+            notes: "Regional list standard — ultrasound-guided blocks with echogenic needles. Confirm doses and concentrations locally. Drug selections are intentionally left blank — set per consultant preference."
         )
     }
 }
