@@ -59,52 +59,11 @@ struct SpecialtySetupDetailView: View {
                         icon: setup.specialty.symbol,
                         title: setup.specialty.rawValue,
                         caption: "What changes vs the standard setup",
-                        chips: highlightChips,
+                        chips: setup.highlightChips,
                         modificationCount: setup.changeCount
                     )
 
-                    if hasEquipment {
-                        PrefCollapsibleCard(group: .equipment, collapsedSummary: equipmentSummary) {
-                            if !setup.equipment.isEmpty {
-                                PrefSubgroup(title: "Equipment", tint: PrefGroup.equipment.tint) {
-                                    PrefChecklist(items: setup.equipment, tint: PrefGroup.equipment.tint)
-                                }
-                            }
-                            if !setup.linesAndAccess.isEmpty {
-                                PrefSubgroup(title: "Lines & Access", tint: PrefGroup.equipment.tint) {
-                                    PrefChecklist(items: setup.linesAndAccess, tint: PrefGroup.equipment.tint)
-                                }
-                            }
-                        }
-                    }
-
-                    if !setup.additionalMonitoring.isEmpty {
-                        PrefCollapsibleCard(
-                            group: .monitoring,
-                            collapsedSummary: setup.additionalMonitoring.prefix(3).joined(separator: ", ")
-                        ) {
-                            PrefChecklist(items: setup.additionalMonitoring, tint: PrefGroup.monitoring.tint)
-                        }
-                    }
-
-                    if !setup.drugChanges.isBlank {
-                        PrefCollapsibleCard(
-                            group: .medications,
-                            title: "Drugs",
-                            collapsedSummary: setup.drugChanges
-                        ) {
-                            PrefNote(label: "", text: setup.drugChanges, tint: PrefGroup.medications.tint)
-                        }
-                    }
-
-                    if !setup.specialNotes.isBlank {
-                        PrefCollapsibleCard(
-                            group: .consultantNotes,
-                            collapsedSummary: setup.specialNotes
-                        ) {
-                            PrefNote(label: "", text: setup.specialNotes, tint: PrefGroup.consultantNotes.tint)
-                        }
-                    }
+                    SpecialtySetupCards(setup: setup)
 
                     if !hospitalItems.isEmpty {
                         PrefHospitalCard(items: hospitalItems)
@@ -128,6 +87,60 @@ struct SpecialtySetupDetailView: View {
             }
         }
     }
+}
+
+/// The colour-coded, collapsible cards describing what a specialty setup changes
+/// vs the standard setup (equipment, monitoring, drugs, notes). Shared by the
+/// detail sheet and the read-mode specialty tab so both stay in sync.
+struct SpecialtySetupCards: View {
+    let setup: SpecialtySetup
+
+    var body: some View {
+        Group {
+            if hasEquipment {
+                PrefCollapsibleCard(group: .equipment, collapsedSummary: equipmentSummary) {
+                    if !setup.equipment.isEmpty {
+                        PrefSubgroup(title: "Equipment", tint: PrefGroup.equipment.tint) {
+                            PrefChecklist(items: setup.equipment, tint: PrefGroup.equipment.tint)
+                        }
+                    }
+                    if !setup.linesAndAccess.isEmpty {
+                        PrefSubgroup(title: "Lines & Access", tint: PrefGroup.equipment.tint) {
+                            PrefChecklist(items: setup.linesAndAccess, tint: PrefGroup.equipment.tint)
+                        }
+                    }
+                }
+            }
+
+            if !setup.additionalMonitoring.isEmpty {
+                PrefCollapsibleCard(
+                    group: .monitoring,
+                    collapsedSummary: setup.additionalMonitoring.prefix(3).joined(separator: ", ")
+                ) {
+                    PrefChecklist(items: setup.additionalMonitoring, tint: PrefGroup.monitoring.tint)
+                }
+            }
+
+            if !setup.drugChanges.isBlank {
+                PrefCollapsibleCard(
+                    group: .medications,
+                    title: "Drugs",
+                    collapsedSummary: setup.drugChanges
+                ) {
+                    PrefNote(label: "", text: setup.drugChanges, tint: PrefGroup.medications.tint)
+                }
+            }
+
+            if !setup.specialNotes.isBlank {
+                PrefCollapsibleCard(
+                    group: .consultantNotes,
+                    collapsedSummary: setup.specialNotes
+                ) {
+                    PrefNote(label: "", text: setup.specialNotes, tint: PrefGroup.consultantNotes.tint)
+                }
+            }
+        }
+    }
 
     private var hasEquipment: Bool {
         !setup.equipment.isEmpty || !setup.linesAndAccess.isEmpty
@@ -137,12 +150,63 @@ struct SpecialtySetupDetailView: View {
         let tokens = setup.equipment + setup.linesAndAccess
         return tokens.isEmpty ? "Tap to view" : tokens.prefix(3).joined(separator: ", ")
     }
+}
 
-    private var highlightChips: [String] {
+extension SpecialtySetup {
+    /// Top equipment + monitoring chips for the summary header.
+    var highlightChips: [String] {
         var chips: [String] = []
-        chips.append(contentsOf: setup.equipment.prefix(2))
-        chips.append(contentsOf: setup.additionalMonitoring.prefix(2))
+        chips.append(contentsOf: equipment.prefix(2))
+        chips.append(contentsOf: additionalMonitoring.prefix(2))
         return Array(chips.prefix(4))
+    }
+}
+
+/// Full-tab, read-only view for a specialty setup, shown in the profile's
+/// read-mode section switcher (parallel to a core tab like Airway). Standing
+/// note clarifies the standard setup still applies, then the same colour-coded
+/// cards as the detail sheet, plus an inline Edit entry point.
+struct SpecialtySetupTab: View {
+    let doctor: Doctor
+    let setup: SpecialtySetup
+    @State private var editing = false
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 14) {
+                PrefSummaryHeader(
+                    icon: setup.specialty.symbol,
+                    title: setup.specialty.rawValue,
+                    caption: "Consultant-specific extras for \(setup.specialty.rawValue) cases",
+                    chips: setup.highlightChips,
+                    modificationCount: setup.changeCount
+                )
+
+                Text("Standard airway, drugs, and monitoring still apply. Additional requirements for \(setup.specialty.rawValue) cases:")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 4)
+
+                SpecialtySetupCards(setup: setup)
+
+                Button { editing = true } label: {
+                    Label("Edit \(setup.specialty.rawValue) Setup", systemImage: "slider.horizontal.3")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Theme.accent)
+
+                PrefDisclaimer()
+            }
+            .padding(16)
+        }
+        .background(Color(.systemGroupedBackground))
+        .sheet(isPresented: $editing) {
+            SpecialtySetupEditView(doctor: doctor, setup: setup, isNew: false)
+        }
     }
 }
 

@@ -20,6 +20,8 @@ struct OverviewTab: View {
     let doctor: Doctor
     /// Switches the parent profile to another section tab (used by the editor).
     var onNavigate: (ProfileTab) -> Void = { _ in }
+    /// Selects a specialty setup's dedicated read-mode tab from the chip shortcuts.
+    var onSelectSpecialty: (SpecialtySetup) -> Void = { _ in }
     /// Hospital used for the Hospital Information quick links (resolved by parent).
     var hospitalID: UUID? = nil
     /// True when the profile is in Edit Mode (unused by the read-only card).
@@ -119,7 +121,10 @@ struct OverviewTab: View {
                 .buttonStyle(.plain)
             } else {
                 ForEach(activeSpecialties) { setup in
-                    SpecialtySetupExpandableRow(setup: setup)
+                    Button { onSelectSpecialty(setup) } label: {
+                        SpecialtySetupCard(setup: setup)
+                    }
+                    .buttonStyle(.plain)
                 }
                 Button { addingSpecialty = true } label: {
                     HStack(spacing: 6) {
@@ -857,40 +862,6 @@ private struct RegionalBlockExpandableRow: View {
 /// meets one consistent "tap to see more" behaviour. Uses the accent tint to stay
 /// visually distinct as its own category. Reads from the same SpecialtySetup data
 /// shown on the dedicated detail screen.
-private struct SpecialtySetupExpandableRow: View {
-    let setup: SpecialtySetup
-
-    private var collapsedSummary: String {
-        var tokens: [String] = []
-        tokens.append(contentsOf: setup.equipment.prefix(2))
-        if tokens.isEmpty { tokens.append(contentsOf: setup.additionalMonitoring.prefix(2)) }
-        if tokens.isEmpty, setup.changeCount > 0 {
-            return "^[\(setup.changeCount) change](inflect: true) vs standard"
-        }
-        return tokens.isEmpty ? "Tap to view" : tokens.joined(separator: " · ")
-    }
-
-    var body: some View {
-        ExpandableProfileRow(
-            title: setup.specialty.rawValue,
-            icon: setup.specialty.symbol,
-            tint: Theme.accent,
-            badge: .none,
-            collapsedSummary: collapsedSummary
-        ) {
-            Text("Standard airway, drugs, and monitoring still apply. Additional notes for \(setup.specialty.rawValue) cases:")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            PrefNote(label: "Case notes", text: setup.specialNotes, tint: Theme.accent)
-            ChipValueRow(label: "Additional equipment", values: setup.equipment)
-            ChipValueRow(label: "Additional monitoring", values: setup.additionalMonitoring)
-            ChipValueRow(label: "Lines and access", values: setup.linesAndAccess)
-            PrefNote(label: "Drug changes", text: setup.drugChanges, tint: Theme.accent)
-        }
-    }
-}
-
 /// A square quick-link tile used in the Hospital Information grid.
 private struct QuickLinkTile: View {
     let title: String

@@ -65,6 +65,9 @@ struct DoctorDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var tab: ProfileTab
+    /// Read-mode section selection: Overview or a specific specialty setup (by id).
+    /// Core sections are not promoted to read-mode tabs — they stay on Overview.
+    @State private var readTab: ReadTab = .overview
     @State private var migrating = false
     @State private var exportingPDF = false
     @State private var confirmingDelete = false
@@ -109,6 +112,9 @@ struct DoctorDetailView: View {
             if isEditing {
                 tabBar
                 Divider()
+            } else if showReadTabBar {
+                readTabBar
+                Divider()
             }
             content
         }
@@ -138,7 +144,7 @@ struct DoctorDetailView: View {
                         .fontWeight(.semibold)
                 } else {
                     Menu {
-                        Button { withAnimation(.spring(response: 0.3)) { isEditing = true; tab = .details } } label: { Label("Edit", systemImage: "pencil") }
+                        Button { withAnimation(.spring(response: 0.3)) { readTab = .overview; isEditing = true; tab = .details } } label: { Label("Edit", systemImage: "pencil") }
                         Button { shareProfileFile() } label: { Label("Share Profile", systemImage: "square.and.arrow.up") }
                         Button { exportingPDF = true } label: { Label("Export as PDF", systemImage: "doc.richtext") }
                         Button { generateTheatreCard() } label: { Label("Print Theatre Card", systemImage: "printer") }
@@ -228,6 +234,71 @@ struct DoctorDetailView: View {
         item.rawValue
     }
 
+    /// Read-mode tab bar: Overview plus one tab per active specialty setup. Core
+    /// sections stay reachable from the Overview card and via Edit mode — only
+    /// specialty setups are promoted to their own read-mode tab.
+    private var showReadTabBar: Bool {
+        !(doctor?.activeSpecialtySetups.isEmpty ?? true)
+    }
+
+    private var readTabBar: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    readTabChip(
+                        title: "Overview",
+                        icon: "person.crop.rectangle",
+                        tint: Theme.accent,
+                        selected: readTab == .overview
+                    ) { withAnimation(.spring(response: 0.3)) { readTab = .overview } }
+                    .id(ReadTab.overview)
+
+                    ForEach(doctor?.activeSpecialtySetups ?? []) { setup in
+                        readTabChip(
+                            title: setup.specialty.rawValue,
+                            icon: setup.specialty.symbol,
+                            tint: .orange,
+                            selected: readTab == .specialty(setup.id)
+                        ) { withAnimation(.spring(response: 0.3)) { readTab = .specialty(setup.id) } }
+                        .id(ReadTab.specialty(setup.id))
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+            }
+            .onChange(of: readTab) { _, newValue in
+                withAnimation { proxy.scrollTo(newValue, anchor: .center) }
+            }
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+
+    private func readTabChip(
+        title: String,
+        icon: String,
+        tint: Color,
+        selected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon).font(.caption)
+                Text(title).font(.subheadline.weight(.medium))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 9)
+            .background(
+                selected ? tint : Color(.secondarySystemGroupedBackground),
+                in: .capsule
+            )
+            .overlay(
+                Capsule().stroke(tint.opacity(selected ? 0 : 0.4), lineWidth: 1)
+            )
+            .foregroundStyle(selected ? .white : tint)
+        }
+        .buttonStyle(.plain)
+    }
+
     /// Exports this profile to a shareable PreferenceFlow file and opens the
     /// system share sheet (AirDrop, Messages, Files). Peer-to-peer only — a
     /// colleague imports it on their own device; nothing syncs to a server.
@@ -284,23 +355,10 @@ struct DoctorDetailView: View {
     @ViewBuilder
     private var content: some View {
         if let doctor {
-            switch tab {
-            case .overview:
-                OverviewTab(
-                    doctor: doctor,
-                    onNavigate: { target in withAnimation(.spring(response: 0.3)) { isEditing = true; tab = target } },
-                    hospitalID: dailyHospitalID,
-                    editMode: isEditing,
-                    template: template
-                )
-            case .details: DetailsTab(doctor: doctor)
-            case .general: GeneralTab(doctor: doctor)
-            case .airway: AirwayTab(doctor: doctor)
-            case .drugs: DrugsFluidsTab(doctor: doctor)
-            case .regional: RegionalTab(doctor: doctor)
-            case .neuraxial: NeuraxialTab(doctor: doctor)
-            case .procedures: OperationsTab(doctor: doctor)
-            case .share: ShareTab(doctor: doctor)
+            if isEditing {
+                editContent(doctor)
+            } else {
+                readContent(doctor)
             }
         } else {
             Spacer()
@@ -308,4 +366,58 @@ struct DoctorDetailView: View {
             Spacer()
         }
     }
+
+    @ViewBuilder
+    private func readContent(_ doctor: Doctor) -> some View {
+        switch readTab {
+        case .specialty(let id):
+            if let setup = doctor.activeSpecialtySetups.first(where: { $0.id == id }) {
+                SpecialtySetupTab(doctor: doctor, setup: setup)
+            } else {
+                overviewContent(doctor)
+            }
+        case .overview:
+            overviewContent(doctor)
+        }
+    }
+
+    private func overviewContent(_ doctor: Doctor) -> some View {
+        OverviewTab(
+            doctor: doctor,
+            onNavigate: { target in withAnimation(.spring(response: 0.3)) { isEditing = true; tab = target } },
+            onSelectSpecialty: { setup in withAnimation(.spring(response: 0.3)) { readTab = .specialty(setup.id) } },
+            hospitalID: dailyHospitalID,
+            editMode: isEditing,
+            template: template
+        )
+    }
+
+    @ViewBuilder
+    private func editContent(_ doctor: Doctor) -> some View {
+        switch tab {
+        case .overview:
+            OverviewTab(
+                doctor: doctor,
+                onNavigate: { target in withAnimation(.spring(response: 0.3)) { isEditing = true; tab = target } },
+                hospitalID: dailyHospitalID,
+                editMode: isEditing,
+                template: template
+            )
+        case .details: DetailsTab(doctor: doctor)
+        case .general: GeneralTab(doctor: doctor)
+        case .airway: AirwayTab(doctor: doctor)
+        case .drugs: DrugsFluidsTab(doctor: doctor)
+        case .regional: RegionalTab(doctor: doctor)
+        case .neuraxial: NeuraxialTab(doctor: doctor)
+        case .procedures: OperationsTab(doctor: doctor)
+        case .share: ShareTab(doctor: doctor)
+        }
+    }
+}
+
+/// Read-mode section selection in the profile switcher: the full Overview card,
+/// or a specific consultant specialty setup promoted to its own tab.
+enum ReadTab: Hashable {
+    case overview
+    case specialty(UUID)
 }
