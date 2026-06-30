@@ -51,6 +51,28 @@ struct SettingsView: View {
                     LabeledRow(label: "Spelling", value: settings.region.discipline)
                 }
 
+                Section {
+                    Picker(selection: $settings.appTextSize) {
+                        ForEach(AppTextSize.allCases) { Text($0.label).tag($0) }
+                    } label: {
+                        Label("Text Size", systemImage: "textformat.size")
+                    }
+                    .pickerStyle(.menu)
+                    HStack {
+                        Text("A").font(.footnote)
+                        Text("Aa Bb Cc — preview")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("A").font(.title2.weight(.semibold))
+                    }
+                    .padding(.vertical, 2)
+                } header: {
+                    Text("Display")
+                } footer: {
+                    Text("Scales text throughout the app on top of your iOS system text size (Settings \u{2192} Accessibility \u{2192} Display & Text Size). For a single emergency boost, double-tap any Crisis Card.")
+                }
+
                 Section("Location") {
                     LabeledField(label: "Country", text: $settings.country, icon: "mappin.and.ellipse")
                     LabeledField(label: "Region", text: $settings.regionName, icon: "map")

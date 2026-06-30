@@ -20,6 +20,7 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut(duration: 0.4), value: settings.didCompleteOnboarding)
+        .appTextSize(settings.appTextSize)
     }
 }
 

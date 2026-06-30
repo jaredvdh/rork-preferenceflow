@@ -50,6 +50,7 @@ final class AppSettings {
         static let contextDay = "pf.contextDay"
         static let recentDoctors = "pf.recentDoctorIds"
         static let favouriteDoctors = "pf.favouriteDoctorIds"
+        static let textSize = "pf.appTextSize"
     }
 
     private let defaults: UserDefaults
@@ -74,6 +75,11 @@ final class AppSettings {
     /// The user's first name, used in the daily greeting. Optional.
     var userName: String {
         didSet { defaults.set(userName, forKey: Keys.userName) }
+    }
+
+    /// App-specific text size override, applied on top of the iOS system setting.
+    var appTextSize: AppTextSize {
+        didSet { defaults.set(appTextSize.rawValue, forKey: Keys.textSize) }
     }
 
     // MARK: - Daily working context
@@ -120,6 +126,12 @@ final class AppSettings {
         self.country = defaults.string(forKey: Keys.country) ?? ""
         self.regionName = defaults.string(forKey: Keys.regionName) ?? ""
         self.userName = defaults.string(forKey: Keys.userName) ?? ""
+        if let raw = defaults.string(forKey: Keys.textSize),
+           let parsed = AppTextSize(rawValue: raw) {
+            self.appTextSize = parsed
+        } else {
+            self.appTextSize = .standard
+        }
         if let raw = defaults.string(forKey: Keys.region),
            let parsed = TerminologyRegion(rawValue: raw) {
             self.region = parsed

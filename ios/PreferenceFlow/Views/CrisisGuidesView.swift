@@ -142,7 +142,30 @@ struct CrisisCardDetailView: View {
     let manual: CrisisManual
     let card: CrisisCard
 
+    /// Emergency large-text mode — toggled by a double-tap anywhere on the card.
+    /// Strips the card down to the essential "Do now" checklist at large, high
+    /// contrast type for fast reading under stress with gloved hands.
+    @State private var emergencyBoost = false
+
     var body: some View {
+        Group {
+            if emergencyBoost {
+                emergencyView
+            } else {
+                normalView
+            }
+        }
+        .contentShape(.rect)
+        .onTapGesture(count: 2) {
+            let generator = UIImpactFeedbackGenerator(style: .heavy)
+            generator.impactOccurred()
+            withAnimation(.easeInOut(duration: 0.25)) { emergencyBoost.toggle() }
+        }
+        .navigationTitle(card.title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var normalView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 attribution
@@ -155,12 +178,66 @@ struct CrisisCardDetailView: View {
                 drugsBox
                 crossRefChips
                 disclaimer
+                doubleTapHint
             }
             .padding(16)
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle(card.title)
-        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    // MARK: Emergency large-text mode
+
+    private var emergencyView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                HStack(spacing: 8) {
+                    Image(systemName: "bolt.fill")
+                    Text("DO NOW").tracking(1)
+                    Spacer()
+                    Image(systemName: "hand.tap.fill")
+                    Text("Double-tap to exit")
+                }
+                .font(.headline.weight(.bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14).padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(CrisisColor.red, in: .rect(cornerRadius: Theme.cornerMedium))
+
+                Text(card.title)
+                    .font(.largeTitle.weight(.heavy))
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                VStack(alignment: .leading, spacing: 18) {
+                    ForEach(Array(card.doing.enumerated()), id: \.offset) { index, item in
+                        HStack(alignment: .firstTextBaseline, spacing: 14) {
+                            Text("\(index + 1)")
+                                .font(.title.weight(.heavy))
+                                .foregroundStyle(CrisisColor.red)
+                            Text(item)
+                                .font(.title2.weight(.bold))
+                                .foregroundStyle(.primary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(20)
+        }
+        .background(Color(.systemBackground))
+        .dynamicTypeSize(.accessibility1)
+    }
+
+    private var doubleTapHint: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "hand.tap.fill").font(.caption)
+            Text("Double-tap anywhere for Emergency large-text mode")
+                .font(.caption.weight(.medium))
+        }
+        .foregroundStyle(CrisisColor.red)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 4)
     }
 
     // MARK: Attribution (permanent, top of every card)
