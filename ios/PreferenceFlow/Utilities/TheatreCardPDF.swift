@@ -452,6 +452,8 @@ enum TheatreCardPDF {
         // Neuraxial kit.
         let n = doctor.neuraxial
         if !n.spinal.preferredPack.isBlank { items.append(CardItem(text: "Spinal pack: \(n.spinal.preferredPack)")) }
+        if !n.spinal.topicalSkinAnaesthetic.isBlank { items.append(CardItem(text: "Spinal skin LA: \(n.spinal.topicalSkinAnaesthetic)")) }
+        if !n.spinal.intrathecalAgent.isBlank { items.append(CardItem(text: "Intrathecal agent: \(n.spinal.intrathecalAgent)")) }
         if !n.epidural.epiduralKit.isBlank { items.append(CardItem(text: "Epidural kit: \(n.epidural.epiduralKit)")) }
         return items
     }

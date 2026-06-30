@@ -125,7 +125,7 @@ nonisolated enum DepartmentTemplateLibrary {
         spinal.needleType = "Whitacre"
         spinal.needleGauge = "25G"
         spinal.position = "Sitting"
-        spinal.localAnaesthetic = "0.5% Heavy Bupivacaine"
+        spinal.intrathecalAgent = "0.5% Heavy Bupivacaine"
         var neuraxial = NeuraxialPreferences()
         neuraxial.spinal = spinal
 

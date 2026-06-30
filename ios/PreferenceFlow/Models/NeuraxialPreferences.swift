@@ -15,7 +15,13 @@ nonisolated enum LossOfResistanceMethod: String, Codable, CaseIterable, Identifi
 
 nonisolated struct SpinalPreferences: Codable, Hashable {
     var preferredPack: String = ""
-    var localAnaesthetic: String = ""
+    /// Local anaesthetic infiltrated at the skin / subcutaneous site before the
+    /// spinal needle is inserted (e.g. "Lignocaine 1% 5 mL"). Distinct from the
+    /// intrathecal agent below.
+    var topicalSkinAnaesthetic: String = ""
+    /// The drug(s) injected intrathecally — a primary agent plus an optional
+    /// adjunct (e.g. "Heavy Bupivacaine with Fentanyl").
+    var intrathecalAgent: String = ""
     var additives: String = ""
     var needleType: String = ""
     var needleGauge: String = ""
@@ -25,6 +31,53 @@ nonisolated struct SpinalPreferences: Codable, Hashable {
     var dressingPreference: String = ""
     var assistantSetupNotes: String = ""
     var specialNotes: String = ""
+
+    init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case preferredPack, topicalSkinAnaesthetic, intrathecalAgent
+        case localAnaesthetic // legacy combined field
+        case additives, needleType, needleGauge, introducerPreference
+        case position, skinPrep, dressingPreference, assistantSetupNotes, specialNotes
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        preferredPack = try c.decodeIfPresent(String.self, forKey: .preferredPack) ?? ""
+        topicalSkinAnaesthetic = try c.decodeIfPresent(String.self, forKey: .topicalSkinAnaesthetic) ?? ""
+        // Migrate the old combined "localAnaesthetic" value into intrathecalAgent;
+        // leave topicalSkinAnaesthetic blank for the user to fill in separately.
+        if let agent = try c.decodeIfPresent(String.self, forKey: .intrathecalAgent), !agent.isEmpty {
+            intrathecalAgent = agent
+        } else {
+            intrathecalAgent = try c.decodeIfPresent(String.self, forKey: .localAnaesthetic) ?? ""
+        }
+        additives = try c.decodeIfPresent(String.self, forKey: .additives) ?? ""
+        needleType = try c.decodeIfPresent(String.self, forKey: .needleType) ?? ""
+        needleGauge = try c.decodeIfPresent(String.self, forKey: .needleGauge) ?? ""
+        introducerPreference = try c.decodeIfPresent(String.self, forKey: .introducerPreference) ?? ""
+        position = try c.decodeIfPresent(String.self, forKey: .position) ?? ""
+        skinPrep = try c.decodeIfPresent(String.self, forKey: .skinPrep) ?? ""
+        dressingPreference = try c.decodeIfPresent(String.self, forKey: .dressingPreference) ?? ""
+        assistantSetupNotes = try c.decodeIfPresent(String.self, forKey: .assistantSetupNotes) ?? ""
+        specialNotes = try c.decodeIfPresent(String.self, forKey: .specialNotes) ?? ""
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(preferredPack, forKey: .preferredPack)
+        try c.encode(topicalSkinAnaesthetic, forKey: .topicalSkinAnaesthetic)
+        try c.encode(intrathecalAgent, forKey: .intrathecalAgent)
+        try c.encode(additives, forKey: .additives)
+        try c.encode(needleType, forKey: .needleType)
+        try c.encode(needleGauge, forKey: .needleGauge)
+        try c.encode(introducerPreference, forKey: .introducerPreference)
+        try c.encode(position, forKey: .position)
+        try c.encode(skinPrep, forKey: .skinPrep)
+        try c.encode(dressingPreference, forKey: .dressingPreference)
+        try c.encode(assistantSetupNotes, forKey: .assistantSetupNotes)
+        try c.encode(specialNotes, forKey: .specialNotes)
+    }
 }
 
 nonisolated struct EpiduralPreferences: Codable, Hashable {

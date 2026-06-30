@@ -430,7 +430,8 @@ enum ProfilePDF {
         let s = n.spinal
         if !s.preferredPack.isBlank { l.append("Pack: \(s.preferredPack)") }
         if !s.position.isBlank { l.append("Position: \(s.position)") }
-        if !s.localAnaesthetic.isBlank { l.append("Intrathecal agent: \(s.localAnaesthetic)") }
+        if !s.topicalSkinAnaesthetic.isBlank { l.append("Topical skin anaesthetic: \(s.topicalSkinAnaesthetic)") }
+        if !s.intrathecalAgent.isBlank { l.append("Intrathecal agent: \(s.intrathecalAgent)") }
         if !s.additives.isBlank { l.append("Additives: \(s.additives)") }
         var needle: [String] = []
         if !s.needleType.isBlank { needle.append(s.needleType) }

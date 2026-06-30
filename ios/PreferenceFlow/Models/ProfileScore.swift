@@ -35,7 +35,8 @@ nonisolated enum ProfileScore {
 
         let spinalDone = doctor.neuraxial.isConfigured("spinal")
             || !doctor.neuraxial.spinal.needleType.isBlank
-            || !doctor.neuraxial.spinal.localAnaesthetic.isBlank
+            || !doctor.neuraxial.spinal.topicalSkinAnaesthetic.isBlank
+            || !doctor.neuraxial.spinal.intrathecalAgent.isBlank
             || !doctor.neuraxial.spinal.position.isBlank
         let epiduralDone = doctor.neuraxial.isConfigured("epidural")
             || doctor.neuraxial.isConfigured("cse")
