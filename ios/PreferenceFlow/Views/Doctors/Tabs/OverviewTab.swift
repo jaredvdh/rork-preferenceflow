@@ -30,8 +30,6 @@ struct OverviewTab: View {
     @State private var editingSpecialty: SpecialtySetup?
     @State private var viewingSpecialty: SpecialtySetup?
     @State private var addingSpecialty = false
-    @State private var theatreCardURL: URL?
-    @State private var cardError: String?
     @State private var viewingReferencePhoto = false
 
     private var hospital: Hospital? {
@@ -43,7 +41,6 @@ struct OverviewTab: View {
             VStack(spacing: 22) {
                 hero
                 specialtySection
-                printCardButton
                 setupSection
                 referencePhotoSection
                 SafetyBanner()
@@ -61,14 +58,6 @@ struct OverviewTab: View {
                 viewingSpecialty = nil
                 editingSpecialty = setup
             })
-        }
-        .sheet(item: Binding(get: { theatreCardURL.map { SharePayload(url: $0) } }, set: { theatreCardURL = $0?.url })) { item in
-            ShareSheet(items: [item.url])
-        }
-        .alert("Couldn't create card", isPresented: .constant(cardError != nil)) {
-            Button("OK") { cardError = nil }
-        } message: {
-            Text(cardError ?? "")
         }
         .fullScreenCover(isPresented: $viewingReferencePhoto) {
             if let data = doctor.referencePhotoData, let image = UIImage(data: data) {
@@ -172,45 +161,6 @@ struct OverviewTab: View {
         .padding(.horizontal, 14).padding(.vertical, 10)
         .background(Theme.accent.opacity(0.14), in: .capsule)
         .foregroundStyle(Theme.accentDeep)
-    }
-
-    // MARK: - Print / share card
-
-    /// One-tap laminate-ready theatre card — visible to everyone. Bridges
-    /// departments still using physical folders: print, laminate, AirDrop or save
-    /// to Files straight from the card.
-    private var printCardButton: some View {
-        Button(action: generateTheatreCard) {
-            HStack(spacing: 12) {
-                Image(systemName: "printer.fill")
-                    .font(.headline)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Print / Share Card")
-                        .font(.subheadline.weight(.semibold))
-                    Text("One-page laminate-ready theatre card")
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.85))
-                }
-                Spacer()
-                Image(systemName: "square.and.arrow.up")
-                    .font(.subheadline.weight(.semibold))
-            }
-            .foregroundStyle(.white)
-            .padding(.horizontal, 18)
-            .padding(.vertical, 14)
-            .frame(maxWidth: .infinity)
-            .background(Theme.heroGradient, in: .rect(cornerRadius: Theme.cornerLarge))
-            .shadow(color: Theme.accent.opacity(0.3), radius: 10, y: 5)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func generateTheatreCard() {
-        do {
-            theatreCardURL = try TheatreCardPDF.writeFile(for: doctor, hospital: hospital, region: settings.region)
-        } catch {
-            cardError = error.localizedDescription
-        }
     }
 
     // MARK: - Setup section (3–8)
