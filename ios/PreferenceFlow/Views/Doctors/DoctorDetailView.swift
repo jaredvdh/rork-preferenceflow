@@ -76,6 +76,10 @@ struct DoctorDetailView: View {
     /// separate URL races and causes the sheet to flicker/dismiss).
     @State private var sharePayload: SharePayload?
     @State private var shareError: String?
+    /// Presents the Emergency / Crisis quick-reference sheet. Held here (not on
+    /// the toolbar button) because a `.sheet` attached to a view inside a
+    /// `ToolbarItem` is hoisted out of the hierarchy and often fails to present.
+    @State private var showingEmergency = false
 
     init(
         doctorID: UUID,
@@ -117,7 +121,12 @@ struct DoctorDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if !isEditing {
-                    EmergencyAccessButton(hospitalID: dailyHospitalID ?? doctor?.hospitalId, style: .compactToolbar)
+                    Button {
+                        showingEmergency = true
+                    } label: {
+                        Image(systemName: "cross.case.fill").foregroundStyle(Color(hex: "D1576E"))
+                    }
+                    .accessibilityLabel("Emergency quick reference")
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
@@ -137,6 +146,9 @@ struct DoctorDetailView: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showingEmergency) {
+            EmergencyGuidesHubView(hospitalID: dailyHospitalID ?? doctor?.hospitalId, presentedAsSheet: true)
         }
         .sheet(isPresented: $migrating) {
             if let doctor { ProfileMigrationView(source: doctor) }
