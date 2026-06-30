@@ -46,8 +46,6 @@ struct OverviewTab: View {
                 printCardButton
                 setupSection
                 referencePhotoSection
-                hospitalSection
-                knowledgeSection
                 SafetyBanner()
             }
             .padding(16)
@@ -432,35 +430,6 @@ struct OverviewTab: View {
         }
     }
 
-    // MARK: - Hospital information
-
-    @ViewBuilder
-    private var hospitalSection: some View {
-        if let hospital {
-            VStack(alignment: .leading, spacing: 12) {
-                SectionLabel("Hospital Information", icon: "building.2.fill")
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                    NavigationLink(value: DashboardRoute.equipment(hospital.id)) {
-                        QuickLinkTile(title: "Equipment", subtitle: "Where to find it", icon: "shippingbox.fill", tint: "E0883B")
-                    }
-                    .buttonStyle(.plain)
-                    NavigationLink(value: DashboardRoute.contacts(hospital.id)) {
-                        QuickLinkTile(title: "Contacts", subtitle: "Key & emergency", icon: "phone.fill", tint: "2E7DD1")
-                    }
-                    .buttonStyle(.plain)
-                    NavigationLink(value: DashboardRoute.contacts(hospital.id)) {
-                        QuickLinkTile(title: "Emergency", subtitle: "Numbers & sick call", icon: "cross.case.fill", tint: "D1576E")
-                    }
-                    .buttonStyle(.plain)
-                    NavigationLink(value: DashboardRoute.hospital(hospital.id)) {
-                        QuickLinkTile(title: "Orientation", subtitle: "Full guide", icon: "map.fill", tint: "0E9F8E")
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-
     /// Hospital equipment locations relevant to specialist lists, for the
     /// optional Hospital Information card on a specialty preference card.
     private var specialtyHospitalItems: [PrefHospitalItem] {
@@ -477,36 +446,6 @@ struct OverviewTab: View {
         return order.first { !used.contains($0) } ?? .other
     }
 
-    // MARK: - Knowledge
-
-    private var knowledgeSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionLabel("Knowledge", icon: "books.vertical.fill")
-            Text("Reference resources — separate from consultant preferences.")
-                .font(.caption).foregroundStyle(.secondary)
-            VStack(spacing: 10) {
-                ForEach(KnowledgeCategory.allCases) { category in
-                    NavigationLink(value: category) {
-                        HStack(spacing: 14) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(Color(hex: category.tint)).frame(width: 44, height: 44)
-                                Image(systemName: category.symbol).font(.headline).foregroundStyle(.white)
-                            }
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(category.rawValue).font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
-                                Text(category.blurb).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
-                            }
-                            Spacer(minLength: 8)
-                            Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
-                        }
-                        .card(padding: 12)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
 }
 
 // MARK: - Card building blocks
