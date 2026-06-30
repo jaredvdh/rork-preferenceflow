@@ -449,12 +449,24 @@ enum TheatreCardPDF {
             let detail = equip.isEmpty ? "" : " (\(equip.joined(separator: ", ")))"
             items.append(CardItem(text: "\(block.name)\(detail)"))
         }
-        // Neuraxial kit.
+        // Neuraxial — pulled from the live workflow data (same source as the
+        // on-screen profile), with a legacy fallback for older profiles.
         let n = doctor.neuraxial
-        if !n.spinal.preferredPack.isBlank { items.append(CardItem(text: "Spinal pack: \(n.spinal.preferredPack)")) }
-        if !n.spinal.topicalSkinAnaesthetic.isBlank { items.append(CardItem(text: "Spinal skin LA: \(n.spinal.topicalSkinAnaesthetic)")) }
-        if !n.spinal.intrathecalAgent.isBlank { items.append(CardItem(text: "Intrathecal agent: \(n.spinal.intrathecalAgent)")) }
-        if !n.epidural.epiduralKit.isBlank { items.append(CardItem(text: "Epidural kit: \(n.epidural.epiduralKit)")) }
+        let configured = NeuraxialSummary.configured(n)
+        if !configured.isEmpty {
+            for item in configured {
+                let detail = NeuraxialSummary.lines(for: item.resolved)
+                    .prefix(4)
+                    .map { "\($0.label): \($0.value)" }
+                    .joined(separator: " · ")
+                items.append(CardItem(text: item.definition.title, subtext: detail.isBlank ? nil : detail))
+            }
+        } else {
+            if !n.spinal.preferredPack.isBlank { items.append(CardItem(text: "Spinal pack: \(n.spinal.preferredPack)")) }
+            if !n.spinal.topicalSkinAnaesthetic.isBlank { items.append(CardItem(text: "Spinal skin LA: \(n.spinal.topicalSkinAnaesthetic)")) }
+            if !n.spinal.intrathecalAgent.isBlank { items.append(CardItem(text: "Intrathecal agent: \(n.spinal.intrathecalAgent)")) }
+            if !n.epidural.epiduralKit.isBlank { items.append(CardItem(text: "Epidural kit: \(n.epidural.epiduralKit)")) }
+        }
         return items
     }
 

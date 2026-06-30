@@ -422,7 +422,8 @@ enum ProfilePDF {
     // MARK: - Neuraxial
 
     private static func neuraxialHasContent(_ n: NeuraxialPreferences) -> Bool {
-        !neuraxialSpinal(n).isEmpty || !neuraxialEpidural(n).isEmpty || !neuraxialCSE(n).isEmpty
+        if !NeuraxialSummary.configured(n).isEmpty { return true }
+        return !neuraxialSpinal(n).isEmpty || !neuraxialEpidural(n).isEmpty || !neuraxialCSE(n).isEmpty
     }
 
     private static func neuraxialSpinal(_ n: NeuraxialPreferences) -> [String] {
@@ -465,6 +466,28 @@ enum ProfilePDF {
     }
 
     private static func drawNeuraxial(_ ctx: inout DrawContext, _ n: NeuraxialPreferences) {
+        // Prefer the live, template-driven workflow data — the same source the
+        // on-screen profile and dedicated neuraxial screens use. The full detail
+        // is exported regardless of on-screen expand state.
+        let configured = NeuraxialSummary.configured(n)
+        guard !configured.isEmpty else {
+            drawLegacyNeuraxial(&ctx, n)
+            return
+        }
+        ctx.drawSectionTitle("Neuraxial", icon: "figure.walk.motion")
+        for (index, item) in configured.enumerated() {
+            if index > 0 { ctx.drawDivider() }
+            ctx.drawSubheading(item.definition.title)
+            for line in NeuraxialSummary.lines(for: item.resolved) {
+                ctx.drawBullet("\(line.label): \(line.value)")
+            }
+        }
+        ctx.endSection()
+    }
+
+    /// Fallback rendering for older profiles whose neuraxial data only exists in
+    /// the legacy structs (pre-workflow).
+    private static func drawLegacyNeuraxial(_ ctx: inout DrawContext, _ n: NeuraxialPreferences) {
         let spinal = neuraxialSpinal(n)
         let epidural = neuraxialEpidural(n)
         let cse = neuraxialCSE(n)

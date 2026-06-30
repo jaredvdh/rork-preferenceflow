@@ -298,14 +298,12 @@ struct OverviewTab: View {
     }
 
     // 8. Additional equipment & notes
-    private var regionalNames: [String] {
-        doctor.regionalBlocks.map { $0.name.isBlank ? "Block" : $0.name }
+    private var namedRegionalBlocks: [RegionalBlock] {
+        doctor.regionalBlocks.filter { !$0.name.isBlank }
     }
 
-    private var neuraxialNames: [String] {
-        WorkflowLibrary.neuraxial
-            .filter { doctor.neuraxial.isConfigured($0.id) }
-            .map { $0.title }
+    private var configuredNeuraxial: [ConfiguredNeuraxial] {
+        NeuraxialSummary.configured(doctor.neuraxial)
     }
 
     private var specialInterests: [String] {
@@ -313,27 +311,47 @@ struct OverviewTab: View {
     }
 
     private var hasAdditional: Bool {
-        !regionalNames.isEmpty || !neuraxialNames.isEmpty
+        !namedRegionalBlocks.isEmpty || !configuredNeuraxial.isEmpty
             || !specialInterests.isEmpty || !doctor.biography.isBlank
     }
 
+    /// Each Regional block and Neuraxial item is a tappable row that expands in
+    /// place to reveal the same detail as its dedicated screen, pulled from the
+    /// same underlying data source. Multiple rows can be open at once.
     private var additionalCard: some View {
-        DetailSection(title: "Additional Equipment & Notes", icon: "cross.case.fill") {
-            if !regionalNames.isEmpty {
-                PrefSubgroup(title: "Regional blocks", tint: PrefGroup.technique.tint) {
-                    PrefChecklist(items: regionalNames, tint: PrefGroup.technique.tint)
+        VStack(alignment: .leading, spacing: 14) {
+            SectionLabel("Additional Equipment & Notes", icon: "cross.case.fill")
+
+            if !namedRegionalBlocks.isEmpty {
+                subgroupHeader("Regional Blocks")
+                ForEach(namedRegionalBlocks) { block in
+                    RegionalBlockExpandableRow(block: block)
                 }
             }
-            if !neuraxialNames.isEmpty {
-                PrefSubgroup(title: "Neuraxial", tint: PrefGroup.technique.tint) {
-                    PrefChecklist(items: neuraxialNames, tint: PrefGroup.technique.tint)
+
+            if !configuredNeuraxial.isEmpty {
+                subgroupHeader("Neuraxial")
+                ForEach(configuredNeuraxial, id: \.definition.id) { item in
+                    NeuraxialExpandableRow(item: item)
                 }
             }
-            if !specialInterests.isEmpty {
-                ChipValueRow(label: "Special interests", values: specialInterests)
+
+            if !specialInterests.isEmpty || !doctor.biography.isBlank {
+                VStack(alignment: .leading, spacing: 12) {
+                    ChipValueRow(label: "Special interests", values: specialInterests)
+                    PrefNote(label: "Notes", text: doctor.biography, tint: PrefGroup.consultantNotes.tint)
+                }
+                .card()
             }
-            PrefNote(label: "Notes", text: doctor.biography, tint: PrefGroup.consultantNotes.tint)
         }
+    }
+
+    private func subgroupHeader(_ text: String) -> some View {
+        Text(text.uppercased())
+            .font(.caption2.weight(.bold))
+            .tracking(0.5)
+            .foregroundStyle(PrefGroup.technique.tint)
+            .padding(.top, 2)
     }
 
     /// The free-text the technician most needs to see first, surfaced as a single
@@ -481,6 +499,166 @@ private struct ReferencePhotoViewer: View {
                     .background(.black.opacity(0.5), in: .circle)
             }
             .padding(16)
+        }
+    }
+}
+
+// MARK: - Expandable detail rows (Regional & Neuraxial)
+
+/// The small status pill carried through to a collapsed profile row so a
+/// technician can tell at a glance whether a block is the department default or
+/// has been customised — without expanding first.
+private enum ProfileRowBadge {
+    case none
+    case departmentStandard
+    case updatedByYou
+
+    @ViewBuilder var view: some View {
+        switch self {
+        case .none: EmptyView()
+        case .departmentStandard: PrefBadge("Department Standard", Theme.accent)
+        case .updatedByYou: PrefBadge("Updated by you", .orange)
+        }
+    }
+}
+
+/// A tappable row that expands in place to reveal full detail. Each row owns its
+/// own expansion state, so several can be open simultaneously. Visual language
+/// matches the rest of the preference cards (tinted icon tile, chevron, summary).
+private struct ExpandableProfileRow<Content: View>: View {
+    let title: String
+    let icon: String
+    let tint: Color
+    var badge: ProfileRowBadge = .none
+    let collapsedSummary: String
+    @ViewBuilder var content: () -> Content
+
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                    expanded.toggle()
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(tint.opacity(0.16))
+                            .frame(width: 38, height: 38)
+                        Image(systemName: icon)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(tint)
+                    }
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 7) {
+                            Text(title)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            badge.view
+                        }
+                        if !expanded {
+                            Text(collapsedSummary)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                }
+            }
+            .buttonStyle(.plain)
+
+            if expanded {
+                Divider().padding(.vertical, 12)
+                VStack(alignment: .leading, spacing: 14) {
+                    content()
+                }
+            }
+        }
+        .card()
+    }
+}
+
+/// A configured neuraxial workflow as a tappable, expand-in-place row on the
+/// consultant profile. Content is pulled from the same workflow data the
+/// dedicated guided screen uses.
+private struct NeuraxialExpandableRow: View {
+    let item: ConfiguredNeuraxial
+
+    private var lines: [NeuraxialSummaryLine] {
+        NeuraxialSummary.lines(for: item.resolved)
+    }
+
+    var body: some View {
+        ExpandableProfileRow(
+            title: item.definition.title,
+            icon: item.definition.icon,
+            tint: PrefGroup.technique.tint,
+            badge: item.modified ? .updatedByYou : .departmentStandard,
+            collapsedSummary: NeuraxialSummary.collapsedSummary(for: item.resolved)
+        ) {
+            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                if line.isNote {
+                    PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
+                } else {
+                    PrefRow(label: line.label, value: line.value)
+                }
+            }
+        }
+    }
+}
+
+/// A regional block as a tappable, expand-in-place row on the consultant profile.
+private struct RegionalBlockExpandableRow: View {
+    let block: RegionalBlock
+
+    private var localAnaesthetic: String {
+        [block.drug, block.concentration, block.typicalVolume]
+            .filter { !$0.isBlank }
+            .joined(separator: " · ")
+    }
+
+    private var equipment: String {
+        var parts: [String] = []
+        if !block.needleType.isBlank { parts.append(block.needleType) }
+        if !block.needleLength.isBlank { parts.append(block.needleLength) }
+        if !block.ultrasoundProbe.isBlank { parts.append("\(block.ultrasoundProbe) probe") }
+        if !block.sterileCover.isBlank { parts.append(block.sterileCover) }
+        return parts.joined(separator: " · ")
+    }
+
+    private var collapsedSummary: String {
+        var tokens: [String] = []
+        if !block.drug.isBlank {
+            var token = block.drug
+            if !block.concentration.isBlank { token += " \(block.concentration)" }
+            tokens.append(token)
+        }
+        if !block.needleType.isBlank { tokens.append(block.needleType) }
+        return tokens.isEmpty ? "Tap to view" : tokens.prefix(2).joined(separator: " · ")
+    }
+
+    var body: some View {
+        ExpandableProfileRow(
+            title: block.name.isBlank ? "Block" : block.name,
+            icon: "scope",
+            tint: PrefGroup.technique.tint,
+            badge: .none,
+            collapsedSummary: collapsedSummary
+        ) {
+            PrefRow(label: "Local anaesthetic", value: localAnaesthetic)
+            PrefNote(label: "Equipment", text: equipment, tint: PrefGroup.technique.tint)
+            PrefNote(label: "Positioning", text: block.positioningNotes, tint: PrefGroup.technique.tint)
+            PrefNote(label: "Ultrasound / setup", text: block.setupNotes, tint: PrefGroup.technique.tint)
+            PrefNote(label: "Assistant", text: block.assistantNotes, tint: PrefGroup.technique.tint)
+            PrefNote(label: "Safety", text: block.safetyNotes, tint: PrefGroup.technique.tint)
+            PrefNote(label: "Special notes", text: block.specialNotes, tint: PrefGroup.technique.tint)
         }
     }
 }
