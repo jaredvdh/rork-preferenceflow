@@ -174,6 +174,24 @@ struct SearchView: View {
         }
     }
 
+    /// Specialty setups (e.g. Cardiac → TEE, Belmont) matched by specialty name,
+    /// equipment, monitoring, lines/access, notes or drug changes.
+    private var matchingSpecialtySetups: [(doctor: Doctor, setup: SpecialtySetup)] {
+        guard !query.isBlank else { return [] }
+        return matchingDoctorsScope.flatMap { doc in
+            (doc.specialtySetups ?? [])
+                .filter { setup in
+                    setup.specialty.rawValue.localizedCaseInsensitiveContains(query)
+                        || setup.equipment.contains { $0.localizedCaseInsensitiveContains(query) }
+                        || setup.additionalMonitoring.contains { $0.localizedCaseInsensitiveContains(query) }
+                        || setup.linesAndAccess.contains { $0.localizedCaseInsensitiveContains(query) }
+                        || setup.specialNotes.localizedCaseInsensitiveContains(query)
+                        || setup.drugChanges.localizedCaseInsensitiveContains(query)
+                }
+                .map { (doc, $0) }
+        }
+    }
+
     private var matchingKnowledge: [KnowledgeArticle] {
         guard !query.isBlank else { return [] }
         return KnowledgeLibrary.all.filter {
@@ -234,7 +252,7 @@ struct SearchView: View {
 
     private var hasAnyResults: Bool {
         !matchingDoctors.isEmpty || !matchingHospitals.isEmpty || !matchingProcedures.isEmpty
-            || !matchingBlocks.isEmpty || !matchingKnowledge.isEmpty
+            || !matchingBlocks.isEmpty || !matchingSpecialtySetups.isEmpty || !matchingKnowledge.isEmpty
             || !matchingMedications.isEmpty || !matchingEquipment.isEmpty
             || !matchingEquipmentLocations.isEmpty || !matchingContacts.isEmpty
             || !matchingSickCall.isEmpty || !matchingDocuments.isEmpty
@@ -290,6 +308,18 @@ struct SearchView: View {
                             DoctorDetailView(doctorID: pair.doctor.id)
                         } label: {
                             searchSubRow(title: pair.block.name, subtitle: pair.doctor.displayName, icon: "scope")
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            if !matchingSpecialtySetups.isEmpty {
+                resultGroup("Specialty Setups", icon: "square.grid.2x2.fill") {
+                    ForEach(matchingSpecialtySetups, id: \.setup.id) { pair in
+                        NavigationLink {
+                            DoctorDetailView(doctorID: pair.doctor.id)
+                        } label: {
+                            searchSubRow(title: pair.setup.specialty.rawValue, subtitle: pair.doctor.displayName, icon: pair.setup.specialty.symbol)
                         }
                         .buttonStyle(.plain)
                     }
