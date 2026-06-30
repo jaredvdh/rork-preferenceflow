@@ -130,3 +130,88 @@ nonisolated struct NeuraxialPreferences: Codable, Hashable {
         workflows?.first { $0.id == definitionID }?.isConfigured ?? false
     }
 }
+
+// MARK: - Legacy Combined Spinal Epidural migration
+
+extension NeuraxialPreferences {
+    /// True when the legacy `combinedSpinalEpidural` struct holds any content.
+    /// Used both to drive the one-time migration and to distinguish a genuinely
+    /// incomplete migrated CSE from a setup configured fresh via the workflow.
+    var legacyCSEHasContent: Bool {
+        let c = combinedSpinalEpidural
+        return !c.preferredKit.isBlank
+            || !c.needleThroughNeedlePreference.isBlank
+            || !c.spinalSetupNotes.isBlank
+            || !c.epiduralSetupNotes.isBlank
+            || !c.dressingPreference.isBlank
+            || !c.assistantNotes.isBlank
+    }
+
+    /// One-time migration: if the legacy CSE struct has content but no "cse"
+    /// workflow is configured, fold whatever can be carried over from the legacy
+    /// free-text fields into a new "cse" `WorkflowCustomization`, making the
+    /// workflow system the active source of truth (consistent with every other
+    /// neuraxial type). The legacy struct is preserved, not deleted.
+    ///
+    /// The intrathecal agent and additives are intentionally left blank — the
+    /// legacy struct never stored them — so a genuinely missing agent is surfaced
+    /// as incomplete elsewhere rather than fabricated here.
+    ///
+    /// Returns true if a migration was performed.
+    @discardableResult
+    mutating func migrateLegacyCSEIfNeeded() -> Bool {
+        guard legacyCSEHasContent, !isConfigured("cse") else { return false }
+
+        let def = WorkflowLibrary.cse
+        let c = combinedSpinalEpidural
+        var custom = customization(for: "cse")
+
+        // Carry over the kit selection, registering a custom option when the
+        // legacy value isn't one of the curated choices.
+        if !c.preferredKit.isBlank {
+            let field = def.field("kit.choice")
+            if let field, !field.options.contains(c.preferredKit) {
+                custom.addCustomOption("kit.choice", c.preferredKit)
+            }
+            custom.setSelection("kit.choice", c.preferredKit, default: field?.defaultSelection ?? "")
+        }
+
+        // Carry over the dressing selection similarly.
+        if !c.dressingPreference.isBlank {
+            let field = def.field("dressing.choice")
+            if let field, !field.options.contains(c.dressingPreference) {
+                custom.addCustomOption("dressing.choice", c.dressingPreference)
+            }
+            custom.setSelection("dressing.choice", c.dressingPreference, default: field?.defaultSelection ?? "")
+        }
+
+        // Fold the remaining free-text into the consultant / assistant note fields,
+        // labelled so their origin stays clear.
+        var consultantParts: [String] = []
+        if !c.needleThroughNeedlePreference.isBlank {
+            consultantParts.append("Needle-through-needle: \(c.needleThroughNeedlePreference)")
+        }
+        if !c.spinalSetupNotes.isBlank { consultantParts.append("Spinal setup: \(c.spinalSetupNotes)") }
+        if !c.epiduralSetupNotes.isBlank { consultantParts.append("Epidural setup: \(c.epiduralSetupNotes)") }
+        if !consultantParts.isEmpty {
+            custom.setNote("consultant.notes", consultantParts.joined(separator: "\n"))
+        }
+        if !c.assistantNotes.isBlank { custom.setNote("assistant.notes", c.assistantNotes) }
+
+        custom.usesStandard = false
+        custom.isConfigured = true
+        setCustomization(custom)
+        return true
+    }
+
+    /// Whether a configured CSE's intrathecal agent has never been explicitly
+    /// recorded — e.g. a profile migrated from the legacy struct, which never
+    /// stored an agent. Drives a visible "not recorded" nudge rather than
+    /// silently showing the department default as if the consultant chose it.
+    var cseIntrathecalAgentMissing: Bool {
+        guard isConfigured("cse") else { return false }
+        let custom = customization(for: "cse")
+        let explicit = (custom.selectionOverrides["spinal.agent"]?.isBlank == false)
+        return !explicit && legacyCSEHasContent
+    }
+}

@@ -479,7 +479,7 @@ enum TheatreCardPDF {
         let configured = NeuraxialSummary.configured(n)
         if !configured.isEmpty {
             for item in configured {
-                let detail = NeuraxialSummary.lines(for: item.resolved)
+                let detail = NeuraxialSummary.lines(for: item)
                     .prefix(4)
                     .map { "\($0.label): \($0.value)" }
                     .joined(separator: " · ")
@@ -490,6 +490,14 @@ enum TheatreCardPDF {
             if !n.spinal.topicalSkinAnaesthetic.isBlank { items.append(CardItem(text: "Spinal skin LA: \(n.spinal.topicalSkinAnaesthetic)")) }
             if !n.spinal.intrathecalAgent.isBlank { items.append(CardItem(text: "Intrathecal agent: \(n.spinal.intrathecalAgent)")) }
             if !n.epidural.epiduralKit.isBlank { items.append(CardItem(text: "Epidural kit: \(n.epidural.epiduralKit)")) }
+            // Legacy CSE struct never stored an intrathecal agent — surface CSE as
+            // incomplete rather than omitting it silently.
+            if n.legacyCSEHasContent {
+                let c = n.combinedSpinalEpidural
+                var parts: [String] = ["Intrathecal agent: Not recorded"]
+                if !c.preferredKit.isBlank { parts.append("Kit: \(c.preferredKit)") }
+                items.append(CardItem(text: "Combined Spinal Epidural", subtext: parts.joined(separator: " · ")))
+            }
         }
         return items
     }

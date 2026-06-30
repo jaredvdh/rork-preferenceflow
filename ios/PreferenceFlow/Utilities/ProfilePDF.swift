@@ -486,6 +486,11 @@ enum ProfilePDF {
         if !c.needleThroughNeedlePreference.isBlank { l.append("Technique: \(c.needleThroughNeedlePreference)") }
         if !c.spinalSetupNotes.isBlank { l.append("Spinal: \(c.spinalSetupNotes)") }
         if !c.epiduralSetupNotes.isBlank { l.append("Epidural: \(c.epiduralSetupNotes)") }
+        if !c.dressingPreference.isBlank { l.append("Dressing: \(c.dressingPreference)") }
+        if !c.assistantNotes.isBlank { l.append("Assistant: \(c.assistantNotes)") }
+        // Never silently omit the intrathecal agent: the legacy struct never stored
+        // it, so flag it as incomplete rather than absent.
+        if !l.isEmpty { l.insert("Intrathecal agent: Not recorded", at: 0) }
         return l
     }
 
@@ -502,7 +507,7 @@ enum ProfilePDF {
         for (index, item) in configured.enumerated() {
             if index > 0 { ctx.drawDivider() }
             ctx.drawSubheading(item.definition.title)
-            for line in NeuraxialSummary.lines(for: item.resolved) {
+            for line in NeuraxialSummary.lines(for: item) {
                 ctx.drawBullet("\(line.label): \(line.value)")
             }
         }

@@ -19,6 +19,10 @@ nonisolated struct NeuraxialSummaryLine: Hashable {
     let label: String
     let value: String
     var isNote: Bool = false
+    /// True for a value that flags a missing-but-expected field (e.g. a CSE
+    /// intrathecal agent that was never recorded). Rendered as a visible warning
+    /// rather than silently omitted so incomplete setups are never invisible.
+    var isWarning: Bool = false
 }
 
 /// A configured neuraxial workflow paired with its resolved (standard + overrides)
@@ -27,6 +31,10 @@ nonisolated struct ConfiguredNeuraxial {
     let definition: WorkflowDefinition
     let resolved: ResolvedWorkflow
     let modified: Bool
+    /// True when this is a CSE whose intrathecal agent was never explicitly
+    /// recorded (e.g. migrated from the legacy struct). Drives a visible
+    /// "not recorded" nudge rather than silently showing the department default.
+    var intrathecalAgentMissing: Bool = false
 }
 
 nonisolated enum NeuraxialSummary {
@@ -36,26 +44,33 @@ nonisolated enum NeuraxialSummary {
         WorkflowLibrary.neuraxial.compactMap { definition in
             guard n.isConfigured(definition.id) else { return nil }
             let resolved = ResolvedWorkflow(definition: definition, customization: n.customization(for: definition.id))
-            return ConfiguredNeuraxial(definition: definition, resolved: resolved, modified: resolved.modificationCount > 0)
+            let agentMissing = definition.id == "cse" && n.cseIntrathecalAgentMissing
+            return ConfiguredNeuraxial(
+                definition: definition,
+                resolved: resolved,
+                modified: resolved.modificationCount > 0,
+                intrathecalAgentMissing: agentMissing
+            )
         }
     }
 
-    /// Curated, ordered summary lines for a resolved workflow.
-    static func lines(for resolved: ResolvedWorkflow) -> [NeuraxialSummaryLine] {
-        switch resolved.definition.id {
-        case "spinal": return spinal(resolved)
-        case "epidural": return epidural(resolved)
-        case "cse": return cse(resolved)
-        default: return generic(resolved)
+    /// Curated, ordered summary lines for a configured workflow. Takes the whole
+    /// `ConfiguredNeuraxial` so CSE rendering can flag a missing intrathecal agent.
+    static func lines(for item: ConfiguredNeuraxial) -> [NeuraxialSummaryLine] {
+        switch item.definition.id {
+        case "spinal": return spinal(item.resolved)
+        case "epidural": return epidural(item.resolved)
+        case "cse": return cse(item.resolved, agentMissing: item.intrathecalAgentMissing)
+        default: return generic(item.resolved)
         }
     }
 
     /// A compact one-line summary for collapsed rows ("Whitacre 25G · Heavy Bupivacaine").
-    static func collapsedSummary(for resolved: ResolvedWorkflow) -> String {
-        let tokens = lines(for: resolved)
+    static func collapsedSummary(for item: ConfiguredNeuraxial) -> String {
+        let tokens = lines(for: item)
             .filter { !$0.isNote }
             .prefix(2)
-            .map { shorten($0.value) }
+            .map { $0.isWarning ? $0.value : shorten($0.value) }
         return tokens.isEmpty ? "Department standard" : tokens.joined(separator: " · ")
     }
 
@@ -108,7 +123,7 @@ nonisolated enum NeuraxialSummary {
 
     // MARK: - Combined Spinal Epidural
 
-    private static func cse(_ r: ResolvedWorkflow) -> [NeuraxialSummaryLine] {
+    private static func cse(_ r: ResolvedWorkflow, agentMissing: Bool = false) -> [NeuraxialSummaryLine] {
         var out: [NeuraxialSummaryLine] = []
         func add(_ label: String, _ value: String, isNote: Bool = false) {
             if !value.isBlank { out.append(NeuraxialSummaryLine(label: label, value: value, isNote: isNote)) }
@@ -116,7 +131,13 @@ nonisolated enum NeuraxialSummary {
         add("Sterile technique", r.selection("sterile.level"))
         add("CSE kit", r.selection("kit.choice"))
         add("Dressing", r.selection("dressing.choice"))
-        add("Intrathecal agent", r.selection("spinal.agent"))
+        if agentMissing {
+            // Never silently fall back to the department default for a migrated
+            // profile — surface it as incomplete instead.
+            out.append(NeuraxialSummaryLine(label: "Intrathecal agent", value: "Not recorded", isWarning: true))
+        } else {
+            add("Intrathecal agent", r.selection("spinal.agent"))
+        }
 
         let additives = r.multi("spinal.additives")
         if !additives.isEmpty { add("Additives", additives.joined(separator: ", ")) }

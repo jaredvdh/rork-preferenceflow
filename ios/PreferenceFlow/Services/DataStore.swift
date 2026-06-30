@@ -45,10 +45,22 @@ final class DataStore {
             hospitals = snapshot.hospitals
             doctors = snapshot.doctors
             documents = (snapshot.documents ?? []).sorted { $0.dateAdded > $1.dateAdded }
+            migrateLegacyNeuraxial()
         } catch {
             // Corrupt or incompatible file — start clean rather than crashing.
             print("DataStore load failed: \(error.localizedDescription)")
         }
+    }
+
+    /// One-time, idempotent migrations applied to profiles after they load.
+    /// Currently folds any legacy Combined Spinal Epidural struct data into the
+    /// guided workflow system so the workflow is the single source of truth.
+    private func migrateLegacyNeuraxial() {
+        var changed = false
+        for index in doctors.indices {
+            if doctors[index].neuraxial.migrateLegacyCSEIfNeeded() { changed = true }
+        }
+        if changed { save() }
     }
 
     private func save() {

@@ -38,6 +38,8 @@ struct WorkflowGuideView: View {
                         stepCard(step, number: index + 1)
                     }
 
+                    if showsIntrathecalAgentNudge { intrathecalAgentNudge }
+
                     disclaimer
                 }
                 .padding(16)
@@ -126,6 +128,36 @@ struct WorkflowGuideView: View {
             }
         }
         .card()
+    }
+
+    /// For a CSE migrated from the legacy struct, the intrathecal agent was never
+    /// recorded. Until the consultant explicitly picks one, flag it so the gap is
+    /// visible rather than masked by the department default.
+    private var showsIntrathecalAgentNudge: Bool {
+        guard definition.id == "cse" else { return false }
+        let explicit = (draft.selectionOverrides["spinal.agent"]?.isBlank == false)
+        guard !explicit else { return false }
+        return store.doctor(id: doctorID)?.neuraxial.legacyCSEHasContent ?? false
+    }
+
+    private var intrathecalAgentNudge: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Intrathecal agent not recorded")
+                    .font(.subheadline.weight(.semibold))
+                Text("This setup was carried over from an earlier version that didn’t store an intrathecal agent. Choose one in the Spinal Component step above.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .card()
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.cornerLarge)
+                .strokeBorder(Color.orange.opacity(0.35), lineWidth: 1)
+        )
     }
 
     private var disclaimer: some View {

@@ -646,7 +646,7 @@ private struct NeuraxialExpandableRow: View {
     let item: ConfiguredNeuraxial
 
     private var lines: [NeuraxialSummaryLine] {
-        NeuraxialSummary.lines(for: item.resolved)
+        NeuraxialSummary.lines(for: item)
     }
 
     var body: some View {
@@ -655,16 +655,50 @@ private struct NeuraxialExpandableRow: View {
             icon: item.definition.icon,
             tint: PrefGroup.technique.tint,
             badge: item.modified ? .updatedByYou : .none,
-            collapsedSummary: NeuraxialSummary.collapsedSummary(for: item.resolved)
+            collapsedSummary: NeuraxialSummary.collapsedSummary(for: item)
         ) {
             ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
-                if line.isNote {
+                if line.isWarning {
+                    IncompleteFieldNudge(label: line.label)
+                } else if line.isNote {
                     PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
                 } else {
                     PrefRow(label: line.label, value: line.value)
                 }
             }
         }
+    }
+}
+
+/// A visible "field not recorded" callout. Surfaces a genuinely incomplete
+/// preference (e.g. a migrated CSE with no intrathecal agent) so a technician can
+/// tell the difference between "not configured" and "data missing" — it is never
+/// silently omitted.
+struct IncompleteFieldNudge: View {
+    let label: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.orange)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(label)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Text("Not recorded — tap Edit to add")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.orange.opacity(0.10), in: .rect(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(Color.orange.opacity(0.30), lineWidth: 1)
+        )
     }
 }
 
