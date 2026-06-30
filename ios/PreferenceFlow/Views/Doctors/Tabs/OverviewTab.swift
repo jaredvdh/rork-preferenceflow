@@ -28,7 +28,6 @@ struct OverviewTab: View {
     var template: DepartmentTemplate? = nil
 
     @State private var editingSpecialty: SpecialtySetup?
-    @State private var viewingSpecialty: SpecialtySetup?
     @State private var addingSpecialty = false
     @State private var viewingReferencePhoto = false
 
@@ -52,12 +51,6 @@ struct OverviewTab: View {
         }
         .sheet(item: $editingSpecialty) { setup in
             SpecialtySetupEditView(doctor: doctor, setup: setup, isNew: false)
-        }
-        .sheet(item: $viewingSpecialty) { setup in
-            SpecialtySetupDetailView(setup: setup, hospitalItems: specialtyHospitalItems, onEdit: {
-                viewingSpecialty = nil
-                editingSpecialty = setup
-            })
         }
         .fullScreenCover(isPresented: $viewingReferencePhoto) {
             if let data = doctor.referencePhotoData, let image = UIImage(data: data) {
@@ -125,42 +118,22 @@ struct OverviewTab: View {
                 }
                 .buttonStyle(.plain)
             } else {
-                FlowLayout(spacing: 10) {
-                    ForEach(activeSpecialties) { setup in
-                        Button { viewingSpecialty = setup } label: { specialtyChip(setup) }
-                            .buttonStyle(.plain)
-                    }
-                    Button { addingSpecialty = true } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "plus")
-                            Text("Add")
-                        }
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.horizontal, 14).padding(.vertical, 10)
-                        .background(Color(.tertiarySystemFill), in: .capsule)
-                        .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
+                ForEach(activeSpecialties) { setup in
+                    SpecialtySetupExpandableRow(setup: setup)
                 }
+                Button { addingSpecialty = true } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                        Text("Add")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(Color(.tertiarySystemFill), in: .capsule)
+                    .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
             }
         }
-    }
-
-    private func specialtyChip(_ setup: SpecialtySetup) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: setup.specialty.symbol).font(.subheadline.weight(.semibold))
-            Text(setup.specialty.rawValue).font(.subheadline.weight(.semibold))
-            if setup.changeCount > 0 {
-                Text("\(setup.changeCount)")
-                    .font(.caption2.weight(.bold))
-                    .padding(.horizontal, 6).padding(.vertical, 1)
-                    .background(.white.opacity(0.4), in: .capsule)
-            }
-            Image(systemName: "chevron.right").font(.caption2.weight(.bold))
-        }
-        .padding(.horizontal, 14).padding(.vertical, 10)
-        .background(Theme.accent.opacity(0.14), in: .capsule)
-        .foregroundStyle(Theme.accentDeep)
     }
 
     // MARK: - Setup section (3–8)
@@ -740,6 +713,45 @@ private struct RegionalBlockExpandableRow: View {
             PrefNote(label: "Assistant", text: block.assistantNotes, tint: PrefGroup.technique.tint)
             PrefNote(label: "Safety", text: block.safetyNotes, tint: PrefGroup.technique.tint)
             PrefNote(label: "Special notes", text: block.specialNotes, tint: PrefGroup.technique.tint)
+        }
+    }
+}
+
+/// A specialty setup as a tappable, expand-in-place row on the consultant
+/// profile — matching the Regional / Neuraxial inline pattern so a technician
+/// meets one consistent "tap to see more" behaviour. Uses the accent tint to stay
+/// visually distinct as its own category. Reads from the same SpecialtySetup data
+/// shown on the dedicated detail screen.
+private struct SpecialtySetupExpandableRow: View {
+    let setup: SpecialtySetup
+
+    private var collapsedSummary: String {
+        var tokens: [String] = []
+        tokens.append(contentsOf: setup.equipment.prefix(2))
+        if tokens.isEmpty { tokens.append(contentsOf: setup.additionalMonitoring.prefix(2)) }
+        if tokens.isEmpty, setup.changeCount > 0 {
+            return "^[\(setup.changeCount) change](inflect: true) vs standard"
+        }
+        return tokens.isEmpty ? "Tap to view" : tokens.joined(separator: " · ")
+    }
+
+    var body: some View {
+        ExpandableProfileRow(
+            title: setup.specialty.rawValue,
+            icon: setup.specialty.symbol,
+            tint: Theme.accent,
+            badge: .none,
+            collapsedSummary: collapsedSummary
+        ) {
+            Text("Standard airway, drugs, and monitoring still apply. Additional notes for \(setup.specialty.rawValue) cases:")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            PrefNote(label: "Case notes", text: setup.specialNotes, tint: Theme.accent)
+            ChipValueRow(label: "Additional equipment", values: setup.equipment)
+            ChipValueRow(label: "Additional monitoring", values: setup.additionalMonitoring)
+            ChipValueRow(label: "Lines and access", values: setup.linesAndAccess)
+            PrefNote(label: "Drug changes", text: setup.drugChanges, tint: Theme.accent)
         }
     }
 }
