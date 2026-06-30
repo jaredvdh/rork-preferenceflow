@@ -163,6 +163,7 @@ enum TheatreCardPDF {
         var rightY = top
         rightY = drawCard(title: "Equipment & Monitoring", icon: "waveform.path.ecg", items: equipmentItems(doctor), x: rightX, y: rightY, width: colWidth)
         rightY = drawCard(title: "Notes & Comfort", icon: "note.text", items: notesItems(doctor), x: rightX, y: rightY + 10, width: colWidth)
+        rightY = drawCard(title: "\(region.paediatric) Reference", icon: "figure.child", items: paediatricReferenceItems(), x: rightX, y: rightY + 10, width: colWidth)
 
         return max(leftY, rightY)
     }
@@ -409,6 +410,29 @@ enum TheatreCardPDF {
 
     private static func airwaySetupBlank(_ s: AirwaySetup) -> Bool {
         s.tubeSize.isBlank && s.blade == .none && s.videoSystem == .none
+    }
+
+    /// A fixed age/weight paediatric airway lookup. Included on every printed card
+    /// since it cannot respond to a live age input. Reference only.
+    private static func paediatricReferenceItems() -> [CardItem] {
+        var items: [CardItem] = [
+            CardItem(text: "ETT (mm ID)", subtext: "Cuffed = age÷4+3.5 · Uncuffed = age÷4+4")
+        ]
+        let ettAges = [1, 2, 4, 6, 8, 10]
+        let ettLine = ettAges.map { age in
+            "\(age)y \(PaediatricETT.formatted(ageYears: Double(age), cuffed: true))/\(PaediatricETT.formatted(ageYears: Double(age), cuffed: false))"
+        }.joined(separator: "  ")
+        items.append(CardItem(text: ettLine))
+        items.append(CardItem(
+            text: "Blades (Miller / Mac)",
+            subtext: PaediatricBlade.rows.map { "\($0.ageGroup): M \($0.miller) / Mac \($0.macintosh)" }.joined(separator: "\n")
+        ))
+        items.append(CardItem(
+            text: "SGA by weight (i-gel / LMA)",
+            subtext: PaediatricSupraglottic.rows.map { "\($0.weightBand): i-gel \($0.igel) / LMA \($0.lma)" }.joined(separator: "\n")
+        ))
+        items.append(CardItem(text: "Reference estimate only — confirm against the patient and local policy."))
+        return items
     }
 
     private static func drugItems(_ doctor: Doctor, region: TerminologyRegion) -> [CardItem] {

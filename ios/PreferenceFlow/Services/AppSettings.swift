@@ -120,6 +120,11 @@ final class AppSettings {
     /// persisted: it only routes a single navigation.
     var pendingDeepLinkDoctorID: UUID?
 
+    /// The last age/weight the technician dialled into a paediatric airway
+    /// reference, remembered for the session so it carries between profiles.
+    /// Deliberately NOT persisted: each profile still opens on the Adult cohort.
+    var airwayPaedReference: PaediatricPatient = PaediatricPatient()
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.didCompleteOnboarding = defaults.bool(forKey: Keys.didOnboard)

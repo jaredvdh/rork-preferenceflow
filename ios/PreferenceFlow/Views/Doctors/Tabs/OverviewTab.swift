@@ -172,7 +172,7 @@ struct OverviewTab: View {
                 ImportantNotesCallout(notes: importantNotes)
             }
             generalCard       // 4
-            airwayCard        // 5
+            AirwayCardSection(doctor: doctor, onNavigate: onNavigate)  // 5
             drugsCard         // 6
             monitoringCard    // 7
             if hasAdditional {
@@ -198,79 +198,6 @@ struct OverviewTab: View {
     private var isGeneralEmpty: Bool {
         let g = doctor.general
         return g.sterileGloveDisplay.isBlank && g.nonSterileGloveDisplay.isBlank && g.gownSize.isBlank && g.coffeePreference.isBlank
-    }
-
-    // 5. Airway
-    private var airwayCard: some View {
-        let a = doctor.airway
-        return DetailSection(title: "Airway", icon: "lungs.fill") {
-            PrefRow(label: "ETT (Male)", value: a.adultMale.tubeSize)
-            PrefRow(label: "ETT (Female)", value: a.adultFemale.tubeSize)
-            laryngoscopeRows
-            PrefRow(label: "Supraglottic", value: sgaSummary)
-            PrefRow(label: "Bougie", value: a.adultMale.bougiePreference)
-            if isAirwayEmpty {
-                IncompleteNudge(text: "Incomplete — tap to add airway setup") { onNavigate(.airway) }
-            }
-        }
-    }
-
-    /// Laryngoscope rows for the card view. Shows one row when male and female
-    /// parameters match (or only one is set), and two gender-labelled rows when
-    /// they differ so the female value is never silently dropped.
-    @ViewBuilder private var laryngoscopeRows: some View {
-        let a = doctor.airway
-        let mEmpty = laryngoscopyEmpty(a.adultMale)
-        let fEmpty = laryngoscopyEmpty(a.adultFemale)
-        let mSummary = laryngoscopySummary(a.adultMale)
-        let fSummary = laryngoscopySummary(a.adultFemale)
-        if mEmpty && fEmpty {
-            PrefRow(label: "Laryngoscope", value: "")
-        } else if fEmpty {
-            PrefRow(label: "Laryngoscope", value: mSummary)
-        } else if mEmpty {
-            PrefRow(label: "Laryngoscope", value: fSummary)
-        } else if mSummary == fSummary {
-            PrefRow(label: "Laryngoscope", value: mSummary)
-        } else {
-            PrefRow(label: "Laryngoscope (M)", value: mSummary)
-            PrefRow(label: "Laryngoscope (F)", value: fSummary)
-        }
-    }
-
-    private func laryngoscopySummary(_ s: AirwaySetup) -> String {
-        var parts: [String] = []
-        if s.primaryTechnique == .video {
-            parts.append(s.videoSystem != .none ? "\(s.videoSystem.rawValue) (video)" : "Video")
-        } else {
-            parts.append("Direct")
-        }
-        let blade = bladeValue(s)
-        if !blade.isBlank { parts.append(blade) }
-        return parts.joined(separator: " · ")
-    }
-
-    private func bladeValue(_ s: AirwaySetup) -> String {
-        switch s.blade {
-        case .macintosh: return s.bladeSize.isBlank ? "" : "Mac \(s.bladeSize)"
-        case .miller: return s.bladeSize.isBlank ? "" : "Miller \(s.bladeSize)"
-        case .other, .none: return s.bladeSize
-        }
-    }
-
-    private func laryngoscopyEmpty(_ s: AirwaySetup) -> Bool {
-        bladeValue(s).isBlank && s.primaryTechnique != .video
-    }
-
-    private var sgaSummary: String {
-        doctor.airway.supraglottic.summaryChips.joined(separator: ", ")
-    }
-
-    private var isAirwayEmpty: Bool {
-        let a = doctor.airway
-        return a.adultMale.tubeSize.isBlank && a.adultFemale.tubeSize.isBlank
-            && sgaSummary.isBlank && a.adultMale.bougiePreference.isBlank
-            && a.adultMale.videoSystem == .none && a.adultMale.blade == .none
     }
 
     // 6. Drugs
@@ -474,6 +401,162 @@ private struct IncompleteNudge: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// The Airway block on the read-only consultant card. An Adult / Paediatric
+/// segmented control switches only this section's display. Adult shows the
+/// consultant's fixed adult preferences; Paediatric surfaces the age/weight
+/// calculated ETT & supraglottic references plus the consultant's fixed
+/// paediatric preferences and a blade-size lookup. The toggle always defaults to
+/// Adult on open; the dialled age/weight is remembered for the session.
+private struct AirwayCardSection: View {
+    @Environment(AppSettings.self) private var settings
+    let doctor: Doctor
+    var onNavigate: (ProfileTab) -> Void = { _ in }
+
+    @State private var cohort: Cohort = .adult
+
+    enum Cohort: String, CaseIterable, Identifiable {
+        case adult, paediatric
+        var id: String { rawValue }
+    }
+
+    private var a: AirwayPreferences { doctor.airway }
+
+    var body: some View {
+        @Bindable var settings = settings
+        VStack(alignment: .leading, spacing: 12) {
+            SectionLabel("Airway", icon: "lungs.fill")
+            Picker("Cohort", selection: $cohort.animation(.easeInOut(duration: 0.2))) {
+                Text("Adult").tag(Cohort.adult)
+                Text(settings.region.paediatric).tag(Cohort.paediatric)
+            }
+            .pickerStyle(.segmented)
+
+            if cohort == .adult {
+                adultCard
+            } else {
+                paediatricContent(patient: $settings.airwayPaedReference)
+            }
+        }
+    }
+
+    // MARK: - Adult
+
+    private var adultCard: some View {
+        VStack(spacing: 8) {
+            PrefRow(label: "ETT (Male)", value: a.adultMale.tubeSize)
+            PrefRow(label: "ETT (Female)", value: a.adultFemale.tubeSize)
+            laryngoscopeRows
+            PrefRow(label: "Supraglottic", value: sgaSummary)
+            PrefRow(label: "Bougie", value: a.adultMale.bougiePreference)
+            if isAirwayEmpty {
+                IncompleteNudge(text: "Incomplete — tap to add airway setup") { onNavigate(.airway) }
+            }
+        }
+        .card()
+    }
+
+    /// Laryngoscope rows for the card view. Shows one row when male and female
+    /// parameters match (or only one is set), and two gender-labelled rows when
+    /// they differ so the female value is never silently dropped.
+    @ViewBuilder private var laryngoscopeRows: some View {
+        let mEmpty = laryngoscopyEmpty(a.adultMale)
+        let fEmpty = laryngoscopyEmpty(a.adultFemale)
+        let mSummary = laryngoscopySummary(a.adultMale)
+        let fSummary = laryngoscopySummary(a.adultFemale)
+        if mEmpty && fEmpty {
+            PrefRow(label: "Laryngoscope", value: "")
+        } else if fEmpty {
+            PrefRow(label: "Laryngoscope", value: mSummary)
+        } else if mEmpty {
+            PrefRow(label: "Laryngoscope", value: fSummary)
+        } else if mSummary == fSummary {
+            PrefRow(label: "Laryngoscope", value: mSummary)
+        } else {
+            PrefRow(label: "Laryngoscope (M)", value: mSummary)
+            PrefRow(label: "Laryngoscope (F)", value: fSummary)
+        }
+    }
+
+    private var sgaSummary: String {
+        a.supraglottic.summaryChips.joined(separator: ", ")
+    }
+
+    private var isAirwayEmpty: Bool {
+        a.adultMale.tubeSize.isBlank && a.adultFemale.tubeSize.isBlank
+            && sgaSummary.isBlank && a.adultMale.bougiePreference.isBlank
+            && a.adultMale.videoSystem == .none && a.adultMale.blade == .none
+    }
+
+    // MARK: - Paediatric
+
+    @ViewBuilder
+    private func paediatricContent(patient: Binding<PaediatricPatient>) -> some View {
+        VStack(spacing: 16) {
+            PaediatricPatientCard(patient: patient)
+            PaediatricETTCard(
+                ageYears: patient.wrappedValue.ageYears,
+                cuffedPreference: a.paediatric.cuffedPreference
+            )
+            PaediatricSupraglotticCard(
+                weightKg: patient.wrappedValue.effectiveWeightKg,
+                usingActual: patient.wrappedValue.useActualWeight,
+                device: primarySupraglottic?.device ?? .none
+            )
+            if !paedFixedEmpty { paedFixedCard }
+            PaediatricBladeCard()
+        }
+    }
+
+    private var primarySupraglottic: SupraglotticChoice? {
+        let s = a.supraglottic
+        for choice in [s.adultMale, s.adultFemale, s.largeAdult] where !choice.isEmpty {
+            return choice
+        }
+        return nil
+    }
+
+    private var paedFixedEmpty: Bool {
+        let s = a.paediatric
+        return laryngoscopyEmpty(s) && s.cuffedPreference.isBlank
+            && s.tubeSecuring.isBlank && s.notes.isBlank
+    }
+
+    private var paedFixedCard: some View {
+        DetailSection(title: "Consultant Paediatric Preferences", icon: "stethoscope") {
+            PrefRow(label: "Laryngoscopy", value: laryngoscopySummary(a.paediatric))
+            PrefRow(label: "Cuff preference", value: a.paediatric.cuffedPreference)
+            PrefRow(label: "Securing", value: a.paediatric.tubeSecuring)
+            PrefNote(label: "Notes", text: a.paediatric.notes, tint: PrefGroup.technique.tint)
+        }
+    }
+
+    // MARK: - Shared helpers
+
+    private func laryngoscopySummary(_ s: AirwaySetup) -> String {
+        var parts: [String] = []
+        if s.primaryTechnique == .video {
+            parts.append(s.videoSystem != .none ? "\(s.videoSystem.rawValue) (video)" : "Video")
+        } else {
+            parts.append("Direct")
+        }
+        let blade = bladeValue(s)
+        if !blade.isBlank { parts.append(blade) }
+        return parts.joined(separator: " · ")
+    }
+
+    private func bladeValue(_ s: AirwaySetup) -> String {
+        switch s.blade {
+        case .macintosh: return s.bladeSize.isBlank ? "" : "Mac \(s.bladeSize)"
+        case .miller: return s.bladeSize.isBlank ? "" : "Miller \(s.bladeSize)"
+        case .other, .none: return s.bladeSize
+        }
+    }
+
+    private func laryngoscopyEmpty(_ s: AirwaySetup) -> Bool {
+        bladeValue(s).isBlank && s.primaryTechnique != .video
     }
 }
 

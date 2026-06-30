@@ -332,6 +332,30 @@ enum ProfilePDF {
             if !da.surgicalAirwayNotes.isBlank { ctx.drawValueRow(label: "Surgical airway", value: da.surgicalAirwayNotes) }
             if !da.specialEquipment.isBlank { ctx.drawValueRow(label: "Special equipment", value: da.specialEquipment) }
         }
+
+        drawPaediatricReference(&ctx, region: region)
+    }
+
+    /// A fixed age/weight paediatric airway lookup, included on every export since
+    /// a printed card cannot respond to a live age input. Reference only.
+    private static func drawPaediatricReference(_ ctx: inout DrawContext, region: TerminologyRegion) {
+        ctx.drawSubheading("\(region.paediatric) reference")
+        ctx.drawCaption("Reference estimate only — confirm against the patient and local policy.")
+        ctx.drawBullet("ETT internal diameter: cuffed = age ÷ 4 + 3.5 mm · uncuffed = age ÷ 4 + 4 mm")
+        ctx.drawValueRow(label: "Age", value: "Cuffed · Uncuffed (mm ID)")
+        for age in [1, 2, 4, 6, 8, 10] {
+            let cuffed = PaediatricETT.formatted(ageYears: Double(age), cuffed: true)
+            let uncuffed = PaediatricETT.formatted(ageYears: Double(age), cuffed: false)
+            ctx.drawValueRow(label: "\(age) yr", value: "\(cuffed) · \(uncuffed)")
+        }
+        ctx.drawBullet("Laryngoscope blades (Miller / Macintosh):")
+        for row in PaediatricBlade.rows {
+            ctx.drawValueRow(label: row.ageGroup, value: "Miller \(row.miller) · Mac \(row.macintosh)")
+        }
+        ctx.drawBullet("Supraglottic, weight-based (i-gel / LMA):")
+        for row in PaediatricSupraglottic.rows {
+            ctx.drawValueRow(label: row.weightBand, value: "i-gel \(row.igel) · LMA \(row.lma)")
+        }
     }
 
     private static func airwaySetupLines(_ s: AirwaySetup) -> [String] {
