@@ -54,7 +54,8 @@ struct QuickAddConsultantView: View {
                 }
 
                 Section("Quick preferences") {
-                    LabeledField(label: "Sterile glove size", text: $sterileGloveSize, placeholder: "e.g. 7.5", icon: "hand.raised")
+                    OptionPicker(label: "Sterile glove size", selection: $sterileGloveSize,
+                                 options: GeneralPreferences.sterileGloveSizes, icon: "hand.raised")
                     LabeledField(label: "Gown size", text: $gownSize, placeholder: "e.g. Large", icon: "tshirt")
                     LabeledField(label: "Coffee order", text: $coffee, placeholder: "e.g. Flat white", icon: "cup.and.saucer")
                 }

@@ -44,11 +44,41 @@ nonisolated struct GeneralPreferences: Codable, Hashable {
     static let sterileGloveTypes = ["Latex-free", "Biogel", "Gammex", "Neoprene", "Standard"]
     static let nonSterileGloveSizes = ["XS", "S", "M", "L", "XL"]
 
+    // MARK: - Validation
+
+    /// Letter sizes (S/M/L/XL or full words) belong to non-sterile gloves and gowns,
+    /// never to sterile gloves which are numeric (6.0–9.0).
+    nonisolated static func isLetterSize(_ raw: String) -> Bool {
+        switch raw.trimmingCharacters(in: .whitespacesAndNewlines).uppercased() {
+        case "XS", "S", "M", "L", "XL",
+             "EXTRA SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA LARGE":
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// A sterile glove size is valid only if it is a number (e.g. 6.5, 7, 7.5).
+    /// Anything else (letter sizes, junk) is treated as unset.
+    nonisolated static func isValidSterileGloveSize(_ raw: String) -> Bool {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return false }
+        return Double(trimmed) != nil
+    }
+
     // MARK: - Display helpers
 
+    /// Validated sterile glove size — empty if the stored value isn't numeric.
+    var validSterileGloveSize: String {
+        Self.isValidSterileGloveSize(sterileGloveSize)
+            ? sterileGloveSize.trimmingCharacters(in: .whitespacesAndNewlines)
+            : ""
+    }
+
     /// Combined sterile glove summary, e.g. "7.5 · Biogel". Empty when nothing set.
+    /// Never shows a letter size — an invalid size is dropped.
     var sterileGloveDisplay: String {
-        [sterileGloveSize, sterileGloveType].filter { !$0.isBlank }.joined(separator: " · ")
+        [validSterileGloveSize, sterileGloveType].filter { !$0.isBlank }.joined(separator: " · ")
     }
 
     /// Full-word non-sterile size, e.g. "Large". Empty when nothing set.
@@ -92,6 +122,16 @@ nonisolated struct GeneralPreferences: Codable, Hashable {
         }
 
         gownSize = try c.decodeIfPresent(String.self, forKey: .gownSize) ?? ""
+
+        // Repair profiles corrupted by the earlier bug where a letter size landed in
+        // the sterile glove field. If it's clearly a gown size and gown is empty,
+        // move it there; otherwise clear it so it reads as unset rather than wrong.
+        if !sterileGloveSize.isEmpty && !Self.isValidSterileGloveSize(sterileGloveSize) {
+            if Self.isLetterSize(sterileGloveSize) && gownSize.isBlank {
+                gownSize = sterileGloveSize
+            }
+            sterileGloveSize = ""
+        }
         maskPreference = try c.decodeIfPresent(String.self, forKey: .maskPreference) ?? ""
         theatreShoeSize = try c.decodeIfPresent(String.self, forKey: .theatreShoeSize) ?? ""
         roomTemperature = try c.decodeIfPresent(String.self, forKey: .roomTemperature) ?? ""

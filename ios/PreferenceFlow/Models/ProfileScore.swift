@@ -19,7 +19,7 @@ nonisolated struct ProfileCheck: Identifiable, Hashable {
 nonisolated enum ProfileScore {
     static func checks(for doctor: Doctor, paediatricTerm: String = "Paediatric") -> [ProfileCheck] {
         let g = doctor.general
-        let generalDone = !g.sterileGloveSize.isBlank || !g.nonSterileGloveSize.isBlank || !g.gownSize.isBlank || !g.maskPreference.isBlank
+        let generalDone = !g.validSterileGloveSize.isBlank || !g.nonSterileGloveSize.isBlank || !g.gownSize.isBlank || !g.maskPreference.isBlank
             || !g.briefingStyle.isBlank || g.arriveBeforePatient || g.prepareOwnMedications
             || !g.generalNotes.isBlank
 
