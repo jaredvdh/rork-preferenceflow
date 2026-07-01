@@ -28,6 +28,8 @@ struct DoctorsView: View {
     @State private var pendingImport: PreferenceExport?
     @State private var duplicates: [Doctor] = []
     @State private var showResolution = false
+    @State private var fuzzyMatches: [Doctor] = []
+    @State private var showFuzzyResolution = false
     @State private var importMessage: String?
     @State private var importIsError = false
 
@@ -123,6 +125,17 @@ struct DoctorsView: View {
             } message: {
                 Text(duplicateMessage)
             }
+            .confirmationDialog(
+                fuzzyTitle,
+                isPresented: $showFuzzyResolution,
+                titleVisibility: .visible
+            ) {
+                Button("Import as new") { resolveFuzzy(replace: false) }
+                Button("Replace existing") { resolveFuzzy(replace: true) }
+                Button("Cancel", role: .cancel) { cancelFuzzy() }
+            } message: {
+                Text(fuzzyMessage)
+            }
             .alert(importIsError ? "Import Error" : "Profile Imported", isPresented: .constant(importMessage != nil)) {
                 Button("OK") { importMessage = nil }
             } message: {
@@ -182,11 +195,18 @@ struct DoctorsView: View {
                     return
                 }
                 pendingImport = parsed
-                duplicates = store.existingDoctorIDs(in: parsed)
-                if duplicates.isEmpty {
-                    resolveImport(.replace) // pure add — no conflicts
-                } else {
+                let exact = store.existingDoctorIDs(in: parsed)
+                if !exact.isEmpty {
+                    duplicates = exact
                     showResolution = true
+                } else {
+                    let fuzzy = store.fuzzyNameMatches(in: parsed)
+                    if fuzzy.isEmpty {
+                        resolveImport(.replace) // pure add — no conflicts
+                    } else {
+                        fuzzyMatches = fuzzy
+                        showFuzzyResolution = true
+                    }
                 }
             } catch {
                 failImport("Couldn't read this file. Make sure it's a profile shared from PreferenceFlow.")
@@ -215,6 +235,46 @@ struct DoctorsView: View {
     private func failImport(_ text: String) {
         importIsError = true
         importMessage = text
+    }
+
+    // MARK: Fuzzy (same-name, different-id) resolution
+
+    private var fuzzyTitle: String {
+        if fuzzyMatches.count == 1, let only = fuzzyMatches.first {
+            return "A profile for \(only.displayName) already exists"
+        }
+        return "Similar profiles already exist"
+    }
+
+    private var fuzzyMessage: String {
+        if fuzzyMatches.count == 1, let only = fuzzyMatches.first {
+            return "You already have a profile that looks like \(only.displayName). Import as a separate new profile, or replace the existing one?"
+        }
+        let names = fuzzyMatches.map(\.displayName).joined(separator: ", ")
+        return "These look like profiles you already have: \(names). Import as separate new profiles, or replace the existing ones?"
+    }
+
+    private func resolveFuzzy(replace: Bool) {
+        guard let export = pendingImport else { return }
+        if replace {
+            store.applyImportReplacingNameMatches(export)
+        } else {
+            store.applyImport(export, resolution: .saveAsCopy)
+        }
+        importIsError = false
+        let count = export.doctors.count
+        if count == 1, let only = export.doctors.first {
+            importMessage = "\(only.displayName) was \(replace ? "updated" : "added") in your profiles."
+        } else {
+            importMessage = "Imported \(count) profiles."
+        }
+        pendingImport = nil
+        fuzzyMatches = []
+    }
+
+    private func cancelFuzzy() {
+        pendingImport = nil
+        fuzzyMatches = []
     }
 
     /// Pushes the deep-linked consultant (from a scanned preference-card QR) and
@@ -372,6 +432,7 @@ struct DoctorRow: View {
                         .foregroundStyle(.secondary)
                         .labelStyle(.titleAndIcon)
                 }
+                freshnessLine
             }
             Spacer()
             if let onToggleFavourite {
@@ -389,5 +450,26 @@ struct DoctorRow: View {
                 .foregroundStyle(.tertiary)
         }
         .card()
+    }
+
+    /// Age-of-last-update signal: a subtle amber "May need review" badge once a
+    /// profile is over 12 months stale, otherwise a quiet "Updated …" line.
+    @ViewBuilder
+    private var freshnessLine: some View {
+        if doctor.needsReview {
+            HStack(spacing: 4) {
+                Image(systemName: "clock.badge.exclamationmark")
+                Text("May need review")
+            }
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(Color(hex: "E0883B"))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Color(hex: "E0883B").opacity(0.14), in: .capsule)
+        } else {
+            Text(doctor.updatedSummary)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
     }
 }

@@ -172,6 +172,7 @@ private struct ConsultantIdentityStep: View {
 
     @State var draft: Doctor
     let hospitalName: String?
+    @State private var showVerifyPrompt = false
 
     var body: some View {
         Form {
@@ -213,13 +214,27 @@ private struct ConsultantIdentityStep: View {
         }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Create") {
-                    store.upsert(draft)
-                    dismiss()
-                }
-                .disabled(draft.fullName.isBlank)
+                Button("Create") { showVerifyPrompt = true }
+                    .disabled(draft.fullName.isBlank)
             }
         }
+        .confirmationDialog(
+            "Mark this profile as verified?",
+            isPresented: $showVerifyPrompt,
+            titleVisibility: .visible
+        ) {
+            Button("Yes, verified") { create(verified: true) }
+            Button("Not yet") { create(verified: false) }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Mark as verified only if these preferences were confirmed with the consultant. Choose \u{201C}Not yet\u{201D} if you\u{2019}re creating this from memory or a paper card \u{2014} a reminder banner will show until it\u{2019}s verified.")
+        }
+    }
+
+    private func create(verified: Bool) {
+        draft.isVerified = verified
+        store.upsert(draft)
+        dismiss()
     }
 }
 

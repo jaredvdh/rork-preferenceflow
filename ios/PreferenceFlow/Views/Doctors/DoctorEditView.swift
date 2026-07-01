@@ -104,6 +104,7 @@ struct DoctorEditView: View {
     @State private var photoItem: PhotosPickerItem?
     @State private var referenceItem: PhotosPickerItem?
     @State private var showCamera = false
+    @State private var showVerifyPrompt = false
     private let isNew: Bool
 
     init(doctor: Doctor, isNew: Bool) {
@@ -128,11 +129,26 @@ struct DoctorEditView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        store.upsert(draft)
-                        dismiss()
+                        if isNew {
+                            showVerifyPrompt = true
+                        } else {
+                            store.upsert(draft)
+                            dismiss()
+                        }
                     }
                     .disabled(draft.fullName.isBlank)
                 }
+            }
+            .confirmationDialog(
+                "Mark this profile as verified?",
+                isPresented: $showVerifyPrompt,
+                titleVisibility: .visible
+            ) {
+                Button("Yes, verified") { saveWith(verified: true) }
+                Button("Not yet") { saveWith(verified: false) }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Mark as verified only if these preferences were confirmed with the consultant. Choose \u{201C}Not yet\u{201D} if you\u{2019}re creating this from memory or a paper card \u{2014} a reminder banner will show until it\u{2019}s verified.")
             }
             .onChange(of: photoItem) { _, newItem in
                 Task { await loadPhoto(newItem) }
@@ -251,6 +267,12 @@ struct DoctorEditView: View {
             NotesField(label: "Biography", text: $draft.biography)
             NotesField(label: "Personal notes", text: $draft.personalNotes)
         }
+    }
+
+    private func saveWith(verified: Bool) {
+        draft.isVerified = verified
+        store.upsert(draft)
+        dismiss()
     }
 
     private func loadPhoto(_ item: PhotosPickerItem?) async {

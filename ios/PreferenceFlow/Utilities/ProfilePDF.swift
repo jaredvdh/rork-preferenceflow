@@ -198,6 +198,10 @@ enum ProfilePDF {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         ctx.drawMuted("Generated \(formatter.string(from: Date()))")
+        let verification = doctor.isVerifiedProfile
+            ? "Verified profile — preferences confirmed with the consultant."
+            : "UNVERIFIED — created from memory or second-hand. Confirm with the consultant before relying on this card."
+        ctx.drawMuted(verification)
         ctx.cursorY += 2
         ctx.drawDisclaimer("Preference reference only — not clinical advice. Always confirm against the patient and local policy.")
         ctx.cursorY += 12

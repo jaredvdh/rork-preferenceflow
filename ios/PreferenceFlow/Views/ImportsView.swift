@@ -16,6 +16,8 @@ struct ImportsView: View {
     @State private var pendingImport: PreferenceExport?
     @State private var duplicates: [Doctor] = []
     @State private var showResolution = false
+    @State private var fuzzyMatches: [Doctor] = []
+    @State private var showFuzzyResolution = false
     @State private var message: String?
     @State private var isError = false
     @State private var backupURL: URL?
@@ -61,6 +63,17 @@ struct ImportsView: View {
                 Button("Cancel", role: .cancel) { resolve(.cancel) }
             } message: {
                 Text(duplicateMessage)
+            }
+            .confirmationDialog(
+                fuzzyTitle,
+                isPresented: $showFuzzyResolution,
+                titleVisibility: .visible
+            ) {
+                Button("Import as new") { resolveFuzzy(replace: false) }
+                Button("Replace existing") { resolveFuzzy(replace: true) }
+                Button("Cancel", role: .cancel) { cancelFuzzy() }
+            } message: {
+                Text(fuzzyMessage)
             }
             .alert(isError ? "Import Error" : "Done", isPresented: .constant(message != nil)) {
                 Button("OK") { message = nil }
@@ -164,11 +177,18 @@ struct ImportsView: View {
                     return
                 }
                 pendingImport = parsed
-                duplicates = store.existingDoctorIDs(in: parsed)
-                if duplicates.isEmpty {
-                    resolve(.replace) // pure add — no conflicts
-                } else {
+                let exact = store.existingDoctorIDs(in: parsed)
+                if !exact.isEmpty {
+                    duplicates = exact
                     showResolution = true
+                } else {
+                    let fuzzy = store.fuzzyNameMatches(in: parsed)
+                    if fuzzy.isEmpty {
+                        resolve(.replace) // pure add — no conflicts
+                    } else {
+                        fuzzyMatches = fuzzy
+                        showFuzzyResolution = true
+                    }
                 }
             } catch {
                 fail("Couldn't read this file. Make sure it's a PreferenceFlow export.")
@@ -197,6 +217,40 @@ struct ImportsView: View {
         } catch {
             fail(error.localizedDescription)
         }
+    }
+
+    // MARK: Fuzzy (same-name, different-id) resolution
+
+    private var fuzzyTitle: String {
+        if fuzzyMatches.count == 1, let only = fuzzyMatches.first {
+            return "A profile for \(only.displayName) already exists"
+        }
+        return "Similar profiles already exist"
+    }
+
+    private var fuzzyMessage: String {
+        if fuzzyMatches.count == 1, let only = fuzzyMatches.first {
+            return "You already have a profile that looks like \(only.displayName). Import as a separate new profile, or replace the existing one?"
+        }
+        let names = fuzzyMatches.map(\.displayName).joined(separator: ", ")
+        return "These look like profiles you already have: \(names). Import as separate new profiles, or replace the existing ones?"
+    }
+
+    private func resolveFuzzy(replace: Bool) {
+        guard let export = pendingImport else { return }
+        if replace {
+            store.applyImportReplacingNameMatches(export)
+        } else {
+            store.applyImport(export, resolution: .saveAsCopy)
+        }
+        succeed("Imported \(export.doctors.count) profile(s) successfully.")
+        pendingImport = nil
+        fuzzyMatches = []
+    }
+
+    private func cancelFuzzy() {
+        pendingImport = nil
+        fuzzyMatches = []
     }
 
     private func fail(_ text: String) {

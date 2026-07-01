@@ -29,6 +29,7 @@ struct QuickAddConsultantView: View {
     @State private var photoItem: PhotosPickerItem?
     @State private var showCamera = false
     @State private var showSavedPrompt = false
+    @State private var showVerifyPrompt = false
     @State private var savedID: UUID?
 
     var body: some View {
@@ -73,7 +74,7 @@ struct QuickAddConsultantView: View {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { save() }
+                    Button("Save") { showVerifyPrompt = true }
                         .disabled(fullName.isBlank)
                         .fontWeight(.semibold)
                 }
@@ -88,6 +89,17 @@ struct QuickAddConsultantView: View {
                     }
                 }
                 .ignoresSafeArea()
+            }
+            .confirmationDialog(
+                "Mark this profile as verified?",
+                isPresented: $showVerifyPrompt,
+                titleVisibility: .visible
+            ) {
+                Button("Yes, verified") { save(verified: true) }
+                Button("Not yet") { save(verified: false) }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Mark as verified only if these preferences were confirmed with the consultant. Choose \u{201C}Not yet\u{201D} if you\u{2019}re adding this from memory or a paper card \u{2014} a reminder banner will show until it\u{2019}s verified.")
             }
             .confirmationDialog("Profile saved", isPresented: $showSavedPrompt, titleVisibility: .visible) {
                 Button("Add full setup details now") { finish(openEdit: true) }
@@ -132,8 +144,9 @@ struct QuickAddConsultantView: View {
         }
     }
 
-    private func save() {
+    private func save(verified: Bool) {
         var doctor = Doctor(fullName: fullName, subspecialties: specialties)
+        doctor.isVerified = verified
         // Attach to the only hospital automatically so the profile isn't orphaned.
         if store.hospitals.count == 1, let only = store.hospitals.first {
             doctor.hospitalId = only.id

@@ -389,6 +389,53 @@ final class DataStore {
         return export.doctors.filter { localIDs.contains($0.id) }
     }
 
+    /// Local profiles whose (normalised) name matches an incoming profile but whose
+    /// id differs — likely the same consultant entered independently by another
+    /// technician. Excludes exact-id matches (handled separately) to avoid
+    /// double-prompting.
+    func fuzzyNameMatches(in export: PreferenceExport) -> [Doctor] {
+        let incomingIDs = Set(export.doctors.map { $0.id })
+        let incomingNames = Set(
+            export.doctors
+                .map { Doctor.normalizedName($0.fullName) }
+                .filter { !$0.isEmpty }
+        )
+        guard !incomingNames.isEmpty else { return [] }
+        return doctors.filter { existing in
+            guard !incomingIDs.contains(existing.id) else { return false }
+            let key = Doctor.normalizedName(existing.fullName)
+            return !key.isEmpty && incomingNames.contains(key)
+        }
+    }
+
+    /// Applies an import where incoming profiles replace existing local profiles
+    /// matched by name (not id). The existing local id is preserved so favourites,
+    /// recents and deep links keep working; unmatched profiles are appended.
+    func applyImportReplacingNameMatches(_ export: PreferenceExport) {
+        let importedSource: ProfileSource = .imported(from: export.sharedBy ?? "")
+        for hospital in export.hospitals where !hospitals.contains(where: { $0.id == hospital.id }) {
+            hospitals.append(hospital)
+        }
+        for incoming in export.doctors {
+            var stamped = incoming
+            stamped.source = importedSource
+            stamped.isLocallyModified = false
+            let key = Doctor.normalizedName(incoming.fullName)
+            if !key.isEmpty,
+               let index = doctors.firstIndex(where: { Doctor.normalizedName($0.fullName) == key }) {
+                stamped.id = doctors[index].id
+                doctors[index] = stamped
+            } else if let index = doctors.firstIndex(where: { $0.id == incoming.id }) {
+                doctors[index] = stamped
+            } else {
+                doctors.append(stamped)
+            }
+        }
+        hospitals.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        sortDoctors()
+        save()
+    }
+
     /// Applies an import. `replace` overwrites matching IDs; `saveAsCopy` assigns
     /// fresh IDs to incoming doctors so nothing is overwritten.
     func applyImport(_ export: PreferenceExport, resolution: ImportResolution) {

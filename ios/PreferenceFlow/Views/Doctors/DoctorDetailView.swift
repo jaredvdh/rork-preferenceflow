@@ -116,6 +116,9 @@ struct DoctorDetailView: View {
                 readTabBar
                 Divider()
             }
+            if !isEditing, let doctor, !doctor.isVerifiedProfile {
+                unverifiedBanner(doctor)
+            }
             content
         }
         .background(Color(.systemGroupedBackground))
@@ -194,6 +197,47 @@ struct DoctorDetailView: View {
         } message: {
             Text("This permanently removes \(doctor?.displayName ?? "this consultant") and all their preferences.")
         }
+    }
+
+    /// Non-alarming banner shown on unverified profiles (built from memory or a
+    /// second-hand card). A single tap marks the profile verified.
+    private func unverifiedBanner(_ doctor: Doctor) -> some View {
+        Button {
+            markVerified(doctor)
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "exclamationmark.shield.fill")
+                    .font(.title3)
+                    .foregroundStyle(Color(hex: "E0883B"))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Unverified profile")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text("Created from memory or second-hand. Confirm preferences with the consultant before relying on this profile. Tap to mark verified.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "checkmark.circle")
+                    .font(.title3)
+                    .foregroundStyle(Color(hex: "E0883B"))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(hex: "E0883B").opacity(0.13))
+            .overlay(alignment: .bottom) { Divider() }
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("Marks this profile as verified")
+    }
+
+    private func markVerified(_ doctor: Doctor) {
+        var updated = doctor
+        updated.isVerified = true
+        withAnimation(.spring(response: 0.3)) { store.upsert(updated) }
     }
 
     private var tabBar: some View {

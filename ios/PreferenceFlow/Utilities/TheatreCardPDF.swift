@@ -330,9 +330,19 @@ enum TheatreCardPDF {
                     .foregroundColor: UIColor.secondaryLabel
                 ]
             )
+        let verification = doctor.isVerifiedProfile
+            ? "Verified — preferences confirmed with the consultant."
+            : "UNVERIFIED — created from memory / second-hand. Confirm with the consultant before relying on this card."
+        verification.draw(
+            in: CGRect(x: textX, y: y + 44, width: textWidth, height: 12),
+            withAttributes: [
+                .font: UIFont.systemFont(ofSize: 8, weight: .semibold),
+                .foregroundColor: doctor.isVerifiedProfile ? UIColor.secondaryLabel : UIColor(Color(hex: "E0883B"))
+            ]
+        )
         "Preference reference only — not clinical advice. Always confirm against the patient and local policy."
             .draw(
-                in: CGRect(x: textX, y: y + 56, width: textWidth, height: 22),
+                in: CGRect(x: textX, y: y + 58, width: textWidth, height: 22),
                 withAttributes: [
                     .font: UIFont.systemFont(ofSize: 8.5, weight: .medium),
                     .foregroundColor: UIColor(Theme.accentDeep)

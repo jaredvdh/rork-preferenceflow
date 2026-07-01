@@ -39,6 +39,11 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     /// locally, so the technician knows their copy now differs from the original
     /// they received. Always nil/false for locally-created profiles.
     var isLocallyModified: Bool?
+    /// Whether these preferences have been confirmed with the consultant. A
+    /// profile built from memory or a second-hand paper card can be flagged
+    /// unverified so readers know to double-check. Nil decodes as verified for
+    /// profiles saved before verification existed (backward-compatible).
+    var isVerified: Bool?
 
     // Professional information
     var role: String
@@ -87,6 +92,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         personalNotes: String = "",
         source: ProfileSource? = nil,
         isLocallyModified: Bool? = nil,
+        isVerified: Bool? = nil,
         general: GeneralPreferences = GeneralPreferences(),
         adult: MedicationSetup = MedicationSetup(),
         paediatric: MedicationSetup = MedicationSetup(),
@@ -116,6 +122,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         self.personalNotes = personalNotes
         self.source = source
         self.isLocallyModified = isLocallyModified
+        self.isVerified = isVerified
         self.general = general
         self.adult = adult
         self.paediatric = paediatric
@@ -156,6 +163,50 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
 
     /// Whether an imported/synced profile has been edited locally.
     var hasLocalEdits: Bool { isLocallyModified ?? false }
+
+    /// Whether these preferences have been confirmed with the consultant. Legacy
+    /// profiles (nil) are treated as verified so they aren't retroactively flagged.
+    var isVerifiedProfile: Bool { isVerified ?? true }
+
+    /// True when the profile hasn't been updated in over 12 months and may be
+    /// stale — a gentle prompt to confirm before relying on it.
+    var needsReview: Bool {
+        guard let threshold = Calendar.current.date(byAdding: .month, value: -12, to: Date()) else {
+            return false
+        }
+        return updatedAt < threshold
+    }
+
+    /// Human-friendly "last updated" summary for list rows — relative for recent
+    /// changes, month/year once it's older than a month.
+    var updatedSummary: String {
+        let calendar = Calendar.current
+        let days = calendar.dateComponents([.day], from: updatedAt, to: Date()).day ?? 0
+        if days <= 0 { return "Updated today" }
+        if days == 1 { return "Updated yesterday" }
+        if days < 30 { return "Updated \(days) days ago" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM yyyy"
+        return "Updated \(formatter.string(from: updatedAt))"
+    }
+
+    /// Normalised name for fuzzy duplicate detection: lowercased, titles stripped,
+    /// punctuation removed, whitespace collapsed.
+    static func normalizedName(_ raw: String) -> String {
+        let titles: Set<String> = [
+            "dr", "dr.", "prof", "prof.", "professor", "mr", "mrs", "ms",
+            "miss", "sir", "consultant", "assoc", "associate"
+        ]
+        let cleaned = raw.lowercased()
+            .replacingOccurrences(of: ".", with: " ")
+            .replacingOccurrences(of: ",", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+        let tokens = cleaned
+            .split(whereSeparator: { $0 == " " })
+            .map(String.init)
+            .filter { !titles.contains($0) && !$0.isEmpty }
+        return tokens.joined(separator: " ")
+    }
 
     /// Specialty setups that actually carry content, ready for the dashboard.
     var activeSpecialtySetups: [SpecialtySetup] {
