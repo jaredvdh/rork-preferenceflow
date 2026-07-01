@@ -62,14 +62,23 @@ nonisolated struct SpecialtySetup: Identifiable, Codable, Hashable {
 nonisolated enum SpecialtySetupOptions {
     static let monitoring = [
         "Arterial line", "Triple transducer", "CVP", "Cardiac output",
-        "TEE", "BIS / depth", "NIRS", "Temperature", "Urinary catheter"
+        "TEE", "BIS / Entropy (depth of anaesthesia)", "Processed EEG",
+        "Cerebral oximetry (NIRS)", "Pulmonary artery catheter (PAC)",
+        "Oesophageal Doppler", "FloTrac / Vigileo", "LiDCO / PiCCO (cardiac output)",
+        "Temperature", "Urinary catheter"
     ]
     static let lines = [
-        "Large-bore IV", "Quad lumen CVC", "Introducer sheath", "PICC",
-        "Rapid infuser", "Belmont / Level 1", "Arterial line", "PA catheter"
+        "Large-bore IV", "Quad lumen CVC", "Introducer sheath",
+        "Cordis / Introducer sheath", "PICC", "Rapid infuser",
+        "Belmont / Level 1", "Arterial line", "PA catheter",
+        "Intraosseous (IO)", "CRRT / dialysis catheter",
+        "Epidural (for post-op analgesia)"
     ]
     static let equipment = [
-        "Cell saver", "Belmont", "Forced-air warmer", "Fluid warmer",
-        "Defibrillator pads", "Pacing", "Ultrasound", "Difficult airway trolley"
+        "Cell saver", "Cell saver suction setup", "Belmont", "Forced-air warmer",
+        "Fluid warmer", "Defibrillator pads", "Pacing", "Ultrasound",
+        "Difficult airway trolley", "IABP (intra-aortic balloon pump)", "Impella",
+        "ECMO circuit", "Bronchial blocker", "Double-lumen ETT setup",
+        "Jet ventilator", "Fibreoptic bronchoscope"
     ]
 }
