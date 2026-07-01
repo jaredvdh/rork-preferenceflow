@@ -8,6 +8,7 @@ import SwiftUI
 /// Hospitals tab — list of facilities with provider counts.
 struct HospitalsView: View {
     @Environment(DataStore.self) private var store
+    @Environment(AppSettings.self) private var settings
 
     @State private var editing: Hospital?
     @State private var creatingNew = false
@@ -52,6 +53,15 @@ struct HospitalsView: View {
         .sheet(item: $editing) { hospital in
             HospitalEditView(hospital: hospital)
         }
+        .onAppear(perform: consumePendingAdd)
+        .onChange(of: settings.pendingOpenAddHospital) { _, _ in consumePendingAdd() }
+    }
+
+    /// Opens the add-hospital flow when the guided tour requested it.
+    private func consumePendingAdd() {
+        guard settings.pendingOpenAddHospital else { return }
+        settings.pendingOpenAddHospital = false
+        creatingNew = true
     }
 
     private var listContent: some View {

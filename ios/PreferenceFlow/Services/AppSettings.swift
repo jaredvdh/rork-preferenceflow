@@ -40,6 +40,7 @@ nonisolated enum DailyContextPhase {
 final class AppSettings {
     private enum Keys {
         static let didOnboard = "pf.didOnboard"
+        static let hasLaunchedBefore = "pf.hasLaunchedBefore"
         static let region = "pf.region"
         static let country = "pf.country"
         static let regionName = "pf.regionName"
@@ -58,6 +59,18 @@ final class AppSettings {
     var didCompleteOnboarding: Bool {
         didSet { defaults.set(didCompleteOnboarding, forKey: Keys.didOnboard) }
     }
+
+    /// Whether the first-launch guided tour (add hospital → add consultant) has
+    /// been shown. Set once the tour is completed or skipped so it never returns,
+    /// even across app updates.
+    var hasSeenGuidedTour: Bool {
+        didSet { defaults.set(hasSeenGuidedTour, forKey: Keys.hasLaunchedBefore) }
+    }
+
+    /// Transient signals from the guided tour asking a tab to open its "add" flow
+    /// as soon as it appears. Not persisted — they route a single navigation.
+    var pendingOpenAddHospital: Bool = false
+    var pendingOpenAddDoctor: Bool = false
 
     var region: TerminologyRegion {
         didSet { defaults.set(region.rawValue, forKey: Keys.region) }
@@ -128,6 +141,7 @@ final class AppSettings {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.didCompleteOnboarding = defaults.bool(forKey: Keys.didOnboard)
+        self.hasSeenGuidedTour = defaults.bool(forKey: Keys.hasLaunchedBefore)
         self.country = defaults.string(forKey: Keys.country) ?? ""
         self.regionName = defaults.string(forKey: Keys.regionName) ?? ""
         self.userName = defaults.string(forKey: Keys.userName) ?? ""

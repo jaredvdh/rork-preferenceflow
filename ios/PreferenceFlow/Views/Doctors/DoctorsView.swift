@@ -99,6 +99,8 @@ struct DoctorsView: View {
             .sheet(isPresented: $creatingNew) {
                 NewConsultantFlowView()
             }
+            .onAppear(perform: consumePendingAdd)
+            .onChange(of: settings.pendingOpenAddDoctor) { _, _ in consumePendingAdd() }
             .sheet(isPresented: $quickAdding, onDismiss: consumeQuickAddResult) {
                 QuickAddConsultantView { id, openEdit in
                     quickAddResult = (id, openEdit)
@@ -164,6 +166,13 @@ struct DoctorsView: View {
         } else {
             path.append(result.id)
         }
+    }
+
+    /// Opens the new-consultant flow when the guided tour requested it.
+    private func consumePendingAdd() {
+        guard settings.pendingOpenAddDoctor else { return }
+        settings.pendingOpenAddDoctor = false
+        creatingNew = true
     }
 
     // MARK: - Peer-to-peer import

@@ -39,6 +39,7 @@ struct RootTabView: View {
     @Environment(DataStore.self) private var store
 
     @State private var selection: RootTab = .today
+    @State private var showGuidedTour = false
 
     var body: some View {
         TabView(selection: $selection) {
@@ -60,6 +61,30 @@ struct RootTabView: View {
         }
         .tint(Theme.accent)
         .onOpenURL { url in handleDeepLink(url) }
+        .sheet(isPresented: $showGuidedTour) {
+            GuidedTourView(
+                onSetupHospital: {
+                    settings.pendingOpenAddHospital = true
+                    selection = .hospital
+                    finishGuidedTour()
+                },
+                onAddConsultant: {
+                    settings.pendingOpenAddDoctor = true
+                    selection = .providers
+                    finishGuidedTour()
+                },
+                onFinish: { finishGuidedTour() }
+            )
+        }
+        .onAppear {
+            if !settings.hasSeenGuidedTour { showGuidedTour = true }
+        }
+    }
+
+    /// Marks the first-launch tour as seen and dismisses it.
+    private func finishGuidedTour() {
+        settings.hasSeenGuidedTour = true
+        showGuidedTour = false
     }
 
     /// Routes a scanned preference-card QR code (preferenceflow://consultant/<id>)
