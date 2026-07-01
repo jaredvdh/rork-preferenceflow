@@ -101,7 +101,6 @@ struct PrefSummaryHeader: View {
 /// A status descriptor shown under a preference card title.
 enum PrefStatus: Equatable {
     case none
-    case departmentStandard
     case modified(String)
     case custom(text: String, icon: String, color: Color)
 
@@ -109,8 +108,6 @@ enum PrefStatus: Equatable {
         switch self {
         case .none:
             EmptyView()
-        case .departmentStandard:
-            badge(text: "Department Standard", icon: "checkmark.seal.fill", color: Theme.accent)
         case .modified(let who):
             badge(text: who, icon: "person.fill.checkmark", color: .orange)
         case .custom(let text, let icon, let color):
