@@ -361,10 +361,17 @@ enum ProfilePDF {
     private static func airwaySetupLines(_ s: AirwaySetup) -> [String] {
         var lines: [String] = []
         if !s.tubeSize.isBlank { lines.append("Tube size: \(s.tubeSize)") }
-        if !s.cuffedPreference.isBlank { lines.append("Cuff: \(s.cuffedPreference)") }
+        if s.tubeType != .standard {
+            var tt = "Tube type: \(s.tubeType.rawValue)"
+            if !s.tubeTypeNote.isBlank { tt += " (\(s.tubeTypeNote))" }
+            lines.append(tt)
+        }
         if !s.styletPreference.isBlank { lines.append("Stylet: \(s.styletPreference)") }
         if !s.bougiePreference.isBlank { lines.append("Bougie: \(s.bougiePreference)") }
         if !s.tubeSecuring.isBlank { lines.append("Securing: \(s.tubeSecuring)") }
+        if !s.tapingTape.isBlank { lines.append("Tape: \(s.tapingTape)") }
+        if !s.tapingTechnique.isBlank { lines.append("Taping technique: \(s.tapingTechnique)") }
+        if s.tapingTechniquePhoto != nil { lines.append("Taping technique photo saved in app") }
         var laryngoscopy = "Laryngoscopy: \(s.primaryTechnique.rawValue)"
         if s.primaryTechnique == .video, s.videoSystem != .none { laryngoscopy += " (\(s.videoSystem.rawValue))" }
         if s.blade != .none {

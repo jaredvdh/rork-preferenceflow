@@ -77,6 +77,9 @@ struct AirwayTab: View {
         // ETT — show both when male and female differ, otherwise a single chip.
         chips.append(contentsOf: splitChips(prefix: "ETT ", male: m.tubeSize, female: f.tubeSize))
         if !m.bougiePreference.isBlank { chips.append("Bougie \(m.bougiePreference)") }
+        // Non-standard adult tube types are clinically important — surface them.
+        if m.tubeType != .standard { chips.append(m.tubeType.rawValue) }
+        else if f.tubeType != .standard { chips.append(f.tubeType.rawValue) }
         if isModified { chips.append(contentsOf: a.supraglottic.summaryChips.map { "SGA \($0)" }) }
         return Array(chips.prefix(6))
     }
@@ -105,8 +108,9 @@ struct AirwayTab: View {
     // MARK: - Shared emptiness helpers
 
     private func ettEmpty(_ s: AirwaySetup) -> Bool {
-        s.tubeSize.isBlank && s.cuffedPreference.isBlank && s.styletPreference.isBlank
+        s.tubeSize.isBlank && s.styletPreference.isBlank
             && s.bougiePreference.isBlank && s.tubeSecuring.isBlank
+            && s.tubeType == .standard
     }
 
     private func laryngoscopyEmpty(_ s: AirwaySetup) -> Bool {
@@ -171,7 +175,11 @@ struct AirwayTab: View {
         if !ettEmpty(s) {
             PrefSubgroup(title: title, tint: PrefGroup.equipment.tint) {
                 PrefRow(label: "Tube size", value: s.tubeSize)
-                PrefRow(label: "Cuff", value: s.cuffedPreference)
+                // Adult tubes are cuffed by default — only surface tube type when non-standard.
+                if s.tubeType != .standard {
+                    PrefRow(label: "Tube type", value: s.tubeType.rawValue)
+                    PrefRow(label: "Tube note", value: s.tubeTypeNote)
+                }
                 PrefRow(label: "Stylet", value: s.styletPreference)
                 PrefRow(label: "Bougie", value: s.bougiePreference)
                 PrefRow(label: "Securing", value: s.tubeSecuring)
@@ -259,6 +267,7 @@ struct AirwayTab: View {
         PaediatricETTCard(ageYears: paed.ageYears, cuffedPreference: a.paediatric.cuffedPreference)
         PaediatricSupraglotticCard(weightKg: paed.effectiveWeightKg, usingActual: paed.useActualWeight, device: primarySupraglottic?.device ?? .none)
         gasInductionLinkCard
+        if paedTapingHasContent { paedTapingCard }
         if !laryngoscopyEmpty(a.paediatric) { paedLaryngoscopyCard }
         PaediatricBladeCard()
         if !difficultEmpty { difficultCard }
@@ -284,6 +293,29 @@ struct AirwayTab: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    private var paedTapingHasContent: Bool {
+        let s = a.paediatric
+        return !s.tubeSecuring.isBlank || !s.tapingTape.isBlank
+            || !s.tapingTechnique.isBlank || s.tapingTechniquePhoto != nil
+    }
+
+    private var paedTapingCard: some View {
+        let s = a.paediatric
+        let summary = [s.tapingTechnique, s.tubeSecuring].first { !$0.isBlank } ?? "Taping technique"
+        return PrefCollapsibleCard(group: .technique, title: "Tube Securing", icon: "bandage.fill", collapsedSummary: summary) {
+            PrefRow(label: "Method", value: s.tubeSecuring)
+            PrefRow(label: "Tape", value: s.tapingTape)
+            PrefRow(label: "Technique", value: s.tapingTechnique)
+            if let data = s.tapingTechniquePhoto, let image = UIImage(data: data) {
+                Color(.secondarySystemBackground)
+                    .frame(height: 200)
+                    .frame(maxWidth: .infinity)
+                    .overlay { Image(uiImage: image).resizable().aspectRatio(contentMode: .fit).allowsHitTesting(false) }
+                    .clipShape(.rect(cornerRadius: Theme.cornerMedium))
             }
         }
     }

@@ -361,6 +361,8 @@ enum TheatreCardPDF {
         var items: [CardItem] = []
         if !a.adultMale.tubeSize.isBlank { items.append(CardItem(text: "ETT \(a.adultMale.tubeSize) (M)")) }
         if !a.adultFemale.tubeSize.isBlank { items.append(CardItem(text: "ETT \(a.adultFemale.tubeSize) (F)")) }
+        if a.adultMale.tubeType != .standard { items.append(CardItem(text: "Tube: \(a.adultMale.tubeType.rawValue) (M)")) }
+        if a.adultFemale.tubeType != .standard { items.append(CardItem(text: "Tube: \(a.adultFemale.tubeType.rawValue) (F)")) }
 
         // Laryngoscopy — show both male and female when they differ, otherwise a
         // single line. Never silently drop the female parameter.
@@ -390,6 +392,14 @@ enum TheatreCardPDF {
 
         if !a.adultMale.styletPreference.isBlank { items.append(CardItem(text: "Stylet: \(a.adultMale.styletPreference)")) }
         if !a.adultMale.bougiePreference.isBlank { items.append(CardItem(text: "Bougie: \(a.adultMale.bougiePreference)")) }
+
+        let paed = a.paediatric
+        if !paed.tapingTechnique.isBlank {
+            var taping = "Paed taping: \(paed.tapingTechnique)"
+            if !paed.tapingTape.isBlank { taping += " (\(paed.tapingTape))" }
+            items.append(CardItem(text: taping))
+        }
+        if paed.tapingTechniquePhoto != nil { items.append(CardItem(text: "Paed taping photo in app")) }
 
         let da = a.difficultAirway
         if !da.backupPlan.isBlank { items.append(CardItem(text: "Backup: \(da.backupPlan)")) }

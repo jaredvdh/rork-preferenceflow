@@ -29,15 +29,49 @@ nonisolated enum LaryngoscopeBlade: String, Codable, CaseIterable, Identifiable,
     var id: String { rawValue }
 }
 
+/// The physical type of endotracheal tube. Relevant for subspecialties (ENT,
+/// maxillofacial, head & neck) that routinely use non-standard tubes. Defaults to
+/// `.standard` so existing profiles are unchanged and the field only surfaces when
+/// set to something worth noting.
+nonisolated enum TubeType: String, Codable, CaseIterable, Identifiable, Hashable {
+    case standard = "Standard oral"
+    case southRAE = "South-facing RAE (oral)"
+    case northRAE = "North-facing nasal RAE"
+    case flexometallic = "Flexometallic / armoured"
+    case microlaryngoscopy = "Microlaryngoscopy tube"
+    case reinforced = "Reinforced"
+    case other = "Other"
+    var id: String { rawValue }
+
+    /// RAE tubes commonly carry an extra nostril-side / positioning preference.
+    var isRAE: Bool { self == .southRAE || self == .northRAE }
+}
+
 /// A single airway setup (adult male, adult female or paediatric). Independent
 /// per the spec but share the same structure.
 nonisolated struct AirwaySetup: Codable, Hashable {
     // Endotracheal tube
     var tubeSize: String = ""
+    /// Legacy cuffed/uncuffed preference. No longer shown in the adult editor or
+    /// read view (adult tubes are cuffed by default) — retained for backward
+    /// compatibility and still used by the paediatric ETT calculator.
     var cuffedPreference: String = ""
+    /// Physical tube type (standard oral, RAE, flexometallic, etc.).
+    var tubeType: TubeType = .standard
+    /// Contextual note for the tube type, e.g. RAE nostril-side preference.
+    var tubeTypeNote: String = ""
     var styletPreference: String = ""
     var bougiePreference: String = ""
+    /// Adult tube securing method (Tie, Tape, Elastoplast, Suture, etc.).
     var tubeSecuring: String = ""
+
+    // Paediatric taping (distinct clinical meaning from the adult `tubeSecuring`).
+    /// Tape width / type, e.g. "5mm zinc oxide", "1cm Elastoplast".
+    var tapingTape: String = ""
+    /// Technique description, e.g. "Trouser legs", "Cross-tape".
+    var tapingTechnique: String = ""
+    /// Optional photo of the consultant's preferred taping technique.
+    var tapingTechniquePhoto: Data?
 
     // Laryngoscopy
     var primaryTechnique: LaryngoscopyTechnique = .direct
@@ -46,6 +80,35 @@ nonisolated struct AirwaySetup: Codable, Hashable {
     var bladeSize: String = ""
 
     var notes: String = ""
+
+    init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case tubeSize, cuffedPreference, tubeType, tubeTypeNote, styletPreference,
+             bougiePreference, tubeSecuring, tapingTape, tapingTechnique,
+             tapingTechniquePhoto, primaryTechnique, videoSystem, blade, bladeSize, notes
+    }
+
+    /// Lenient decoder so profiles saved before these fields existed keep loading
+    /// — any missing key falls back to its default (no data loss).
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        tubeSize = (try? c.decode(String.self, forKey: .tubeSize)) ?? ""
+        cuffedPreference = (try? c.decode(String.self, forKey: .cuffedPreference)) ?? ""
+        tubeType = (try? c.decode(TubeType.self, forKey: .tubeType)) ?? .standard
+        tubeTypeNote = (try? c.decode(String.self, forKey: .tubeTypeNote)) ?? ""
+        styletPreference = (try? c.decode(String.self, forKey: .styletPreference)) ?? ""
+        bougiePreference = (try? c.decode(String.self, forKey: .bougiePreference)) ?? ""
+        tubeSecuring = (try? c.decode(String.self, forKey: .tubeSecuring)) ?? ""
+        tapingTape = (try? c.decode(String.self, forKey: .tapingTape)) ?? ""
+        tapingTechnique = (try? c.decode(String.self, forKey: .tapingTechnique)) ?? ""
+        tapingTechniquePhoto = try? c.decode(Data.self, forKey: .tapingTechniquePhoto)
+        primaryTechnique = (try? c.decode(LaryngoscopyTechnique.self, forKey: .primaryTechnique)) ?? .direct
+        videoSystem = (try? c.decode(VideoLaryngoscopeSystem.self, forKey: .videoSystem)) ?? .none
+        blade = (try? c.decode(LaryngoscopeBlade.self, forKey: .blade)) ?? .macintosh
+        bladeSize = (try? c.decode(String.self, forKey: .bladeSize)) ?? ""
+        notes = (try? c.decode(String.self, forKey: .notes)) ?? ""
+    }
 }
 
 nonisolated enum SupraglotticDevice: String, Codable, CaseIterable, Identifiable, Hashable {
