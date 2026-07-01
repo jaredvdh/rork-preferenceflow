@@ -8,20 +8,38 @@ import Foundation
 /// A structured drug category that the user fills from a curated multi-select
 /// list rather than free text. Custom entries are still allowed via `custom`.
 nonisolated struct DrugSelection: Codable, Hashable {
-    /// Chosen agent names (from the curated list or custom additions).
+    /// Chosen agent names from the curated list.
     var selected: [String]
+    /// Custom agent names added by the user (unusual agents not in the curated list).
+    var custom: [String]
     /// Who prepares these agents.
     var preparedBy: PreparedBy
     /// Free-text special notes only.
     var notes: String
 
-    init(selected: [String] = [], preparedBy: PreparedBy = .caseDependent, notes: String = "") {
+    init(selected: [String] = [], custom: [String] = [], preparedBy: PreparedBy = .caseDependent, notes: String = "") {
         self.selected = selected
+        self.custom = custom
         self.preparedBy = preparedBy
         self.notes = notes
     }
 
-    var isEmpty: Bool { selected.isEmpty && notes.isBlank }
+    private enum CodingKeys: String, CodingKey {
+        case selected, custom, preparedBy, notes
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        selected = try c.decodeIfPresent([String].self, forKey: .selected) ?? []
+        custom = try c.decodeIfPresent([String].self, forKey: .custom) ?? []
+        preparedBy = try c.decodeIfPresent(PreparedBy.self, forKey: .preparedBy) ?? .caseDependent
+        notes = try c.decodeIfPresent(String.self, forKey: .notes) ?? ""
+    }
+
+    /// Curated selections plus any custom additions, in display order.
+    var allAgents: [String] { selected + custom }
+
+    var isEmpty: Bool { selected.isEmpty && custom.isEmpty && notes.isBlank }
 }
 
 /// The drug & fluid categories surfaced in the Drugs & Fluids tab. Each maps to a
@@ -31,6 +49,7 @@ nonisolated enum DrugCategory: String, Codable, CaseIterable, Identifiable, Hash
     case opioid = "Opioid"
     case vasopressor = "Vasopressor"
     case muscleRelaxant = "Muscle Relaxant"
+    case reversal = "Reversal Agents"
     case fluid = "IV Fluids"
 
     var id: String { rawValue }
@@ -41,6 +60,7 @@ nonisolated enum DrugCategory: String, Codable, CaseIterable, Identifiable, Hash
         case .opioid: return "bandage.fill"
         case .vasopressor: return "arrow.up.heart.fill"
         case .muscleRelaxant: return "figure.flexibility"
+        case .reversal: return "arrow.uturn.backward.circle.fill"
         case .fluid: return "drop.fill"
         }
     }
@@ -49,11 +69,24 @@ nonisolated enum DrugCategory: String, Codable, CaseIterable, Identifiable, Hash
     /// for quick selection — the app stores user preference only.
     var options: [String] {
         switch self {
-        case .induction: return ["Propofol", "Ketamine", "Thiopentone", "Etomidate"]
-        case .opioid: return ["Fentanyl", "Alfentanil", "Remifentanil", "Morphine"]
-        case .vasopressor: return ["Metaraminol", "Phenylephrine", "Ephedrine", "Noradrenaline"]
-        case .muscleRelaxant: return ["Rocuronium", "Succinylcholine", "Atracurium", "Cisatracurium"]
-        case .fluid: return ["Hartmann's", "Plasma-Lyte", "Normal Saline", "Glucose 5%"]
+        case .induction:
+            return ["Propofol", "Ketamine", "Thiopentone", "Etomidate",
+                    "Dexmedetomidine", "Midazolam", "Remimazolam"]
+        case .opioid:
+            return ["Fentanyl", "Alfentanil", "Remifentanil", "Morphine",
+                    "Oxycodone", "Hydromorphone", "Tramadol", "Sufentanil"]
+        case .vasopressor:
+            return ["Metaraminol", "Phenylephrine", "Ephedrine", "Noradrenaline",
+                    "Vasopressin", "Adrenaline (Epinephrine)", "Dopamine", "Dobutamine"]
+        case .muscleRelaxant:
+            return ["Rocuronium", "Succinylcholine", "Atracurium", "Cisatracurium",
+                    "Vecuronium", "Mivacurium", "Pancuronium"]
+        case .reversal:
+            return ["Sugammadex", "Neostigmine", "Glycopyrrolate",
+                    "Neostigmine + Glycopyrrolate", "Flumazenil", "Naloxone"]
+        case .fluid:
+            return ["Hartmann's", "Plasma-Lyte", "Normal Saline", "Glucose 5%",
+                    "Gelofusine", "Albumin 4%", "Albumin 20%", "Plasmalyte 148"]
         }
     }
 }
@@ -156,6 +189,7 @@ nonisolated struct DrugsFluidsSetup: Codable, Hashable {
     var opioid: DrugSelection
     var vasopressor: DrugSelection
     var muscleRelaxant: DrugSelection
+    var reversal: DrugSelection
     var fluids: DrugSelection
     var notes: String
     /// Paediatric gas induction preference. Only surfaced for the paediatric
@@ -176,6 +210,7 @@ nonisolated struct DrugsFluidsSetup: Codable, Hashable {
         opioid: DrugSelection = DrugSelection(),
         vasopressor: DrugSelection = DrugSelection(),
         muscleRelaxant: DrugSelection = DrugSelection(),
+        reversal: DrugSelection = DrugSelection(),
         fluids: DrugSelection = DrugSelection(),
         notes: String = "",
         gasInduction: GasInductionPreferences? = nil,
@@ -188,6 +223,7 @@ nonisolated struct DrugsFluidsSetup: Codable, Hashable {
         self.opioid = opioid
         self.vasopressor = vasopressor
         self.muscleRelaxant = muscleRelaxant
+        self.reversal = reversal
         self.fluids = fluids
         self.notes = notes
         self.gasInduction = gasInduction
@@ -224,6 +260,7 @@ nonisolated struct DrugsFluidsSetup: Codable, Hashable {
         case .opioid: return opioid
         case .vasopressor: return vasopressor
         case .muscleRelaxant: return muscleRelaxant
+        case .reversal: return reversal
         case .fluid: return fluids
         }
     }
@@ -231,13 +268,13 @@ nonisolated struct DrugsFluidsSetup: Codable, Hashable {
     /// Whether any category has been filled in.
     var hasContent: Bool {
         !induction.isEmpty || !opioid.isEmpty || !vasopressor.isEmpty
-            || !muscleRelaxant.isEmpty || !fluids.isEmpty || !notes.isBlank
-            || hasMaintenance
+            || !muscleRelaxant.isEmpty || !reversal.isEmpty || !fluids.isEmpty
+            || !notes.isBlank || hasMaintenance
     }
 
-    /// All prepared-by-assistant or doctor agents flattened for checklist building.
+    /// All selected and custom agents flattened for checklist building.
     var allSelectedAgents: [String] {
-        induction.selected + opioid.selected + vasopressor.selected
-            + muscleRelaxant.selected + fluids.selected
+        induction.allAgents + opioid.allAgents + vasopressor.allAgents
+            + muscleRelaxant.allAgents + reversal.allAgents + fluids.allAgents
     }
 }

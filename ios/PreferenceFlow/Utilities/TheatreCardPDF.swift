@@ -467,8 +467,8 @@ enum TheatreCardPDF {
         }
         for category in DrugCategory.allCases {
             let sel = setup.selection(for: category)
-            guard !sel.selected.isEmpty else { continue }
-            let main = "\(category.rawValue): \(sel.selected.joined(separator: ", "))"
+            guard !sel.allAgents.isEmpty else { continue }
+            let main = "\(category.rawValue): \(sel.allAgents.joined(separator: ", "))"
             var subParts: [String] = []
             if !sel.notes.isBlank { subParts.append(sel.notes) }
             if sel.preparedBy != .caseDependent { subParts.append(sel.preparedBy.rawValue) }

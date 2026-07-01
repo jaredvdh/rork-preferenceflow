@@ -154,7 +154,7 @@ struct DrugCategoryCollapsibleCard: View {
             icon: category.symbol,
             collapsedSummary: Self.collapsedSummary(category, selection)
         ) {
-            PrefChecklist(items: selection.selected, tint: tint)
+            PrefChecklist(items: selection.allAgents, tint: tint)
             if category != .fluid {
                 PrefRow(label: "Prepared by", value: selection.preparedBy.shortLabel)
             }
@@ -165,10 +165,11 @@ struct DrugCategoryCollapsibleCard: View {
     /// One-line collapsed summary: the first agents plus an "Assistant may prepare"
     /// flag, or a notes hint when nothing is selected.
     static func collapsedSummary(_ category: DrugCategory, _ selection: DrugSelection) -> String {
-        if selection.selected.isEmpty {
+        let agents = selection.allAgents
+        if agents.isEmpty {
             return selection.notes.isBlank ? "Tap to view" : "See notes"
         }
-        var summary = selection.selected.prefix(3).joined(separator: ", ")
+        var summary = agents.prefix(3).joined(separator: ", ")
         if category != .fluid, selection.preparedBy == .assistant {
             summary += " • Assistant may prepare"
         }
@@ -210,7 +211,7 @@ struct DrugCategoryCard: View {
                 }
             }
             VStack(alignment: .leading, spacing: 10) {
-                PrefChecklist(items: selection.selected)
+                PrefChecklist(items: selection.allAgents)
                 if !selection.notes.isBlank {
                     Text(selection.notes)
                         .font(.footnote)
@@ -405,6 +406,7 @@ struct DrugsFluidsEditView: View {
         Section {
             ChipMultiSelect(selected: binding.selected, options: category.options)
                 .padding(.vertical, 4)
+            CustomAgentEditor(custom: binding.custom)
             if category != .fluid {
                 Picker(selection: binding.preparedBy) {
                     ForEach(PreparedBy.allCases) { Text($0.shortLabel).tag($0) }
@@ -416,5 +418,71 @@ struct DrugsFluidsEditView: View {
         } header: {
             Label(category.rawValue, systemImage: category.symbol)
         }
+    }
+}
+
+/// Lets the user add custom agents not present in the curated list (e.g.
+/// Methohexital, Ketofol). Shows existing custom agents as removable chips plus
+/// an inline "+ Add custom agent" text field. Reference name only — no dose.
+struct CustomAgentEditor: View {
+    @Binding var custom: [String]
+    @State private var isAdding = false
+    @State private var draft = ""
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if !custom.isEmpty {
+                FlowLayout(spacing: 8) {
+                    ForEach(custom, id: \.self) { agent in
+                        Button { remove(agent) } label: {
+                            HStack(spacing: 4) {
+                                Text(agent)
+                                Image(systemName: "xmark.circle.fill")
+                            }
+                            .font(.footnote.weight(.medium))
+                            .padding(.horizontal, 10).padding(.vertical, 6)
+                            .background(Theme.accent.opacity(0.14), in: .capsule)
+                            .foregroundStyle(Theme.accentDeep)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            if isAdding {
+                HStack(spacing: 8) {
+                    TextField("Custom agent name", text: $draft)
+                        .textInputAutocapitalization(.words)
+                        .focused($focused)
+                        .onSubmit(commit)
+                    Button("Add", action: commit)
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                        .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            } else {
+                Button {
+                    isAdding = true
+                    focused = true
+                } label: {
+                    Label("Add custom agent", systemImage: "plus.circle.fill")
+                        .font(.footnote.weight(.semibold))
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func commit() {
+        let value = draft.trimmingCharacters(in: .whitespaces)
+        guard !value.isEmpty else { return }
+        if !custom.contains(value) { custom.append(value) }
+        draft = ""
+        isAdding = false
+        focused = false
+    }
+
+    private func remove(_ agent: String) {
+        custom.removeAll { $0 == agent }
     }
 }

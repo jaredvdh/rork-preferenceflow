@@ -398,7 +398,7 @@ enum ProfilePDF {
             for category in DrugCategory.allCases {
                 let sel = setup.selection(for: category)
                 guard !sel.isEmpty else { continue }
-                var value = sel.selected.joined(separator: ", ")
+                var value = sel.allAgents.joined(separator: ", ")
                 if sel.preparedBy != .caseDependent { value += "  (\(sel.preparedBy.rawValue))" }
                 if value.isBlank, !sel.notes.isBlank { value = sel.notes }
                 ctx.drawValueRow(label: category.rawValue, value: value)
