@@ -390,6 +390,11 @@ enum ProfilePDF {
         for (title, setupOpt) in cohorts {
             guard let setup = setupOpt, setup.hasContent else { continue }
             ctx.drawSubheading(title)
+            if title == "Adult", setup.hasMaintenance {
+                var value = setup.maintenanceTechnique.rawValue
+                if !setup.maintenanceDetail.isBlank { value += "  (\(setup.maintenanceDetail))" }
+                ctx.drawValueRow(label: "Maintenance", value: value)
+            }
             for category in DrugCategory.allCases {
                 let sel = setup.selection(for: category)
                 guard !sel.isEmpty else { continue }

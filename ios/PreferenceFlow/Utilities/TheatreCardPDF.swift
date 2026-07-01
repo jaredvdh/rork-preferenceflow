@@ -460,6 +460,11 @@ enum TheatreCardPDF {
     /// selection data the Export PDF uses (selected agents, preparedBy, notes).
     private static func drugLines(_ setup: DrugsFluidsSetup) -> [CardItem] {
         var items: [CardItem] = []
+        if setup.hasMaintenance {
+            let detail = setup.maintenanceDetail
+            items.append(CardItem(text: "Maintenance: \(setup.maintenanceTechnique.rawValue)",
+                                  subtext: detail.isBlank ? nil : detail))
+        }
         for category in DrugCategory.allCases {
             let sel = setup.selection(for: category)
             guard !sel.selected.isEmpty else { continue }

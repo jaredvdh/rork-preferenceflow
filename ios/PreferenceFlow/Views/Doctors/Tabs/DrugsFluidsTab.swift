@@ -96,6 +96,46 @@ struct DrugsFluidsTab: View {
 
 }
 
+/// The maintenance technique headline shown prominently at the top of the adult
+/// Drugs & Fluids section — the single most operationally important thing a
+/// technician needs to know before the patient arrives. Renders a chip-style
+/// indicator for the technique and, where set, the agent/model detail below.
+struct MaintenanceHeadline: View {
+    let setup: DrugsFluidsSetup
+
+    var body: some View {
+        let tint = PrefGroup.medications.tint
+        let technique = setup.maintenanceTechnique
+        let detail = setup.maintenanceDetail
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: technique.symbol)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(6)
+                    .background(tint, in: .rect(cornerRadius: 8, style: .continuous))
+                Text(technique.rawValue)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer(minLength: 0)
+                Text("Maintenance")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(tint)
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(tint.opacity(0.14), in: .capsule)
+            }
+            if !detail.isBlank {
+                Text(detail)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .card()
+    }
+}
+
 /// A collapsible read card for one drug category — the shared component used by
 /// both the Drugs & Fluids tab and the main consultant card so the collapsed
 /// summary and expanded detail (checklist, "Prepared by", notes) are identical in
@@ -258,6 +298,9 @@ struct DrugsFluidsEditView: View {
     var body: some View {
         NavigationStack {
             Form {
+                if cohort == .adult {
+                    maintenanceSection
+                }
                 categorySection(.induction, binding: setupBinding.induction)
                 categorySection(.opioid, binding: setupBinding.opioid)
                 categorySection(.vasopressor, binding: setupBinding.vasopressor)
@@ -280,6 +323,41 @@ struct DrugsFluidsEditView: View {
                     Button("Save") { store.upsert(draft); dismiss() }
                 }
             }
+        }
+    }
+
+    private var maintenanceBinding: Binding<MaintenanceTechnique> {
+        Binding(
+            get: { setupBinding.wrappedValue.maintenanceTechnique },
+            set: { setupBinding.wrappedValue.maintenance = $0 }
+        )
+    }
+
+    @ViewBuilder private var maintenanceSection: some View {
+        let technique = maintenanceBinding
+        Section {
+            Picker(selection: technique) {
+                ForEach(MaintenanceTechnique.allCases) { Text($0.rawValue).tag($0) }
+            } label: {
+                Label("Technique", systemImage: "cross.vial")
+            }
+
+            switch technique.wrappedValue {
+            case .tiva:
+                OptionPicker(label: "TCI agent", selection: setupBinding.tciAgent,
+                             options: MaintenanceTechnique.tciAgentOptions, icon: "ivfluid.bag")
+                OptionPicker(label: "TCI model", selection: setupBinding.tciModel,
+                             options: MaintenanceTechnique.tciModelOptions, icon: "function")
+            case .volatile, .balanced:
+                OptionPicker(label: "Volatile agent", selection: setupBinding.maintenanceVolatileAgent,
+                             options: MaintenanceTechnique.volatileAgentOptions, icon: "aqi.medium")
+            case .notSpecified:
+                EmptyView()
+            }
+        } header: {
+            Label("Maintenance", systemImage: "waveform.path")
+        } footer: {
+            Text("Determines what the technician prepares — TCI pump and infusions for TIVA, or a calibrated vaporiser with the preferred agent for volatile.")
         }
     }
 

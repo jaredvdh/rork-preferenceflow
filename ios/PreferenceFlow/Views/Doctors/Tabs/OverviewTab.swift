@@ -277,6 +277,9 @@ struct OverviewTab: View {
         let d = adultDrugs
         return VStack(alignment: .leading, spacing: 12) {
             SectionLabel("Drugs & Fluids", icon: "syringe.fill")
+            if d.hasMaintenance {
+                MaintenanceHeadline(setup: d)
+            }
             if d.hasContent {
                 ForEach(DrugCategory.allCases) { category in
                     let selection = d.selection(for: category)

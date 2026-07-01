@@ -58,6 +58,34 @@ nonisolated enum DrugCategory: String, Codable, CaseIterable, Identifiable, Hash
     }
 }
 
+/// The anaesthetic maintenance technique — a first-class consultant preference
+/// that directly drives what a technician prepares (TCI pump + infusions for
+/// TIVA, calibrated vaporiser + agent for volatile). Adult cohort only.
+nonisolated enum MaintenanceTechnique: String, CaseIterable, Codable, Identifiable {
+    case notSpecified = "Not specified"
+    case tiva = "TIVA"
+    case volatile = "Volatile"
+    case balanced = "Balanced (volatile + opioid)"
+
+    var id: String { rawValue }
+
+    var symbol: String {
+        switch self {
+        case .notSpecified: return "questionmark.circle"
+        case .tiva: return "ivfluid.bag"
+        case .volatile: return "aqi.medium"
+        case .balanced: return "slider.horizontal.3"
+        }
+    }
+
+    /// TCI agent options surfaced when TIVA is chosen.
+    static let tciAgentOptions = ["Propofol", "Propofol/Remifentanil"]
+    /// TCI pharmacokinetic model options.
+    static let tciModelOptions = ["Marsh", "Schnider", "Minto"]
+    /// Volatile agent options surfaced when Volatile or Balanced is chosen.
+    static let volatileAgentOptions = ["Sevoflurane", "Desflurane", "Isoflurane", "Other"]
+}
+
 /// Consultant paediatric gas (inhalational) induction preferences. A stored
 /// preference only — not a clinical instruction. Surfaced in the Paediatric
 /// Drugs & Fluids section and linked from the paediatric airway view.
@@ -133,6 +161,15 @@ nonisolated struct DrugsFluidsSetup: Codable, Hashable {
     /// Paediatric gas induction preference. Only surfaced for the paediatric
     /// cohort. Optional for backward-compatible decoding of older profiles.
     var gasInduction: GasInductionPreferences?
+    /// Adult maintenance technique. Optional for backward-compatible decoding of
+    /// older profiles (nil is treated as `.notSpecified`).
+    var maintenance: MaintenanceTechnique?
+    /// Preferred TCI agent when maintenance is TIVA.
+    var tciAgent: String
+    /// Preferred TCI pharmacokinetic model when maintenance is TIVA.
+    var tciModel: String
+    /// Preferred volatile agent when maintenance is Volatile or Balanced.
+    var maintenanceVolatileAgent: String
 
     init(
         induction: DrugSelection = DrugSelection(),
@@ -141,7 +178,11 @@ nonisolated struct DrugsFluidsSetup: Codable, Hashable {
         muscleRelaxant: DrugSelection = DrugSelection(),
         fluids: DrugSelection = DrugSelection(),
         notes: String = "",
-        gasInduction: GasInductionPreferences? = nil
+        gasInduction: GasInductionPreferences? = nil,
+        maintenance: MaintenanceTechnique? = nil,
+        tciAgent: String = "",
+        tciModel: String = "",
+        maintenanceVolatileAgent: String = ""
     ) {
         self.induction = induction
         self.opioid = opioid
@@ -150,6 +191,31 @@ nonisolated struct DrugsFluidsSetup: Codable, Hashable {
         self.fluids = fluids
         self.notes = notes
         self.gasInduction = gasInduction
+        self.maintenance = maintenance
+        self.tciAgent = tciAgent
+        self.tciModel = tciModel
+        self.maintenanceVolatileAgent = maintenanceVolatileAgent
+    }
+
+    /// The effective maintenance technique (nil normalised to `.notSpecified`).
+    var maintenanceTechnique: MaintenanceTechnique { maintenance ?? .notSpecified }
+
+    /// Whether a maintenance technique worth surfacing has been set.
+    var hasMaintenance: Bool { maintenanceTechnique != .notSpecified }
+
+    /// One-line detail beneath the maintenance headline (agent / model), or "".
+    var maintenanceDetail: String {
+        switch maintenanceTechnique {
+        case .tiva:
+            var parts: [String] = []
+            if !tciAgent.isBlank { parts.append(tciAgent) }
+            if !tciModel.isBlank { parts.append("\(tciModel) model") }
+            return parts.joined(separator: " · ")
+        case .volatile, .balanced:
+            return maintenanceVolatileAgent.isBlank ? "" : maintenanceVolatileAgent
+        case .notSpecified:
+            return ""
+        }
     }
 
     func selection(for category: DrugCategory) -> DrugSelection {
@@ -166,6 +232,7 @@ nonisolated struct DrugsFluidsSetup: Codable, Hashable {
     var hasContent: Bool {
         !induction.isEmpty || !opioid.isEmpty || !vasopressor.isEmpty
             || !muscleRelaxant.isEmpty || !fluids.isEmpty || !notes.isBlank
+            || hasMaintenance
     }
 
     /// All prepared-by-assistant or doctor agents flattened for checklist building.
