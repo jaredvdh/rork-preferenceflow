@@ -15,6 +15,7 @@ nonisolated struct RegionalBlock: Identifiable, Codable, Hashable {
     var drug: String
     var concentration: String
     var typicalVolume: String
+    var adjuvant: String
 
     // Equipment
     var needleType: String
@@ -34,6 +35,7 @@ nonisolated struct RegionalBlock: Identifiable, Codable, Hashable {
         drug: String = "",
         concentration: String = "",
         typicalVolume: String = "",
+        adjuvant: String = "",
         needleType: String = "",
         needleLength: String = "",
         ultrasoundProbe: String = "",
@@ -49,6 +51,7 @@ nonisolated struct RegionalBlock: Identifiable, Codable, Hashable {
         self.drug = drug
         self.concentration = concentration
         self.typicalVolume = typicalVolume
+        self.adjuvant = adjuvant
         self.needleType = needleType
         self.needleLength = needleLength
         self.ultrasoundProbe = ultrasoundProbe
@@ -59,6 +62,12 @@ nonisolated struct RegionalBlock: Identifiable, Codable, Hashable {
         self.safetyNotes = safetyNotes
         self.specialNotes = specialNotes
     }
+
+    /// Curated adjuvant/additive options for the multi-select editor.
+    static let adjuvantOptions = [
+        "Dexamethasone", "Clonidine", "Adrenaline (Epinephrine)",
+        "Dexmedetomidine", "Bicarbonate", "None"
+    ]
 
     /// Common block names offered as quick suggestions in the editor.
     static let suggestions = [

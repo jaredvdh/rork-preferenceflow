@@ -445,6 +445,7 @@ enum ProfilePDF {
             if !block.concentration.isBlank { la.append(block.concentration) }
             if !block.typicalVolume.isBlank { la.append(block.typicalVolume) }
             if !la.isEmpty { ctx.drawBullet("Local anaesthetic: \(la.joined(separator: " · "))") }
+            if !block.adjuvant.isBlank { ctx.drawBullet("Adjuvant: \(block.adjuvant)") }
             var equip: [String] = []
             if !block.needleType.isBlank { equip.append(block.needleType) }
             if !block.needleLength.isBlank { equip.append(block.needleLength) }

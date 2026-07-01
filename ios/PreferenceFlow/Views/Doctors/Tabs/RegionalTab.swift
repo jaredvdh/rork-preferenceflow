@@ -281,6 +281,7 @@ struct RegionalBlockDetailView: View {
             add("Drug", block.drug)
             add("Concentration", block.concentration)
             add("Typical volume", block.typicalVolume)
+            add("Adjuvant", block.adjuvant)
         case .equipment:
             add("Needle type", block.needleType)
             add("Needle length", block.needleLength)
@@ -354,6 +355,72 @@ private enum RegionalCategory: Int, CaseIterable {
         case .technique: return Color(hex: "E0883B")
         case .consultantNotes: return Color(hex: "7A5CD6")
         }
+    }
+}
+
+/// A chip-based multi-select for regional block adjuvants/additives, plus a
+/// free-text custom entry for less common agents. Persists the selection into a
+/// single " + "-joined string on the block (e.g. "Adrenaline + Dexamethasone").
+struct AdjuvantSelector: View {
+    @Binding var value: String
+    @State private var customEntry: String = ""
+
+    private var selected: [String] {
+        value.split(separator: "+").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            FlowLayout(spacing: 8) {
+                ForEach(RegionalBlock.adjuvantOptions, id: \.self) { option in
+                    Button { toggle(option) } label: {
+                        Chip(text: option, selected: selected.contains(option))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack(spacing: 8) {
+                TextField("Add custom additive", text: $customEntry)
+                    .textFieldStyle(.roundedBorder)
+                    .submitLabel(.done)
+                    .onSubmit(addCustom)
+                Button(action: addCustom) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(customEntry.isBlank ? Color.secondary : Theme.accent)
+                }
+                .disabled(customEntry.isBlank)
+            }
+        }
+    }
+
+    private func toggle(_ option: String) {
+        var current = selected
+        if option == "None" {
+            // "None" is exclusive — selecting it clears everything else.
+            value = current.contains("None") ? "" : "None"
+            return
+        }
+        current.removeAll { $0 == "None" }
+        if let index = current.firstIndex(of: option) {
+            current.remove(at: index)
+        } else {
+            current.append(option)
+        }
+        value = current.joined(separator: " + ")
+    }
+
+    private func addCustom() {
+        let trimmed = customEntry.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        var current = selected.filter { $0 != "None" }
+        if !current.contains(where: { $0.caseInsensitiveCompare(trimmed) == .orderedSame }) {
+            current.append(trimmed)
+        }
+        value = current.joined(separator: " + ")
+        customEntry = ""
     }
 }
 
@@ -468,6 +535,9 @@ struct RegionalBlockEditView: View {
                     OptionPicker(label: "Drug", selection: $block.drug, options: RegionalOptions.drug, icon: "drop")
                     OptionPicker(label: "Concentration", selection: $block.concentration, options: RegionalOptions.concentration)
                     OptionPicker(label: "Typical volume", selection: $block.typicalVolume, options: RegionalOptions.volume)
+                }
+                Section("Adjuvant / Additive") {
+                    AdjuvantSelector(value: $block.adjuvant)
                 }
                 Section("Equipment") {
                     OptionPicker(label: "Needle type", selection: $block.needleType, options: RegionalOptions.needle, icon: "line.diagonal")

@@ -850,6 +850,9 @@ private struct RegionalBlockExpandableRow: View {
             collapsedSummary: collapsedSummary
         ) {
             PrefRow(label: "Local anaesthetic", value: localAnaesthetic)
+            if !block.adjuvant.isBlank {
+                PrefRow(label: "Adjuvant", value: block.adjuvant)
+            }
             PrefNote(label: "Equipment", text: equipment, tint: PrefGroup.technique.tint)
             PrefNote(label: "Positioning", text: block.positioningNotes, tint: PrefGroup.technique.tint)
             PrefNote(label: "Ultrasound / setup", text: block.setupNotes, tint: PrefGroup.technique.tint)
