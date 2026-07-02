@@ -53,6 +53,7 @@ final class AppSettings {
         static let favouriteDoctors = "pf.favouriteDoctorIds"
         static let textSize = "pf.appTextSize"
         static let demoMode = "pf.isDemoMode"
+        static let demoEverEnabled = "pf.demoEverEnabled"
     }
 
     private let defaults: UserDefaults
@@ -100,6 +101,13 @@ final class AppSettings {
     /// so a new user can explore the app before entering their own data.
     var isDemoMode: Bool {
         didSet { defaults.set(isDemoMode, forKey: Keys.demoMode) }
+    }
+
+    /// Whether Demo Mode has ever been enabled on this device. Used to show the
+    /// one-time "back up your real profiles first" tip only on the very first
+    /// enable, never again.
+    var hasEnabledDemoModeBefore: Bool {
+        didSet { defaults.set(hasEnabledDemoModeBefore, forKey: Keys.demoEverEnabled) }
     }
 
     // MARK: - Daily working context
@@ -150,6 +158,7 @@ final class AppSettings {
         self.didCompleteOnboarding = defaults.bool(forKey: Keys.didOnboard)
         self.hasSeenGuidedTour = defaults.bool(forKey: Keys.hasLaunchedBefore)
         self.isDemoMode = defaults.bool(forKey: Keys.demoMode)
+        self.hasEnabledDemoModeBefore = defaults.bool(forKey: Keys.demoEverEnabled)
         self.country = defaults.string(forKey: Keys.country) ?? ""
         self.regionName = defaults.string(forKey: Keys.regionName) ?? ""
         self.userName = defaults.string(forKey: Keys.userName) ?? ""

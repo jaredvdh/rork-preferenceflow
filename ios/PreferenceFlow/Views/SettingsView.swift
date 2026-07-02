@@ -12,6 +12,8 @@ struct SettingsView: View {
 
     @State private var showSafety = false
     @State private var showRemoveDemoConfirm = false
+    @State private var showBackupTip = false
+    @State private var showDemoAddedConfirm = false
     var embedInStack: Bool = true
 
     var body: some View {
@@ -167,25 +169,65 @@ struct SettingsView: View {
             isPresented: $showRemoveDemoConfirm,
             titleVisibility: .visible
         ) {
-            Button("Remove Demo Data", role: .destructive) {
-                store.removeDemoData()
-                settings.isDemoMode = false
+            if store.hasEditedDemoData {
+                Button("Remove Unedited Demo Data") {
+                    store.removeDemoData(preserveEdited: true)
+                    finishRemovalIfClear()
+                }
+                Button("Remove All Demo Data", role: .destructive) {
+                    store.removeDemoData()
+                    settings.isDemoMode = false
+                }
+            } else {
+                Button("Remove Demo Data", role: .destructive) {
+                    store.removeDemoData()
+                    settings.isDemoMode = false
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This will delete the sample hospitals and consultants. Your own data is untouched.")
+            if store.hasEditedDemoData {
+                Text("Some demo profiles have been edited. “Remove All” also deletes those changes. “Remove Unedited” keeps the ones you’ve explored. Your own data is untouched either way.")
+            } else {
+                Text("This will delete the sample hospitals and consultants. Your own data is untouched.")
+            }
+        }
+        .alert("Demo data removed", isPresented: $showDemoAddedConfirm) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Your real profiles are untouched.")
+        }
+        .alert("Back up first?", isPresented: $showBackupTip) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Tip: you can export your real profiles via Settings → Import & Export before exploring Demo Mode. Demo data is clearly marked and removed cleanly when you turn Demo Mode off.")
         }
     }
 
-    /// Drives the Demo Mode toggle: installs demo data immediately when turned on,
-    /// and asks for confirmation before removing it when turned off.
+    /// After a partial (unedited-only) removal, keep the toggle in sync with what
+    /// actually remains in the store rather than the persisted flag.
+    private func finishRemovalIfClear() {
+        settings.isDemoMode = store.hasDemoData
+    }
+
+    /// Drives the Demo Mode toggle. The displayed state reflects what's actually in
+    /// the store (not just the persisted flag) so it stays honest even if demo data
+    /// was partially removed. Turning on installs idempotently and, the very first
+    /// time ever, offers a one-time backup tip when real data already exists.
     private var demoModeBinding: Binding<Bool> {
         Binding(
-            get: { settings.isDemoMode },
+            get: { store.hasDemoData },
             set: { newValue in
                 if newValue {
+                    let hasRealData = store.doctors.contains { !DemoData.allDemoDoctorIDs.contains($0.id) }
+                        || store.hospitals.contains { !DemoData.allDemoHospitalIDs.contains($0.id) }
+                    let firstEnable = !settings.hasEnabledDemoModeBefore
                     settings.isDemoMode = true
+                    settings.hasEnabledDemoModeBefore = true
                     store.installDemoData()
+                    if firstEnable && hasRealData {
+                        showBackupTip = true
+                    }
                 } else {
                     showRemoveDemoConfirm = true
                 }

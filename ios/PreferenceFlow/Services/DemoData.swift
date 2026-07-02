@@ -28,6 +28,14 @@ nonisolated enum DemoData {
     static let sarahMitchellID = id(11)
     static let jamesOkonkwoID = id(12)
 
+    /// Definitive set of demo hospital ids. Removal matches on these — never on
+    /// the fallible `isDemoData` flag alone — so demo cleanup can never delete a
+    /// real record even if a flag were lost on decode or toggled by accident.
+    static let allDemoHospitalIDs: Set<UUID> = [cityCentralID, mercyPrivateID]
+
+    /// Definitive set of demo consultant ids (see `allDemoHospitalIDs`).
+    static let allDemoDoctorIDs: Set<UUID> = [sarahMitchellID, jamesOkonkwoID]
+
     // MARK: - Public API
 
     /// Full set of demo hospitals.
@@ -35,6 +43,57 @@ nonisolated enum DemoData {
 
     /// Full set of demo consultants.
     static var doctors: [Doctor] { [sarahMitchell, jamesOkonkwo] }
+
+    /// The pristine demo hospital for a given id, if one exists.
+    static func canonicalHospital(id: UUID) -> Hospital? {
+        hospitals.first { $0.id == id }
+    }
+
+    /// The pristine demo consultant for a given id, if one exists.
+    static func canonicalDoctor(id: UUID) -> Doctor? {
+        doctors.first { $0.id == id }
+    }
+
+    // MARK: - Edited-demo detection
+
+    /// True when a stored demo consultant differs from its pristine definition —
+    /// i.e. the user has explored by editing it. Timestamps are ignored so an
+    /// untouched record never reads as edited. Records whose id isn't a known
+    /// demo id are never considered demo (returns false).
+    static func isEditedDemoDoctor(_ doctor: Doctor) -> Bool {
+        guard let canonical = canonicalDoctor(id: doctor.id) else { return false }
+        return fingerprint(doctor) != fingerprint(canonical)
+    }
+
+    /// True when a stored demo hospital differs from its pristine definition.
+    static func isEditedDemoHospital(_ hospital: Hospital) -> Bool {
+        guard let canonical = canonicalHospital(id: hospital.id) else { return false }
+        return fingerprint(hospital) != fingerprint(canonical)
+    }
+
+    /// Stable content fingerprint for a consultant, ignoring volatile timestamps,
+    /// so pristine and stored copies compare equal when nothing meaningful changed.
+    private static func fingerprint(_ doctor: Doctor) -> Data? {
+        var normalized = doctor
+        normalized.createdAt = Date(timeIntervalSince1970: 0)
+        normalized.updatedAt = Date(timeIntervalSince1970: 0)
+        return try? comparisonEncoder().encode(normalized)
+    }
+
+    /// Stable content fingerprint for a hospital, ignoring volatile timestamps.
+    private static func fingerprint(_ hospital: Hospital) -> Data? {
+        var normalized = hospital
+        normalized.createdAt = Date(timeIntervalSince1970: 0)
+        normalized.updatedAt = Date(timeIntervalSince1970: 0)
+        return try? comparisonEncoder().encode(normalized)
+    }
+
+    /// Deterministic encoder (sorted keys) for content comparison.
+    private static func comparisonEncoder() -> JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return encoder
+    }
 
     // MARK: - Hospitals
 

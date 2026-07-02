@@ -363,34 +363,66 @@ final class DataStore {
 
     // MARK: - Demo Mode
 
-    /// Installs the demo hospitals and consultants. Idempotent — records use
-    /// deterministic ids, so re-installing overwrites rather than duplicates and
-    /// never touches the user's own data.
+    /// Whether any demo record currently exists in the store, matched definitively
+    /// by demo id. Drives the Settings toggle so it reflects reality, not just the
+    /// persisted flag.
+    var hasDemoData: Bool {
+        hospitals.contains { DemoData.allDemoHospitalIDs.contains($0.id) }
+            || doctors.contains { DemoData.allDemoDoctorIDs.contains($0.id) }
+    }
+
+    /// Whether any installed demo record has been edited by the user — used to warn
+    /// before removal would discard those explorations.
+    var hasEditedDemoData: Bool {
+        doctors.contains { DemoData.isEditedDemoDoctor($0) }
+            || hospitals.contains { DemoData.isEditedDemoHospital($0) }
+    }
+
+    /// Installs the demo hospitals and consultants. Idempotent — a record is only
+    /// added when its deterministic id isn't already present, so installing twice
+    /// never duplicates and never overwrites a demo record the user has since
+    /// edited. Real user data is never touched.
     func installDemoData() {
-        for hospital in DemoData.hospitals {
-            if let index = hospitals.firstIndex(where: { $0.id == hospital.id }) {
-                hospitals[index] = hospital
-            } else {
-                hospitals.append(hospital)
-            }
+        for hospital in DemoData.hospitals where !hospitals.contains(where: { $0.id == hospital.id }) {
+            hospitals.append(hospital)
         }
-        for doctor in DemoData.doctors {
-            if let index = doctors.firstIndex(where: { $0.id == doctor.id }) {
-                doctors[index] = doctor
-            } else {
-                doctors.append(doctor)
-            }
+        for doctor in DemoData.doctors where !doctors.contains(where: { $0.id == doctor.id }) {
+            doctors.append(doctor)
         }
         hospitals.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         sortDoctors()
         save()
     }
 
-    /// Removes every record flagged as demo data, leaving all real user data
-    /// untouched.
-    func removeDemoData() {
-        doctors.removeAll { $0.isDemo }
-        hospitals.removeAll { $0.isDemo }
+    /// Removes demo records, matching **only** on the known demo id sets — never on
+    /// the fallible `isDemoData` flag — so a record whose id isn't a demo id can
+    /// never be deleted, whatever its field values. When `preserveEdited` is true,
+    /// demo records the user has explored/edited are kept.
+    func removeDemoData(preserveEdited: Bool = false) {
+        let hospitalIDs = DemoData.allDemoHospitalIDs
+        let doctorIDs = DemoData.allDemoDoctorIDs
+
+        // Snapshot the records that must survive untouched (everything outside the
+        // demo id sets) so we can assert we never harmed real data.
+        let protectedDoctorIDs = doctors.map(\.id).filter { !doctorIDs.contains($0) }
+        let protectedHospitalIDs = hospitals.map(\.id).filter { !hospitalIDs.contains($0) }
+
+        if preserveEdited {
+            doctors.removeAll { doctorIDs.contains($0.id) && !DemoData.isEditedDemoDoctor($0) }
+            hospitals.removeAll { hospitalIDs.contains($0.id) && !DemoData.isEditedDemoHospital($0) }
+        } else {
+            doctors.removeAll { doctorIDs.contains($0.id) }
+            hospitals.removeAll { hospitalIDs.contains($0.id) }
+        }
+
+        // Belt-and-suspenders: prove no real record was removed before persisting.
+        let survivingDoctorIDs = Set(doctors.map(\.id))
+        let survivingHospitalIDs = Set(hospitals.map(\.id))
+        assert(protectedDoctorIDs.allSatisfy { survivingDoctorIDs.contains($0) },
+               "Demo removal must never delete a non-demo consultant")
+        assert(protectedHospitalIDs.allSatisfy { survivingHospitalIDs.contains($0) },
+               "Demo removal must never delete a non-demo hospital")
+
         save()
     }
 
