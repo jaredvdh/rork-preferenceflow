@@ -44,6 +44,9 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     /// unverified so readers know to double-check. Nil decodes as verified for
     /// profiles saved before verification existed (backward-compatible).
     var isVerified: Bool?
+    /// True for sample records installed by Demo Mode. Optional for
+    /// backward-compatible decoding of records saved before Demo Mode existed.
+    var isDemoData: Bool?
 
     // Professional information
     var role: String
@@ -93,6 +96,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         source: ProfileSource? = nil,
         isLocallyModified: Bool? = nil,
         isVerified: Bool? = nil,
+        isDemoData: Bool? = nil,
         general: GeneralPreferences = GeneralPreferences(),
         adult: MedicationSetup = MedicationSetup(),
         paediatric: MedicationSetup = MedicationSetup(),
@@ -123,6 +127,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         self.source = source
         self.isLocallyModified = isLocallyModified
         self.isVerified = isVerified
+        self.isDemoData = isDemoData
         self.general = general
         self.adult = adult
         self.paediatric = paediatric
@@ -167,6 +172,9 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     /// Whether these preferences have been confirmed with the consultant. Legacy
     /// profiles (nil) are treated as verified so they aren't retroactively flagged.
     var isVerifiedProfile: Bool { isVerified ?? true }
+
+    /// Whether this is a Demo Mode sample record.
+    var isDemo: Bool { isDemoData ?? false }
 
     /// True when the profile hasn't been updated in over 12 months and may be
     /// stale — a gentle prompt to confirm before relying on it.

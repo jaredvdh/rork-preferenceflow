@@ -11,6 +11,7 @@ struct SettingsView: View {
     @Environment(DataStore.self) private var store
 
     @State private var showSafety = false
+    @State private var showRemoveDemoConfirm = false
     var embedInStack: Bool = true
 
     var body: some View {
@@ -101,6 +102,21 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Toggle(isOn: demoModeBinding) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Label("Demo Mode", systemImage: "wand.and.stars")
+                            Text("Load sample hospitals and consultants to explore the app.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } header: {
+                    Text("Demo")
+                } footer: {
+                    Text("Sample records are clearly marked with a Demo badge and never mix with your own data. Turning Demo Mode off removes them cleanly.")
+                }
+
+                Section {
                     HStack(spacing: 12) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10).fill(Color(.tertiarySystemFill)).frame(width: 36, height: 36)
@@ -146,6 +162,35 @@ struct SettingsView: View {
         .sheet(isPresented: $showSafety) {
             SafetyDisclaimerSheet()
         }
+        .confirmationDialog(
+            "Remove demo data?",
+            isPresented: $showRemoveDemoConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Remove Demo Data", role: .destructive) {
+                store.removeDemoData()
+                settings.isDemoMode = false
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will delete the sample hospitals and consultants. Your own data is untouched.")
+        }
+    }
+
+    /// Drives the Demo Mode toggle: installs demo data immediately when turned on,
+    /// and asks for confirmation before removing it when turned off.
+    private var demoModeBinding: Binding<Bool> {
+        Binding(
+            get: { settings.isDemoMode },
+            set: { newValue in
+                if newValue {
+                    settings.isDemoMode = true
+                    store.installDemoData()
+                } else {
+                    showRemoveDemoConfirm = true
+                }
+            }
+        )
     }
 }
 

@@ -361,6 +361,39 @@ final class DataStore {
         upsert(hospital)
     }
 
+    // MARK: - Demo Mode
+
+    /// Installs the demo hospitals and consultants. Idempotent — records use
+    /// deterministic ids, so re-installing overwrites rather than duplicates and
+    /// never touches the user's own data.
+    func installDemoData() {
+        for hospital in DemoData.hospitals {
+            if let index = hospitals.firstIndex(where: { $0.id == hospital.id }) {
+                hospitals[index] = hospital
+            } else {
+                hospitals.append(hospital)
+            }
+        }
+        for doctor in DemoData.doctors {
+            if let index = doctors.firstIndex(where: { $0.id == doctor.id }) {
+                doctors[index] = doctor
+            } else {
+                doctors.append(doctor)
+            }
+        }
+        hospitals.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        sortDoctors()
+        save()
+    }
+
+    /// Removes every record flagged as demo data, leaving all real user data
+    /// untouched.
+    func removeDemoData() {
+        doctors.removeAll { $0.isDemo }
+        hospitals.removeAll { $0.isDemo }
+        save()
+    }
+
     // MARK: - Import / Export
 
     /// Builds a versioned export for the given doctors (or all if nil).

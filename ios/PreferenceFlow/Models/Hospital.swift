@@ -20,6 +20,9 @@ nonisolated struct Hospital: Identifiable, Codable, Hashable {
     /// Editable department standard templates consultants inherit from. Optional
     /// for backward-compatible decoding; falls back to the seeded defaults.
     var templates: [DepartmentTemplate]?
+    /// True for sample records installed by Demo Mode. Optional for
+    /// backward-compatible decoding of records saved before Demo Mode existed.
+    var isDemoData: Bool?
     var createdAt: Date
     var updatedAt: Date
 
@@ -32,6 +35,7 @@ nonisolated struct Hospital: Identifiable, Codable, Hashable {
         notes: String = "",
         orientation: HospitalOrientation? = nil,
         templates: [DepartmentTemplate]? = nil,
+        isDemoData: Bool? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -43,9 +47,13 @@ nonisolated struct Hospital: Identifiable, Codable, Hashable {
         self.notes = notes
         self.orientation = orientation
         self.templates = templates
+        self.isDemoData = isDemoData
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
+
+    /// Whether this is a Demo Mode sample record.
+    var isDemo: Bool { isDemoData ?? false }
 
     /// Non-optional accessor; returns an empty orientation when none is stored.
     var orientationOrEmpty: HospitalOrientation {

@@ -104,6 +104,19 @@ struct Chip: View {
     }
 }
 
+/// A small badge marking a record as Demo Mode sample data.
+struct DemoBadge: View {
+    var body: some View {
+        Text("Demo")
+            .font(.caption2.weight(.bold))
+            .textCase(.uppercase)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Color(hex: "7A5CD6").opacity(0.15), in: .capsule)
+            .foregroundStyle(Color(hex: "7A5CD6"))
+    }
+}
+
 /// Helper that reports whether a value is non-empty for "empty state" decisions.
 extension String {
     var isBlank: Bool {

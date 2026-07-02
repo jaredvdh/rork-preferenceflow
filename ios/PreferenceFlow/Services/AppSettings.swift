@@ -52,6 +52,7 @@ final class AppSettings {
         static let recentDoctors = "pf.recentDoctorIds"
         static let favouriteDoctors = "pf.favouriteDoctorIds"
         static let textSize = "pf.appTextSize"
+        static let demoMode = "pf.isDemoMode"
     }
 
     private let defaults: UserDefaults
@@ -93,6 +94,12 @@ final class AppSettings {
     /// App-specific text size override, applied on top of the iOS system setting.
     var appTextSize: AppTextSize {
         didSet { defaults.set(appTextSize.rawValue, forKey: Keys.textSize) }
+    }
+
+    /// Whether Demo Mode is enabled — sample hospitals and consultants are loaded
+    /// so a new user can explore the app before entering their own data.
+    var isDemoMode: Bool {
+        didSet { defaults.set(isDemoMode, forKey: Keys.demoMode) }
     }
 
     // MARK: - Daily working context
@@ -142,6 +149,7 @@ final class AppSettings {
         self.defaults = defaults
         self.didCompleteOnboarding = defaults.bool(forKey: Keys.didOnboard)
         self.hasSeenGuidedTour = defaults.bool(forKey: Keys.hasLaunchedBefore)
+        self.isDemoMode = defaults.bool(forKey: Keys.demoMode)
         self.country = defaults.string(forKey: Keys.country) ?? ""
         self.regionName = defaults.string(forKey: Keys.regionName) ?? ""
         self.userName = defaults.string(forKey: Keys.userName) ?? ""

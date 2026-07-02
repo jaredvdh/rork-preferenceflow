@@ -104,9 +104,12 @@ struct HospitalRow: View {
                     .foregroundStyle(Theme.accent)
             }
             VStack(alignment: .leading, spacing: 3) {
-                Text(hospital.name.isBlank ? "Untitled Hospital" : hospital.name)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                HStack(spacing: 6) {
+                    Text(hospital.name.isBlank ? "Untitled Hospital" : hospital.name)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    if hospital.isDemo { DemoBadge() }
+                }
                 if !hospital.locationLine.isEmpty {
                     Text(hospital.locationLine)
                         .font(.subheadline)

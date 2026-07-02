@@ -422,9 +422,12 @@ struct DoctorRow: View {
         HStack(spacing: 14) {
             DoctorAvatar(doctor: doctor, size: 52)
             VStack(alignment: .leading, spacing: 5) {
-                Text(doctor.displayName)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                HStack(spacing: 6) {
+                    Text(doctor.displayName)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    if doctor.isDemo { DemoBadge() }
+                }
                 if !doctor.subspecialties.isEmpty {
                     Text(doctor.subspecialties.prefix(3).map(\.rawValue).joined(separator: " · "))
                         .font(.caption.weight(.medium))
