@@ -29,8 +29,10 @@ struct DailyContextPromptView: View {
 
                 if phase == .hospital {
                     hospitalStep
+                        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
                 } else {
                     anaesthetistStep
+                        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
                 }
             }
         }
@@ -56,7 +58,7 @@ struct DailyContextPromptView: View {
         HStack {
             if phase == .anaesthetist && startPhase == .hospital {
                 Button {
-                    withAnimation(.spring(response: 0.35)) { phase = .hospital }
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { phase = .hospital }
                 } label: {
                     Label("Hospital", systemImage: "chevron.left")
                         .font(.subheadline.weight(.semibold))
@@ -104,7 +106,7 @@ struct DailyContextPromptView: View {
                                 selected: chosenHospitalId == hospital.id
                             ) {
                                 chosenHospitalId = hospital.id
-                                withAnimation(.spring(response: 0.35)) { phase = .anaesthetist }
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { phase = .anaesthetist }
                             }
                         }
                     }

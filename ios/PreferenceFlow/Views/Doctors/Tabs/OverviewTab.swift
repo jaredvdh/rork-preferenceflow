@@ -701,7 +701,7 @@ private struct ExpandableProfileRow<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Button {
-                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     expanded.toggle()
                 }
             } label: {
@@ -738,10 +738,13 @@ private struct ExpandableProfileRow<Content: View>: View {
             .buttonStyle(.plain)
 
             if expanded {
-                Divider().padding(.vertical, 12)
-                VStack(alignment: .leading, spacing: 14) {
-                    content()
+                VStack(alignment: .leading, spacing: 0) {
+                    Divider().padding(.vertical, 12)
+                    VStack(alignment: .leading, spacing: 14) {
+                        content()
+                    }
                 }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .card()

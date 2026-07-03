@@ -202,6 +202,7 @@ struct EquipmentLocationDetailView: View {
             }
 
             if isExpanded {
+                Group {
                 if let data = spot.photoData, let image = UIImage(data: data) {
                     Color(.secondarySystemBackground)
                         .frame(height: 150)
@@ -221,6 +222,8 @@ struct EquipmentLocationDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Theme.accent.opacity(0.08), in: .rect(cornerRadius: Theme.cornerSmall))
                 }
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .card()
@@ -233,8 +236,10 @@ struct EquipmentLocationDetailView: View {
         .contentShape(.rect)
         .onTapGesture {
             guard !emergency, perSpotAccess || spot.photoData != nil else { return }
-            if expandedSpots.contains(spot.id) { expandedSpots.remove(spot.id) }
-            else { expandedSpots.insert(spot.id) }
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                if expandedSpots.contains(spot.id) { expandedSpots.remove(spot.id) }
+                else { expandedSpots.insert(spot.id) }
+            }
         }
     }
 

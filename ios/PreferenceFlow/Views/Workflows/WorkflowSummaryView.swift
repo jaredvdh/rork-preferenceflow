@@ -154,7 +154,7 @@ struct WorkflowSummaryView: View {
 
         return VStack(alignment: .leading, spacing: 0) {
             Button {
-                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     if isExpanded { expanded.remove(key) } else { expanded.insert(key) }
                 }
             } label: {
@@ -184,20 +184,23 @@ struct WorkflowSummaryView: View {
             .buttonStyle(.plain)
 
             if isExpanded {
-                Divider().padding(.vertical, 12)
-                VStack(alignment: .leading, spacing: 16) {
-                    ForEach(steps(in: category)) { step in
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(step.title.uppercased())
-                                .font(.caption2.weight(.bold))
-                                .tracking(0.5)
-                                .foregroundStyle(category.tint)
-                            ForEach(fields(in: step, category: category)) { field in
-                                fieldDetail(field)
+                VStack(alignment: .leading, spacing: 0) {
+                    Divider().padding(.vertical, 12)
+                    VStack(alignment: .leading, spacing: 16) {
+                        ForEach(steps(in: category)) { step in
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(step.title.uppercased())
+                                    .font(.caption2.weight(.bold))
+                                    .tracking(0.5)
+                                    .foregroundStyle(category.tint)
+                                ForEach(fields(in: step, category: category)) { field in
+                                    fieldDetail(field)
+                                }
                             }
                         }
                     }
                 }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .card()
@@ -222,7 +225,7 @@ struct WorkflowSummaryView: View {
 
         return VStack(alignment: .leading, spacing: 0) {
             Button {
-                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     if isExpanded { expanded.remove(key) } else { expanded.insert(key) }
                 }
             } label: {
@@ -259,25 +262,28 @@ struct WorkflowSummaryView: View {
             .buttonStyle(.plain)
 
             if isExpanded {
-                Divider().padding(.vertical, 12)
-                VStack(alignment: .leading, spacing: 12) {
-                    ForEach(items, id: \.title) { item in
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: item.icon)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .frame(width: 22)
-                            Text(item.title)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer(minLength: 12)
-                            Text(item.detail)
-                                .font(.subheadline.weight(.medium))
-                                .multilineTextAlignment(.trailing)
-                                .foregroundStyle(.primary)
+                VStack(alignment: .leading, spacing: 0) {
+                    Divider().padding(.vertical, 12)
+                    VStack(alignment: .leading, spacing: 12) {
+                        ForEach(items, id: \.title) { item in
+                            HStack(alignment: .top, spacing: 12) {
+                                Image(systemName: item.icon)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 22)
+                                Text(item.title)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                Spacer(minLength: 12)
+                                Text(item.detail)
+                                    .font(.subheadline.weight(.medium))
+                                    .multilineTextAlignment(.trailing)
+                                    .foregroundStyle(.primary)
+                            }
                         }
                     }
                 }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .card()

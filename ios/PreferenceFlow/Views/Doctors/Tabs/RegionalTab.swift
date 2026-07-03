@@ -203,7 +203,7 @@ struct RegionalBlockDetailView: View {
 
         return VStack(alignment: .leading, spacing: 0) {
             Button {
-                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     if isExpanded { expanded.remove(category) } else { expanded.insert(category) }
                 }
             } label: {
@@ -237,6 +237,7 @@ struct RegionalBlockDetailView: View {
             .buttonStyle(.plain)
 
             if isExpanded {
+                VStack(alignment: .leading, spacing: 0) {
                 Divider().padding(.vertical, 12)
                 VStack(alignment: .leading, spacing: 14) {
                     ForEach(valueRows, id: \.label) { row in
@@ -264,6 +265,8 @@ struct RegionalBlockDetailView: View {
                         }
                     }
                 }
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .card()

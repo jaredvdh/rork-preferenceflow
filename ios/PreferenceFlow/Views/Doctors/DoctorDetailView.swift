@@ -118,9 +118,11 @@ struct DoctorDetailView: View {
             }
             if !isEditing, let doctor, !doctor.isVerifiedProfile {
                 unverifiedBanner(doctor)
+                    .transition(.move(edge: .top).combined(with: .opacity))
             }
             content
         }
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: isEditing)
         .background(Color(.systemGroupedBackground))
         .navigationTitle(doctor?.displayName ?? "Provider")
         .navigationBarTitleDisplayMode(.inline)
@@ -260,6 +262,9 @@ struct DoctorDetailView: View {
                                 in: .capsule
                             )
                             .foregroundStyle(tab == item ? .white : .primary)
+                            .animation(.easeInOut(duration: 0.15), value: tab == item)
+                            .scaleEffect(tab == item ? 1.03 : 1.0)
+                            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: tab == item)
                         }
                         .id(item)
                     }
@@ -339,6 +344,9 @@ struct DoctorDetailView: View {
                 Capsule().stroke(tint.opacity(selected ? 0 : 0.4), lineWidth: 1)
             )
             .foregroundStyle(selected ? .white : tint)
+            .animation(.easeInOut(duration: 0.15), value: selected)
+            .scaleEffect(selected ? 1.03 : 1.0)
+            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: selected)
         }
         .buttonStyle(.plain)
     }
@@ -411,18 +419,23 @@ struct DoctorDetailView: View {
         }
     }
 
-    @ViewBuilder
     private func readContent(_ doctor: Doctor) -> some View {
-        switch readTab {
-        case .specialty(let id):
-            if let setup = doctor.activeSpecialtySetups.first(where: { $0.id == id }) {
-                SpecialtySetupTab(doctor: doctor, setup: setup)
-            } else {
+        ZStack {
+            switch readTab {
+            case .specialty(let id):
+                if let setup = doctor.activeSpecialtySetups.first(where: { $0.id == id }) {
+                    SpecialtySetupTab(doctor: doctor, setup: setup)
+                        .transition(.opacity)
+                } else {
+                    overviewContent(doctor)
+                        .transition(.opacity)
+                }
+            case .overview:
                 overviewContent(doctor)
+                    .transition(.opacity)
             }
-        case .overview:
-            overviewContent(doctor)
         }
+        .animation(.easeInOut(duration: 0.2), value: readTab)
     }
 
     private func overviewContent(_ doctor: Doctor) -> some View {
