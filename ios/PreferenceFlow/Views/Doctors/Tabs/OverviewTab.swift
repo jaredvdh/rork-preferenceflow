@@ -90,6 +90,20 @@ struct OverviewTab: View {
                 SourceBadge(doctor: doctor)
                     .padding(.top, 4)
             }
+            if !editMode {
+                Button {
+                    onNavigate(.details)
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.quaternary, in: .capsule)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            }
             if !doctor.subspecialties.isEmpty {
                 FlowLayout(spacing: 8) {
                     ForEach(doctor.subspecialties) { SpecialtyBadge(specialty: $0) }
