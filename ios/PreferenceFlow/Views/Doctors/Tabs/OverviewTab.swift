@@ -973,9 +973,30 @@ struct FlowChips: View {
     }
 }
 
-/// Prominent safety disclaimer banner.
+/// Prominent safety disclaimer banner. Shows the full text for the first few
+/// sightings, then collapses to a one-line reminder that expands on tap.
+/// Expanded state is per-session; the sighting counter persists.
 struct SafetyBanner: View {
+    /// Forces the full banner regardless of view count (crisis cards,
+    /// onboarding, exported/printed material).
+    var alwaysExpanded: Bool = false
+
+    @Environment(AppSettings.self) private var settings
+
+    private var isCollapsible: Bool { !alwaysExpanded && settings.shouldCollapseSafetyBanner }
+
     var body: some View {
+        Group {
+            if isCollapsible {
+                collapsibleBanner
+            } else {
+                fullBanner
+            }
+        }
+        .onAppear { settings.recordSafetyBannerView() }
+    }
+
+    private var fullBanner: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "exclamationmark.shield.fill")
                 .foregroundStyle(Theme.accent)
@@ -986,5 +1007,41 @@ struct SafetyBanner: View {
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.accent.opacity(0.08), in: .rect(cornerRadius: Theme.cornerMedium))
+    }
+
+    private var collapsibleBanner: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                settings.isSafetyBannerExpanded.toggle()
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.caption)
+                    Text("Preference reference only — tap for details")
+                        .font(.caption)
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.down")
+                        .font(.caption2.weight(.semibold))
+                        .rotationEffect(.degrees(settings.isSafetyBannerExpanded ? 180 : 0))
+                }
+                .foregroundStyle(.tertiary)
+
+                if settings.isSafetyBannerExpanded {
+                    Text(SafetyText.disclaimer)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .transition(.opacity)
+                }
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.accent.opacity(0.05), in: .rect(cornerRadius: Theme.cornerMedium))
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .sensoryFeedback(.selection, trigger: settings.isSafetyBannerExpanded)
     }
 }

@@ -45,8 +45,11 @@ struct TodayView: View {
                 }
             }
         }
-        .fullScreenCover(isPresented: $showingPrompt) {
+        .sheet(isPresented: $showingPrompt) {
             DailyContextPromptView(startPhase: promptPhase)
+                .presentationDetents([.large])
+                .presentationCornerRadius(24)
+                .presentationDragIndicator(.hidden)
         }
         .onAppear {
             guard !didAutoPrompt else { return }

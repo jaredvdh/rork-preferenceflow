@@ -54,6 +54,7 @@ final class AppSettings {
         static let textSize = "pf.appTextSize"
         static let demoMode = "pf.isDemoMode"
         static let demoEverEnabled = "pf.demoEverEnabled"
+        static let safetyBannerViews = "pf.safetyBannerFullViewCount"
     }
 
     private let defaults: UserDefaults
@@ -110,6 +111,27 @@ final class AppSettings {
         didSet { defaults.set(hasEnabledDemoModeBefore, forKey: Keys.demoEverEnabled) }
     }
 
+    // MARK: - Safety banner
+
+    /// How many times the full safety banner has been rendered, capped at 5.
+    /// After a few sightings the banner collapses to a one-line reminder.
+    private(set) var safetyBannerFullViewCount: Int {
+        didSet { defaults.set(safetyBannerFullViewCount, forKey: Keys.safetyBannerViews) }
+    }
+
+    /// Session-only expanded state for the collapsed safety banner. Deliberately
+    /// NOT persisted — each launch starts collapsed again.
+    var isSafetyBannerExpanded: Bool = false
+
+    /// Whether the safety banner may render in its collapsed one-line form.
+    var shouldCollapseSafetyBanner: Bool { safetyBannerFullViewCount >= 3 }
+
+    /// Records one render of the safety banner, capping the counter at 5.
+    func recordSafetyBannerView() {
+        guard safetyBannerFullViewCount < 5 else { return }
+        safetyBannerFullViewCount += 1
+    }
+
     // MARK: - Daily working context
 
     var dailyContextMode: DailyContextMode {
@@ -159,6 +181,7 @@ final class AppSettings {
         self.hasSeenGuidedTour = defaults.bool(forKey: Keys.hasLaunchedBefore)
         self.isDemoMode = defaults.bool(forKey: Keys.demoMode)
         self.hasEnabledDemoModeBefore = defaults.bool(forKey: Keys.demoEverEnabled)
+        self.safetyBannerFullViewCount = defaults.integer(forKey: Keys.safetyBannerViews)
         self.country = defaults.string(forKey: Keys.country) ?? ""
         self.regionName = defaults.string(forKey: Keys.regionName) ?? ""
         self.userName = defaults.string(forKey: Keys.userName) ?? ""

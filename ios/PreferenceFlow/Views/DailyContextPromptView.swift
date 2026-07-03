@@ -29,10 +29,16 @@ struct DailyContextPromptView: View {
 
                 if phase == .hospital {
                     hospitalStep
-                        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .leading).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
                 } else {
                     anaesthetistStep
-                        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .trailing).combined(with: .opacity)
+                        ))
                 }
             }
         }
