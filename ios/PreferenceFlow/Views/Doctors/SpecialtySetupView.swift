@@ -14,8 +14,8 @@ struct SpecialtySetupCard: View {
         HStack(spacing: 14) {
             ZStack {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Theme.accent.opacity(0.12)).frame(width: 46, height: 46)
-                Image(systemName: setup.specialty.symbol).font(.headline).foregroundStyle(Theme.accent)
+                    .fill(setup.specialty.color.opacity(0.12)).frame(width: 46, height: 46)
+                Image(systemName: setup.specialty.symbol).font(.headline).foregroundStyle(setup.specialty.color)
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text(setup.specialty.rawValue).font(.headline).foregroundStyle(.primary)

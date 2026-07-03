@@ -324,7 +324,10 @@ struct DoctorsView: View {
         .scrollDismissesKeyboard(.interactively)
         .onAppear {
             // Auto-focus so the technician can start typing immediately.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            // Delayed past the NavigationStack push animation (0.35s) with a
+            // small buffer so the keyboard rises after the screen has settled
+            // instead of mid-transition, which causes a layout jump.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
                 searchFocused = true
             }
         }

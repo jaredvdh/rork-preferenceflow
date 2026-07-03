@@ -63,11 +63,19 @@ struct OverviewTab: View {
 
     // MARK: - 1. Header
 
+    /// The consultant's primary specialty colour, used for the avatar ring so a
+    /// cardiac consultant reads differently from a paediatric one at a glance.
+    private var ringColor: Color {
+        doctor.subspecialties.first { $0 != .general }?.color
+            ?? doctor.subspecialties.first?.color
+            ?? Theme.accent
+    }
+
     private var hero: some View {
         VStack(spacing: 14) {
             DoctorAvatar(doctor: doctor, size: 96)
                 .overlay(
-                    Circle().stroke(Theme.accent.opacity(0.25), lineWidth: 4)
+                    Circle().stroke(ringColor.opacity(0.35), lineWidth: 4)
                         .frame(width: 108, height: 108)
                 )
             VStack(spacing: 6) {
@@ -937,7 +945,8 @@ struct SourceBadge: View {
     }
 }
 
-/// A specialty pill with a leading icon.
+/// A specialty pill with a leading icon, tinted with the specialty's identity
+/// colour so different interests are distinguishable before reading the text.
 struct SpecialtyBadge: View {
     let specialty: Subspecialty
 
@@ -948,8 +957,8 @@ struct SpecialtyBadge: View {
         }
         .padding(.horizontal, 11)
         .padding(.vertical, 7)
-        .background(Theme.accent.opacity(0.14), in: .capsule)
-        .foregroundStyle(Theme.accentDeep)
+        .background(specialty.color.opacity(0.14), in: .capsule)
+        .foregroundStyle(specialty.color)
     }
 }
 

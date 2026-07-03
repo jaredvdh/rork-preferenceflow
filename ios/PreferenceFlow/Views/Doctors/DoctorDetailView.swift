@@ -312,7 +312,7 @@ struct DoctorDetailView: View {
                         readTabChip(
                             title: setup.specialty.rawValue,
                             icon: setup.specialty.symbol,
-                            tint: .orange,
+                            tint: setup.specialty.color,
                             selected: readTab == .specialty(setup.id)
                         ) { withAnimation(.spring(response: 0.3)) { readTab = .specialty(setup.id) } }
                         .id(ReadTab.specialty(setup.id))
