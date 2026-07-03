@@ -31,6 +31,21 @@ nonisolated enum WorkflowLibrary {
             "Additional sterile drape", "Extra gauze", "Chlorhexidine applicator"
         ]
         static let dressing = ["Transparent", "Tegaderm", "Gauze + tape"]
+        static let arterialDressing = [
+            "Transparent film (generic)", "Tegaderm 1624 (standard)", "Tegaderm 1633 (bordered)",
+            "IV3000 (large)", "Opsite Flexifix", "Mefix + gauze",
+            "Elastoplast / tape + gauze", "BD Nexiva integrated dressing"
+        ]
+        static let cvcDressing = [
+            "Tegaderm CHG (chlorhexidine-impregnated, standard)",
+            "Tegaderm CHG Large (9.5cm \u{00D7} 10cm)",
+            "IV3000 Large (10cm \u{00D7} 12cm)",
+            "Biopatch + Tegaderm (CHG disc plus transparent film)",
+            "Opsite Post-Op (bordered)",
+            "Mefix + gauze (for tunnelled or sutured sites)",
+            "Chlorhexidine-impregnated disc + transparent film",
+            "Gauze + tape (short-term only)"
+        ]
         static let lor = ["Saline", "Air"]
         static let epiduralKit = ["Standard epidural", "Combined kit", "Department pack"]
         static let catheter = ["Threaded 3-5cm", "Multi-orifice", "Wire-reinforced"]
@@ -75,7 +90,20 @@ nonisolated enum WorkflowLibrary {
             "Distal port (brown)", "Medial port (blue)", "Proximal port (white)",
             "Any — label as used", "Per line labelling"
         ]
-        static let suture = ["2-0 silk", "3-0 silk", "Steri-strip only", "Stat lock"]
+        static let suture = [
+            "2-0 silk (standard)", "3-0 silk", "2-0 prolene (non-absorbable)", "3-0 prolene",
+            "Stat-Lock (sutureless securement device)", "Grip-Lok (sutureless)",
+            "SecurAcath (subcutaneous anchor)", "Steri-strips only (no suture)",
+            "No suture \u{2014} dressing only"
+        ]
+        static let anchoringTechnique = [
+            "Suture only",
+            "Suture + transparent film dressing",
+            "Suture + CHG-impregnated dressing",
+            "Sutureless device (Stat-Lock / Grip-Lok) + dressing",
+            "SecurAcath + dressing",
+            "Dressing only (no suture)"
+        ]
     }
 
     private static let standardSpinalPack = [
@@ -388,8 +416,10 @@ nonisolated enum WorkflowLibrary {
                                   defaultSelection: "Heparinised normal saline"),
                     WorkflowField(id: "transducer.notes", label: "Transducer setup notes", kind: .note),
                     WorkflowField(id: "securing.dressing", label: "Securing / dressing", kind: .singleSelect,
-                                  icon: "bandage", options: Opt.dressing, allowsCustom: true,
-                                  defaultSelection: "Transparent")
+                                  icon: "bandage", options: Opt.arterialDressing, allowsCustom: true,
+                                  defaultSelection: "Tegaderm 1624 (standard)"),
+                    WorkflowField(id: "securing.notes", label: "Securing notes", kind: .note,
+                                  help: "e.g. Loop suture through cannula hub if long case; arm board with IV3000")
                 ]
             ),
             WorkflowStep(
@@ -407,7 +437,7 @@ nonisolated enum WorkflowLibrary {
         id: "cvc",
         title: "Central Venous Catheter",
         icon: "cable.connector.horizontal",
-        summary: "Site, line type, ultrasound and securing preferences.",
+        summary: "Site, line type, ultrasound, fixation and dressing preferences.",
         steps: [
             WorkflowStep(
                 id: "sterile", title: "Sterile Preparation", icon: "hands.and.sparkles",
@@ -456,13 +486,23 @@ nonisolated enum WorkflowLibrary {
                                   defaultSelection: "Distal port (brown)"),
                     WorkflowField(id: "confirm.transducerNotes", label: "Transducer notes", kind: .note,
                                   help: "e.g. Transduce off distal (brown) port — leave medial for drug infusions, proximal for CVP sampling"),
-                    WorkflowField(id: "confirm.suture", label: "Suture", kind: .singleSelect,
+                    WorkflowField(id: "confirm.notes", label: "Tip confirmation / checks", kind: .note)
+                ]
+            ),
+            WorkflowStep(
+                id: "fixation", title: "Fixation & Dressing", icon: "bandage",
+                fields: [
+                    WorkflowField(id: "fixation.suture", label: "Suture", kind: .singleSelect,
                                   icon: "link", options: Opt.suture, allowsCustom: true,
-                                  defaultSelection: "2-0 silk"),
-                    WorkflowField(id: "confirm.notes", label: "Tip confirmation / checks", kind: .note),
-                    WorkflowField(id: "securing.dressing", label: "Securing / dressing", kind: .singleSelect,
-                                  icon: "bandage", options: Opt.dressing, allowsCustom: true,
-                                  defaultSelection: "Transparent")
+                                  defaultSelection: "2-0 silk (standard)"),
+                    WorkflowField(id: "fixation.technique", label: "Anchoring technique", kind: .singleSelect,
+                                  icon: "pin", options: Opt.anchoringTechnique, allowsCustom: true,
+                                  defaultSelection: "Suture + CHG-impregnated dressing"),
+                    WorkflowField(id: "fixation.dressing", label: "Dressing", kind: .singleSelect,
+                                  icon: "bandage", options: Opt.cvcDressing, allowsCustom: true,
+                                  defaultSelection: "Tegaderm CHG (chlorhexidine-impregnated, standard)"),
+                    WorkflowField(id: "fixation.notes", label: "Fixation notes", kind: .note,
+                                  help: "e.g. Loop silk suture through hub before dressing; wipe port hubs with ChloraPrep before capping; label all lumens with port colour")
                 ]
             ),
             WorkflowStep(

@@ -297,7 +297,10 @@ nonisolated enum DemoData {
         arterialLine.setNote("prep.positioning", "Rolled towel under dorsum of wrist with pronation")
         arterialLine.setSelection("transducer.flush", "Heparinised normal saline",
                                   default: "Heparinised normal saline")
-        arterialLine.setSelection("securing.dressing", "Transparent", default: "Transparent")
+        arterialLine.setSelection("securing.dressing", "Tegaderm 1624 (standard)",
+                                  default: "Tegaderm 1624 (standard)")
+        arterialLine.setNote("securing.notes",
+                             "Small silk loop suture through cannula hub for long cases (cardiac)")
         neuraxial.setCustomization(arterialLine)
 
         // CVC — exercises line type/length, prep and confirmation extras.
@@ -317,8 +320,13 @@ nonisolated enum DemoData {
         cvc.setSelection("confirm.transducerPort", "Distal port (brown)", default: "Distal port (brown)")
         cvc.setNote("confirm.transducerNotes",
                     "Transduce off distal (brown) port \u{2014} leave medial for drug infusions.")
-        cvc.setSelection("confirm.suture", "2-0 silk", default: "2-0 silk")
-        cvc.setSelection("securing.dressing", "Transparent", default: "Transparent")
+        cvc.setSelection("fixation.suture", "2-0 silk (standard)", default: "2-0 silk (standard)")
+        cvc.setSelection("fixation.technique", "Suture + CHG-impregnated dressing",
+                         default: "Suture + CHG-impregnated dressing")
+        cvc.setSelection("fixation.dressing", "Tegaderm CHG Large (9.5cm \u{00D7} 10cm)",
+                         default: "Tegaderm CHG (chlorhexidine-impregnated, standard)")
+        cvc.setNote("fixation.notes",
+                    "Loop silk through CVC hub wing before dressing. Label all ports with colour-coded stickers.")
         neuraxial.setCustomization(cvc)
 
         let cardiac = SpecialtySetup(
