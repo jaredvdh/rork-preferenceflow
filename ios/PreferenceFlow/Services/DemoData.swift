@@ -281,6 +281,44 @@ nonisolated enum DemoData {
         spinal.setMulti("consultant.prefs", ["Assistant maintains shoulder support"], default: [])
         neuraxial.setCustomization(spinal)
 
+        // Arterial line — exercises the expanded cannula/prep/transducer fields.
+        var arterialLine = neuraxial.customization(for: "arterialLine")
+        arterialLine.usesStandard = false
+        arterialLine.isConfigured = true
+        arterialLine.setSelection("site.choice", "Radial", default: "Radial")
+        arterialLine.setSelection("site.cannulaType", "Arrow arterial kit",
+                                  default: "Standard cannula-over-needle")
+        arterialLine.setSelection("site.gaugeLength", "20G × 45mm (standard)",
+                                  default: "20G × 45mm (standard)")
+        arterialLine.setBool("site.ultrasound", true, default: false)
+        arterialLine.setSelection("prep.antiseptic", "Chlorhexidine 2% (ChloraPrep)",
+                                  default: "Chlorhexidine 2% (ChloraPrep)")
+        arterialLine.setSelection("prep.la", "Lignocaine 1% SC", default: "Lignocaine 1% SC")
+        arterialLine.setNote("prep.positioning", "Rolled towel under dorsum of wrist with pronation")
+        arterialLine.setSelection("transducer.port", "Brown line / port", default: "Red line / port")
+        arterialLine.setSelection("transducer.flush", "Heparinised normal saline",
+                                  default: "Heparinised normal saline")
+        arterialLine.setSelection("securing.dressing", "Transparent", default: "Transparent")
+        neuraxial.setCustomization(arterialLine)
+
+        // CVC — exercises line type/length, prep and confirmation extras.
+        var cvc = neuraxial.customization(for: "cvc")
+        cvc.usesStandard = false
+        cvc.isConfigured = true
+        cvc.setSelection("site.choice", "Right IJ", default: "Right IJ")
+        cvc.setSelection("site.type", "Arrow Quad Lumen", default: "Arrow Triple Lumen")
+        cvc.addCustomOption("site.lineLength", "16–18cm")
+        cvc.setSelection("site.lineLength", "16–18cm",
+                         default: "Standard (16–20cm from right IJ)")
+        cvc.setSelection("prep.antiseptic", "Chlorhexidine 2% (ChloraPrep)",
+                         default: "Chlorhexidine 2% (ChloraPrep)")
+        cvc.setSelection("prep.la", "Lignocaine 1% SC", default: "Lignocaine 1% SC")
+        cvc.setNote("prep.positioning", "Trendelenburg 15°, head turned left")
+        cvc.setSelection("confirm.method", "CXR post-insertion", default: "CXR post-insertion")
+        cvc.setSelection("confirm.suture", "2-0 silk", default: "2-0 silk")
+        cvc.setSelection("securing.dressing", "Transparent", default: "Transparent")
+        neuraxial.setCustomization(cvc)
+
         let cardiac = SpecialtySetup(
             id: id(122),
             specialty: .cardiac,

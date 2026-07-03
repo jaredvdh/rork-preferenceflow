@@ -42,10 +42,38 @@ nonisolated enum WorkflowLibrary {
             "Wait for free CSF flow before injection",
             "Ultrasound in obese patients"
         ]
-        static let aLineSite = ["Radial", "Brachial", "Femoral", "Dorsalis pedis"]
-        static let aLineGauge = ["20G", "22G", "Integrated kit"]
-        static let cvcSite = ["Right IJ", "Left IJ", "Subclavian", "Femoral"]
-        static let cvcType = ["Triple lumen", "Quad lumen", "Introducer sheath", "Vascath"]
+        static let aLineSite = ["Radial", "Ulnar", "Brachial", "Axillary", "Femoral", "Dorsalis pedis"]
+        static let aLineCannulaType = [
+            "Standard cannula-over-needle", "Integrated arterial kit (Seldinger)",
+            "Arrow arterial kit", "Vygon Leader-Cath", "BD Arterioscan",
+            "Radifocus / wire-assisted"
+        ]
+        static let aLineGaugeLength = [
+            "20G × 30mm (short)", "20G × 45mm (standard)", "20G × 48mm (long)",
+            "18G × 45mm", "22G × 25mm (paediatric)"
+        ]
+        static let antiseptic = [
+            "Chlorhexidine 2% (ChloraPrep)", "Chlorhexidine 0.5% in alcohol",
+            "Povidone-iodine", "Alcohol 70%"
+        ]
+        static let prepLA = ["Lignocaine 1% SC", "EMLA cream", "None"]
+        static let aLineTransducerPort = ["Red line / port", "Brown line / port", "Any — as labelled"]
+        static let flushSolution = ["Heparinised normal saline", "Normal saline (no heparin)"]
+        static let cvcSite = ["Right IJ", "Left IJ", "Subclavian", "Left subclavian", "Femoral"]
+        static let cvcType = [
+            "Arrow Triple Lumen", "Arrow Quad Lumen", "Arrow Double Lumen",
+            "Vygon Triple Lumen", "BD Triple Lumen", "Quad lumen (generic)",
+            "Introducer sheath (Cordis)", "Vascath / dialysis catheter", "Tunnelled line"
+        ]
+        static let cvcLineLength = [
+            "Standard (16–20cm from right IJ)", "15cm", "18cm", "20cm",
+            "Measured from insertion point"
+        ]
+        static let tipConfirmation = [
+            "CXR post-insertion", "Intracavitary ECG", "Ultrasound tip confirmation", "Fluoroscopy"
+        ]
+        static let cvcTransducerPort = ["Brown line / port", "Blue port (distal)", "As labelled"]
+        static let suture = ["2-0 silk", "3-0 silk", "Steri-strip only", "Stat lock"]
     }
 
     private static let standardSpinalPack = [
@@ -327,15 +355,38 @@ nonisolated enum WorkflowLibrary {
                 fields: [
                     WorkflowField(id: "site.choice", label: "Site", kind: .singleSelect,
                                   options: Opt.aLineSite, allowsCustom: true, defaultSelection: "Radial"),
-                    WorkflowField(id: "site.gauge", label: "Cannula / kit", kind: .singleSelect,
-                                  options: Opt.aLineGauge, allowsCustom: true, defaultSelection: "20G"),
+                    WorkflowField(id: "site.cannulaType", label: "Cannula type", kind: .singleSelect,
+                                  options: Opt.aLineCannulaType, allowsCustom: true,
+                                  defaultSelection: "Standard cannula-over-needle"),
+                    WorkflowField(id: "site.gaugeLength", label: "Gauge and length", kind: .singleSelect,
+                                  options: Opt.aLineGaugeLength, allowsCustom: true,
+                                  defaultSelection: "20G × 45mm (standard)"),
                     WorkflowField(id: "site.ultrasound", label: "Ultrasound guided", kind: .toggle,
                                   icon: "dot.radiowaves.left.and.right")
                 ]
             ),
             WorkflowStep(
+                id: "prep", title: "Site Preparation", icon: "cross.vial",
+                fields: [
+                    WorkflowField(id: "prep.antiseptic", label: "Skin prep agent", kind: .singleSelect,
+                                  icon: "drop.degreesign", options: Opt.antiseptic,
+                                  defaultSelection: "Chlorhexidine 2% (ChloraPrep)"),
+                    WorkflowField(id: "prep.la", label: "Local anaesthetic", kind: .singleSelect,
+                                  icon: "syringe", options: Opt.prepLA, allowsCustom: true,
+                                  defaultSelection: "Lignocaine 1% SC"),
+                    WorkflowField(id: "prep.positioning", label: "Patient positioning", kind: .note,
+                                  help: "e.g. Rolled towel under dorsum of wrist with pronation; wrist dorsiflexed on arm board; arm abducted, supinated")
+                ]
+            ),
+            WorkflowStep(
                 id: "transducer", title: "Transducer & Securing", icon: "waveform.path",
                 fields: [
+                    WorkflowField(id: "transducer.port", label: "Transducer line colour / port", kind: .singleSelect,
+                                  icon: "cable.connector", options: Opt.aLineTransducerPort, allowsCustom: true,
+                                  defaultSelection: "Red line / port"),
+                    WorkflowField(id: "transducer.flush", label: "Flush solution", kind: .singleSelect,
+                                  icon: "drop", options: Opt.flushSolution, allowsCustom: true,
+                                  defaultSelection: "Heparinised normal saline"),
                     WorkflowField(id: "transducer.notes", label: "Transducer setup notes", kind: .note),
                     WorkflowField(id: "securing.dressing", label: "Securing / dressing", kind: .singleSelect,
                                   icon: "bandage", options: Opt.dressing, allowsCustom: true,
@@ -373,14 +424,40 @@ nonisolated enum WorkflowLibrary {
                     WorkflowField(id: "site.choice", label: "Site", kind: .singleSelect,
                                   options: Opt.cvcSite, allowsCustom: true, defaultSelection: "Right IJ"),
                     WorkflowField(id: "site.type", label: "Line type", kind: .singleSelect,
-                                  options: Opt.cvcType, allowsCustom: true, defaultSelection: "Triple lumen"),
+                                  options: Opt.cvcType, allowsCustom: true,
+                                  defaultSelection: "Arrow Triple Lumen"),
+                    WorkflowField(id: "site.lineLength", label: "Line length", kind: .singleSelect,
+                                  icon: "ruler", options: Opt.cvcLineLength, allowsCustom: true,
+                                  defaultSelection: "Standard (16–20cm from right IJ)"),
                     WorkflowField(id: "site.ultrasound", label: "Ultrasound guided", kind: .toggle,
                                   icon: "dot.radiowaves.left.and.right", defaultBool: true)
                 ]
             ),
             WorkflowStep(
+                id: "prep", title: "Site Preparation", icon: "cross.vial",
+                fields: [
+                    WorkflowField(id: "prep.antiseptic", label: "Skin prep agent", kind: .singleSelect,
+                                  icon: "drop.degreesign", options: Opt.antiseptic,
+                                  defaultSelection: "Chlorhexidine 2% (ChloraPrep)"),
+                    WorkflowField(id: "prep.la", label: "Local anaesthetic", kind: .singleSelect,
+                                  icon: "syringe", options: Opt.prepLA, allowsCustom: true,
+                                  defaultSelection: "Lignocaine 1% SC"),
+                    WorkflowField(id: "prep.positioning", label: "Patient positioning", kind: .note,
+                                  help: "e.g. Trendelenburg 15°; head turned left for right IJ; rolled towel between scapulae for subclavian")
+                ]
+            ),
+            WorkflowStep(
                 id: "confirm", title: "Confirmation & Securing", icon: "checkmark.seal",
                 fields: [
+                    WorkflowField(id: "confirm.method", label: "Tip confirmation method", kind: .singleSelect,
+                                  icon: "checkmark.seal", options: Opt.tipConfirmation, allowsCustom: true,
+                                  defaultSelection: "CXR post-insertion"),
+                    WorkflowField(id: "confirm.transducerPort", label: "Transducer port / colour", kind: .singleSelect,
+                                  icon: "cable.connector", options: Opt.cvcTransducerPort, allowsCustom: true,
+                                  defaultSelection: "As labelled"),
+                    WorkflowField(id: "confirm.suture", label: "Suture", kind: .singleSelect,
+                                  icon: "link", options: Opt.suture, allowsCustom: true,
+                                  defaultSelection: "2-0 silk"),
                     WorkflowField(id: "confirm.notes", label: "Tip confirmation / checks", kind: .note),
                     WorkflowField(id: "securing.dressing", label: "Securing / dressing", kind: .singleSelect,
                                   icon: "bandage", options: Opt.dressing, allowsCustom: true,
