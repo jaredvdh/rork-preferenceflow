@@ -110,6 +110,8 @@ struct PreferenceCardExportView: View {
                     .disabled(options.isEmpty || isGenerating)
                 }
             }
+            .sensoryFeedback(.success, trigger: sharePayload?.id) { _, newValue in newValue != nil }
+            .sensoryFeedback(.error, trigger: errorMessage) { _, newValue in newValue != nil }
             .sheet(item: $sharePayload) { payload in
                 ShareSheet(items: [payload.url])
             }

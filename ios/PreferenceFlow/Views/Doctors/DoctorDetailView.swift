@@ -123,6 +123,12 @@ struct DoctorDetailView: View {
             content
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.85), value: isEditing)
+        .sensoryFeedback(.impact(weight: .heavy), trigger: showingEmergency) { _, newValue in newValue }
+        .sensoryFeedback(.warning, trigger: confirmingDelete) { _, newValue in newValue }
+        .sensoryFeedback(.selection, trigger: readTab)
+        .sensoryFeedback(.success, trigger: isEditing) { oldValue, newValue in oldValue && !newValue }
+        .sensoryFeedback(.success, trigger: sharePayload?.id) { _, newValue in newValue != nil }
+        .sensoryFeedback(.success, trigger: theatreCardPayload?.id) { _, newValue in newValue != nil }
         .background(Color(.systemGroupedBackground))
         .navigationTitle(doctor?.displayName ?? "Provider")
         .navigationBarTitleDisplayMode(.inline)

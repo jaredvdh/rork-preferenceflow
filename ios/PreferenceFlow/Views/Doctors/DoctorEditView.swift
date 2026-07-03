@@ -105,6 +105,7 @@ struct DoctorEditView: View {
     @State private var referenceItem: PhotosPickerItem?
     @State private var showCamera = false
     @State private var showVerifyPrompt = false
+    @State private var saveSuccess = false
     private let isNew: Bool
 
     init(doctor: Doctor, isNew: Bool) {
@@ -123,6 +124,7 @@ struct DoctorEditView: View {
             }
             .navigationTitle(isNew ? "New Consultant" : "Consultant Details")
             .navigationBarTitleDisplayMode(.inline)
+            .sensoryFeedback(.success, trigger: saveSuccess)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -133,6 +135,7 @@ struct DoctorEditView: View {
                             showVerifyPrompt = true
                         } else {
                             store.upsert(draft)
+                            saveSuccess = true
                             dismiss()
                         }
                     }

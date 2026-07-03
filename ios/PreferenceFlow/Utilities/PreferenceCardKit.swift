@@ -217,6 +217,7 @@ struct PrefCollapsibleCard<Content: View>: View {
                 }
             }
         }
+        .sensoryFeedback(.selection, trigger: expanded)
         .card()
     }
 

@@ -17,6 +17,7 @@ struct WorkflowGuideView: View {
     let definition: WorkflowDefinition
 
     @State private var draft: WorkflowCustomization
+    @State private var saveSuccess = false
 
     init(doctorID: UUID, definition: WorkflowDefinition, existing: WorkflowCustomization) {
         self.doctorID = doctorID
@@ -47,6 +48,7 @@ struct WorkflowGuideView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle(definition.title)
             .navigationBarTitleDisplayMode(.inline)
+            .sensoryFeedback(.success, trigger: saveSuccess)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
@@ -175,6 +177,7 @@ struct WorkflowGuideView: View {
         draft.isConfigured = true
         doctor.neuraxial.setCustomization(draft)
         store.upsert(doctor)
+        saveSuccess = true
         dismiss()
     }
 }

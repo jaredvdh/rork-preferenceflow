@@ -43,6 +43,8 @@ struct ImportsView: View {
         }
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Import & Export")
+        .sensoryFeedback(.success, trigger: message) { _, newValue in newValue != nil && !isError }
+        .sensoryFeedback(.error, trigger: message) { _, newValue in newValue != nil && isError }
         .fileImporter(
                 isPresented: $showFileImporter,
                 allowedContentTypes: [.json],

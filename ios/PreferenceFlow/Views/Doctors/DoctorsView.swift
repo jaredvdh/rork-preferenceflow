@@ -143,6 +143,8 @@ struct DoctorsView: View {
             } message: {
                 Text(importMessage ?? "")
             }
+            .sensoryFeedback(.success, trigger: importMessage) { _, newValue in newValue != nil && !importIsError }
+            .sensoryFeedback(.error, trigger: importMessage) { _, newValue in newValue != nil && importIsError }
             .navigationDestination(for: UUID.self) { id in
                 DoctorDetailView(doctorID: id)
             }
@@ -456,6 +458,7 @@ struct DoctorRow: View {
                         .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
+                .sensoryFeedback(.impact(weight: .medium), trigger: isFavourite)
             }
             Image(systemName: "chevron.right")
                 .font(.caption.weight(.semibold))

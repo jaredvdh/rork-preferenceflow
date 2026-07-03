@@ -216,6 +216,7 @@ struct SpecialtySetupEditView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var doctor: Doctor
     @State private var setup: SpecialtySetup
+    @State private var saveSuccess = false
     private let isNew: Bool
 
     init(doctor: Doctor, setup: SpecialtySetup, isNew: Bool) {
@@ -259,6 +260,7 @@ struct SpecialtySetupEditView: View {
             }
             .navigationTitle(isNew ? "Add Specialty" : setup.specialty.rawValue)
             .navigationBarTitleDisplayMode(.inline)
+            .sensoryFeedback(.success, trigger: saveSuccess)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) { Button("Save") { save() } }
@@ -276,6 +278,7 @@ struct SpecialtySetupEditView: View {
         }
         updated.specialtySetups = list
         store.upsert(updated)
+        saveSuccess = true
         dismiss()
     }
 

@@ -747,6 +747,7 @@ private struct ExpandableProfileRow<Content: View>: View {
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
+        .sensoryFeedback(.selection, trigger: expanded)
         .card()
     }
 }
