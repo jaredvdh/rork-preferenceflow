@@ -295,7 +295,6 @@ nonisolated enum DemoData {
                                   default: "Chlorhexidine 2% (ChloraPrep)")
         arterialLine.setSelection("prep.la", "Lignocaine 1% SC", default: "Lignocaine 1% SC")
         arterialLine.setNote("prep.positioning", "Rolled towel under dorsum of wrist with pronation")
-        arterialLine.setSelection("transducer.port", "Brown line / port", default: "Red line / port")
         arterialLine.setSelection("transducer.flush", "Heparinised normal saline",
                                   default: "Heparinised normal saline")
         arterialLine.setSelection("securing.dressing", "Transparent", default: "Transparent")
@@ -315,6 +314,9 @@ nonisolated enum DemoData {
         cvc.setSelection("prep.la", "Lignocaine 1% SC", default: "Lignocaine 1% SC")
         cvc.setNote("prep.positioning", "Trendelenburg 15°, head turned left")
         cvc.setSelection("confirm.method", "CXR post-insertion", default: "CXR post-insertion")
+        cvc.setSelection("confirm.transducerPort", "Distal port (brown)", default: "Distal port (brown)")
+        cvc.setNote("confirm.transducerNotes",
+                    "Transduce off distal (brown) port \u{2014} leave medial for drug infusions.")
         cvc.setSelection("confirm.suture", "2-0 silk", default: "2-0 silk")
         cvc.setSelection("securing.dressing", "Transparent", default: "Transparent")
         neuraxial.setCustomization(cvc)

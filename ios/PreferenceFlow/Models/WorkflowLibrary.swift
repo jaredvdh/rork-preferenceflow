@@ -57,7 +57,6 @@ nonisolated enum WorkflowLibrary {
             "Povidone-iodine", "Alcohol 70%"
         ]
         static let prepLA = ["Lignocaine 1% SC", "EMLA cream", "None"]
-        static let aLineTransducerPort = ["Red line / port", "Brown line / port", "Any — as labelled"]
         static let flushSolution = ["Heparinised normal saline", "Normal saline (no heparin)"]
         static let cvcSite = ["Right IJ", "Left IJ", "Subclavian", "Left subclavian", "Femoral"]
         static let cvcType = [
@@ -72,7 +71,10 @@ nonisolated enum WorkflowLibrary {
         static let tipConfirmation = [
             "CXR post-insertion", "Intracavitary ECG", "Ultrasound tip confirmation", "Fluoroscopy"
         ]
-        static let cvcTransducerPort = ["Brown line / port", "Blue port (distal)", "As labelled"]
+        static let cvcTransducerPort = [
+            "Distal port (brown)", "Medial port (blue)", "Proximal port (white)",
+            "Any — label as used", "Per line labelling"
+        ]
         static let suture = ["2-0 silk", "3-0 silk", "Steri-strip only", "Stat lock"]
     }
 
@@ -381,9 +383,6 @@ nonisolated enum WorkflowLibrary {
             WorkflowStep(
                 id: "transducer", title: "Transducer & Securing", icon: "waveform.path",
                 fields: [
-                    WorkflowField(id: "transducer.port", label: "Transducer line colour / port", kind: .singleSelect,
-                                  icon: "cable.connector", options: Opt.aLineTransducerPort, allowsCustom: true,
-                                  defaultSelection: "Red line / port"),
                     WorkflowField(id: "transducer.flush", label: "Flush solution", kind: .singleSelect,
                                   icon: "drop", options: Opt.flushSolution, allowsCustom: true,
                                   defaultSelection: "Heparinised normal saline"),
@@ -452,9 +451,11 @@ nonisolated enum WorkflowLibrary {
                     WorkflowField(id: "confirm.method", label: "Tip confirmation method", kind: .singleSelect,
                                   icon: "checkmark.seal", options: Opt.tipConfirmation, allowsCustom: true,
                                   defaultSelection: "CXR post-insertion"),
-                    WorkflowField(id: "confirm.transducerPort", label: "Transducer port / colour", kind: .singleSelect,
+                    WorkflowField(id: "confirm.transducerPort", label: "CVP transducer port", kind: .singleSelect,
                                   icon: "cable.connector", options: Opt.cvcTransducerPort, allowsCustom: true,
-                                  defaultSelection: "As labelled"),
+                                  defaultSelection: "Distal port (brown)"),
+                    WorkflowField(id: "confirm.transducerNotes", label: "Transducer notes", kind: .note,
+                                  help: "e.g. Transduce off distal (brown) port — leave medial for drug infusions, proximal for CVP sampling"),
                     WorkflowField(id: "confirm.suture", label: "Suture", kind: .singleSelect,
                                   icon: "link", options: Opt.suture, allowsCustom: true,
                                   defaultSelection: "2-0 silk"),
