@@ -446,8 +446,15 @@ final class DataStore {
         upsert(hospital)
     }
 
-    /// Removes the on-disk PDFs backing a machine's documents. Call before
-    /// deleting the machine itself so no orphaned files accumulate.
+    /// Removes the on-disk PDFs backing a machine's documents.
+    ///
+    /// IMPORTANT: This must be called before ANY code path that removes a machine
+    /// from a hospital's `anaestheticMachines` array — not just `deleteHospital`.
+    /// Individual-machine deletion (e.g. the context-menu delete and the editor's
+    /// Delete Machine button in `AnaestheticMachinesView`) must call this first,
+    /// otherwise the machine's PDF files are orphaned on disk with no remaining
+    /// record pointing at them. If you add a new deletion path, call this before
+    /// mutating the array.
     func removeMachineDocumentFiles(for machine: AnaestheticMachine) {
         for document in machine.checkDocuments {
             try? FileManager.default.removeItem(at: machineDocumentURL(for: document))
