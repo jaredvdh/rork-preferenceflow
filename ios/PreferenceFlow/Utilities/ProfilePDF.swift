@@ -278,7 +278,6 @@ enum ProfilePDF {
     private static func drawStandardSetup(_ ctx: inout DrawContext, _ doctor: Doctor, region: TerminologyRegion) {
         let hasAirway = hasAirwayContent(doctor.airway)
         let hasDrugs = (doctor.adultDrugs?.hasContent ?? false) || (doctor.paediatricDrugs?.hasContent ?? false)
-        guard hasAirway || hasDrugs else { return }
 
         ctx.drawSectionTitle("Standard Setup", icon: "checklist")
         ctx.drawCaption("The default setup used for most operating lists.")
@@ -291,6 +290,13 @@ enum ProfilePDF {
             ctx.drawGroupLabel("Induction & Drugs")
             drawDrugsBody(&ctx, doctor, region: region)
         }
+        // Monitoring mirrors the on-screen card exactly: the standard ASA
+        // baseline alone when nothing extra is configured, or the baseline
+        // plus each genuine addition.
+        let monitoring = doctor.monitoringPreferences
+        ctx.drawGroupLabel("Monitoring")
+        for item in monitoring.displayItems { ctx.drawBullet(item) }
+        if !monitoring.notes.isBlank { ctx.drawNote(monitoring.notes) }
         ctx.endSection()
     }
 

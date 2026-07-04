@@ -361,6 +361,19 @@ nonisolated enum DemoData {
                     "Loop silk through CVC hub wing before dressing. Label all ports with colour-coded stickers.")
         neuraxial.setCustomization(cvc)
 
+        // Monitoring — exercises the expanded display: 5-lead ECG, BIS depth
+        // monitoring, standalone TOF, and routine extras consistent with her
+        // cardiac specialty setup equipment.
+        let monitoring = MonitoringPreferences(
+            ecgLeads: .fiveLead,
+            depthMonitoring: .bis,
+            tofMonitoring: .standaloneStimulator,
+            additional: [
+                "Arterial line (routine)", "CVP (routine)",
+                "Temperature (continuous)", "Cerebral oximetry (NIRS)"
+            ]
+        )
+
         let cardiac = SpecialtySetup(
             id: id(122),
             specialty: .cardiac,
@@ -386,6 +399,7 @@ nonisolated enum DemoData {
             isDemoData: true,
             general: general,
             adultDrugs: drugs,
+            monitoring: monitoring,
             airway: airway,
             regionalBlocks: [fasciaIliaca],
             neuraxial: neuraxial,

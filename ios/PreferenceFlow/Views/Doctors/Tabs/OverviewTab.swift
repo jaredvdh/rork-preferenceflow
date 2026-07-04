@@ -329,10 +329,26 @@ struct OverviewTab: View {
         }
     }
 
-    // 7. Monitoring
+    // 7. Monitoring — "Standard ASA monitoring" alone when nothing extra is
+    // configured (identical to the pre-model display), or the baseline plus
+    // each genuine addition (5-lead ECG, depth, TOF, extras). Consultant notes
+    // sit in a tap-to-expand card so they never clutter the checklist.
     private var monitoringCard: some View {
-        DetailSection(title: "Monitoring", icon: "waveform.path.ecg") {
-            PrefChecklist(items: ["Standard ASA monitoring"], tint: PrefGroup.monitoring.tint)
+        let m = doctor.monitoringPreferences
+        return VStack(alignment: .leading, spacing: 12) {
+            DetailSection(title: "Monitoring", icon: "waveform.path.ecg") {
+                PrefChecklist(items: m.displayItems, tint: PrefGroup.monitoring.tint)
+            }
+            if !m.notes.isBlank {
+                PrefCollapsibleCard(
+                    group: .monitoring,
+                    title: "Monitoring Notes",
+                    icon: "note.text",
+                    collapsedSummary: m.notes
+                ) {
+                    PrefNote(label: "", text: m.notes, tint: PrefGroup.monitoring.tint)
+                }
+            }
         }
     }
 

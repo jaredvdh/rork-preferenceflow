@@ -509,6 +509,13 @@ enum TheatreCardPDF {
 
     private static func equipmentItems(_ doctor: Doctor) -> [CardItem] {
         var items: [CardItem] = []
+        // Monitoring — same conditional logic as the on-screen card: the
+        // standard ASA baseline alone, or baseline plus each genuine addition.
+        let monitoring = doctor.monitoringPreferences
+        items.append(CardItem(
+            text: "Monitoring: \(monitoring.displayItems.joined(separator: ", "))",
+            subtext: monitoring.notes.isBlank ? nil : monitoring.notes
+        ))
         // Regional equipment highlights. (IV fluids belong in Drugs only.)
         for block in doctor.regionalBlocks where !block.name.isBlank {
             var equip: [String] = []

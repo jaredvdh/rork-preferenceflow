@@ -65,6 +65,10 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     /// Structured Drugs & Fluids (v2). Optional for backward-compatible decoding.
     var adultDrugs: DrugsFluidsSetup?
     var paediatricDrugs: DrugsFluidsSetup?
+    /// Structured monitoring preferences beyond the standard ASA baseline.
+    /// Optional for backward-compatible decoding — nil displays exactly like
+    /// the untouched default ("Standard ASA monitoring" only).
+    var monitoring: MonitoringPreferences?
     var airway: AirwayPreferences
     var regionalBlocks: [RegionalBlock]
     var neuraxial: NeuraxialPreferences
@@ -102,6 +106,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         paediatric: MedicationSetup = MedicationSetup(),
         adultDrugs: DrugsFluidsSetup? = nil,
         paediatricDrugs: DrugsFluidsSetup? = nil,
+        monitoring: MonitoringPreferences? = nil,
         airway: AirwayPreferences = AirwayPreferences(),
         regionalBlocks: [RegionalBlock] = [],
         neuraxial: NeuraxialPreferences = NeuraxialPreferences(),
@@ -133,6 +138,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         self.paediatric = paediatric
         self.adultDrugs = adultDrugs
         self.paediatricDrugs = paediatricDrugs
+        self.monitoring = monitoring
         self.airway = airway
         self.regionalBlocks = regionalBlocks
         self.neuraxial = neuraxial
@@ -220,6 +226,10 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     var activeSpecialtySetups: [SpecialtySetup] {
         (specialtySetups ?? []).filter { $0.hasContent }
     }
+
+    /// The monitoring preferences with the nil legacy case normalised to the
+    /// default (standard ASA baseline, nothing additional).
+    var monitoringPreferences: MonitoringPreferences { monitoring ?? MonitoringPreferences() }
 }
 
 /// Which preference sections carry over when copying a profile to another
