@@ -43,7 +43,7 @@ struct SettingsView: View {
                     .padding(.vertical, 4)
                 }
 
-                Section("Terminology") {
+                Section {
                     Picker(selection: $settings.region) {
                         ForEach(TerminologyRegion.allCases) { Text($0.displayName).tag($0) }
                     } label: {
@@ -52,6 +52,10 @@ struct SettingsView: View {
                     LabeledRow(label: "Provider term", value: settings.region.provider)
                     LabeledRow(label: "Assistant term", value: settings.region.assistant)
                     LabeledRow(label: "Spelling", value: settings.region.discipline)
+                } header: {
+                    Text("Terminology")
+                } footer: {
+                    Text("Choose whichever set of titles and spelling matches how your team talks. You can change this anytime — it doesn't affect any saved preference data.")
                 }
 
                 Section {

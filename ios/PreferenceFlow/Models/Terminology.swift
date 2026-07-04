@@ -77,19 +77,38 @@ nonisolated enum TerminologyRegion: String, Codable, CaseIterable, Identifiable,
         }
     }
 
-    /// Best-guess region for a given country name.
-    static func suggested(for country: String) -> TerminologyRegion {
-        let normalised = country.lowercased()
-        let northAmerican = ["united states", "usa", "us", "america", "canada", "ca"]
-        let uk = ["united kingdom", "uk", "england", "scotland", "wales",
-                  "northern ireland", "britain", "great britain"]
+    /// Best-guess region for a given country name. Returns `nil` when the
+    /// country isn't recognised — the caller must let the user choose
+    /// explicitly rather than silently defaulting to any preset.
+    static func suggested(for country: String) -> TerminologyRegion? {
+        let normalised = country.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalised.isEmpty else { return nil }
+
+        // Short country codes are matched exactly — substring matching would
+        // false-positive ("australia" contains "us", "south africa" contains "ca").
+        let exactCodes: [String: TerminologyRegion] = [
+            "us": .northAmerica, "usa": .northAmerica, "ca": .northAmerica,
+            "uk": .unitedKingdom, "gb": .unitedKingdom,
+            "nz": .commonwealth, "au": .commonwealth, "aus": .commonwealth,
+            "sg": .commonwealth, "za": .commonwealth
+        ]
+        if let match = exactCodes[normalised] { return match }
+
+        let northAmerican = ["united states", "america", "canada"]
+        let uk = ["united kingdom", "england", "scotland", "wales",
+                  "northern ireland", "britain", "great britain", "ireland"]
+        let commonwealth = ["new zealand", "australia", "singapore",
+                            "south africa", "india", "malaysia", "hong kong"]
         if northAmerican.contains(where: { normalised.contains($0) }) {
             return .northAmerica
         }
         if uk.contains(where: { normalised.contains($0) }) {
             return .unitedKingdom
         }
-        return .commonwealth
+        if commonwealth.contains(where: { normalised.contains($0) }) {
+            return .commonwealth
+        }
+        return nil // genuinely unknown — let the user choose without a false default
     }
 }
 
@@ -98,16 +117,24 @@ nonisolated enum CountryOption: String, CaseIterable, Identifiable {
     case newZealand = "New Zealand"
     case australia = "Australia"
     case unitedKingdom = "United Kingdom"
+    case ireland = "Ireland"
     case unitedStates = "United States"
     case canada = "Canada"
+    case singapore = "Singapore"
+    case southAfrica = "South Africa"
+    case other = "Other / not listed"
 
     var id: String { rawValue }
 
-    var region: TerminologyRegion {
+    /// Terminology preset for this country. `nil` for "Other / not listed" —
+    /// the user picks explicitly on the terminology step instead.
+    var region: TerminologyRegion? {
         switch self {
         case .newZealand, .australia: return .commonwealth
-        case .unitedKingdom: return .unitedKingdom
+        case .unitedKingdom, .ireland: return .unitedKingdom
         case .unitedStates, .canada: return .northAmerica
+        case .singapore, .southAfrica: return .commonwealth // English-medium, Commonwealth-trained systems
+        case .other: return nil // triggers explicit terminology choice
         }
     }
 
@@ -116,8 +143,12 @@ nonisolated enum CountryOption: String, CaseIterable, Identifiable {
         case .newZealand: return "🇳🇿"
         case .australia: return "🇦🇺"
         case .unitedKingdom: return "🇬🇧"
+        case .ireland: return "🇮🇪"
         case .unitedStates: return "🇺🇸"
         case .canada: return "🇨🇦"
+        case .singapore: return "🇸🇬"
+        case .southAfrica: return "🇿🇦"
+        case .other: return "🌐"
         }
     }
 }

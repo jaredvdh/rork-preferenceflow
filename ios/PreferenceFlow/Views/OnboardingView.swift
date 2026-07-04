@@ -12,7 +12,7 @@ struct OnboardingView: View {
     @State private var step = 0
     @State private var country = ""
     @State private var regionName = ""
-    @State private var region: TerminologyRegion = .commonwealth
+    @State private var region: TerminologyRegion? = nil
     @State private var appear = false
 
     var body: some View {
@@ -114,7 +114,12 @@ struct OnboardingView: View {
 
             Spacer()
             primaryButton("Continue") {
-                if !country.isEmpty { region = TerminologyRegion.suggested(for: country) }
+                if let suggested = TerminologyRegion.suggested(for: country) {
+                    region = suggested
+                }
+                // else: no keyword match — leave `region` at whatever the user
+                // last touched (or nil) and let the terminology step present
+                // all options with equal weight, no false default.
                 advance()
             }
             .disabled(country.isEmpty)
@@ -128,8 +133,10 @@ struct OnboardingView: View {
     private var terminologyStep: some View {
         VStack(alignment: .leading, spacing: 22) {
             stepHeader(
-                title: "Confirm terminology",
-                subtitle: "This updates titles and spelling across the whole app."
+                title: hasTerminologySuggestion ? "Confirm terminology" : "Choose terminology",
+                subtitle: hasTerminologySuggestion
+                    ? "This updates titles and spelling across the whole app."
+                    : "We don't have a tailored preset for \(countryDisplayLabel) yet — pick whichever set of titles and spelling feels closest. You can change this anytime in Settings."
             )
 
             VStack(spacing: 12) {
@@ -142,10 +149,26 @@ struct OnboardingView: View {
 
             Spacer()
             primaryButton("Continue") { advance() }
+                .disabled(region == nil)
+                .opacity(region == nil ? 0.5 : 1)
         }
         .padding(.horizontal, 28)
         .padding(.top, 20)
         .padding(.bottom, 40)
+    }
+
+    /// Whether the entered country maps to one of the three maintained presets.
+    private var hasTerminologySuggestion: Bool {
+        TerminologyRegion.suggested(for: country) != nil
+    }
+
+    /// Country name for the honest "no preset" subtitle. Falls back to a
+    /// generic phrase when empty or "Other / not listed" was picked.
+    private var countryDisplayLabel: String {
+        if country.isEmpty || country == CountryOption.other.rawValue {
+            return "your country"
+        }
+        return country
     }
 
     private var safetyStep: some View {
@@ -194,7 +217,7 @@ struct OnboardingView: View {
     private func countryRow(_ option: CountryOption) -> some View {
         Button {
             country = option.rawValue
-            region = option.region
+            region = option.region // nil for "Other / not listed" — explicit choice next step
         } label: {
             HStack {
                 Text(option.flag).font(.title2)
@@ -250,9 +273,15 @@ struct OnboardingView: View {
                 .font(.caption2.weight(.bold))
                 .tracking(1)
                 .foregroundStyle(.white.opacity(0.5))
-            Text("You are an \(region.assistant), saving setups for \(region.providerPlural.lowercased()).")
-                .font(.footnote)
-                .foregroundStyle(.white.opacity(0.85))
+            if let region {
+                Text("You are an \(region.assistant), saving setups for \(region.providerPlural.lowercased()).")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.85))
+            } else {
+                Text("Select an option above to see how titles will read.")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.55))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
@@ -283,9 +312,9 @@ struct OnboardingView: View {
     }
 
     private func finish() {
-        settings.country = country
+        settings.country = country == CountryOption.other.rawValue ? "" : country
         settings.regionName = regionName
-        settings.region = region
+        settings.region = region ?? .commonwealth
         withAnimation { settings.didCompleteOnboarding = true }
     }
 }
