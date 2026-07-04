@@ -97,6 +97,15 @@ nonisolated enum DemoData {
 
     // MARK: - Hospitals
 
+    /// Generic machine-check checklist with deterministic item ids so demo
+    /// installs stay idempotent (random ids would make every install read as
+    /// "edited" against the stored copy).
+    private static func demoChecklist(base: Int) -> [MachineCheckItem] {
+        AnaestheticMachine.genericChecklistTexts.enumerated().map { index, text in
+            MachineCheckItem(id: id(base + index), text: text, isDefault: true)
+        }
+    }
+
     private static var cityCentral: Hospital {
         var orientation = HospitalOrientation()
         orientation.equipmentLocations = [
@@ -158,6 +167,24 @@ nonisolated enum DemoData {
             SharedFile(id: id(115), name: "NZ/AU Anaesthesia Crisis Manual",
                        notes: "Bundled emergency reference")
         ]
+        orientation.anaestheticMachines = [
+            AnaestheticMachine(
+                id: id(106),
+                model: .geAisysCS2,
+                location: "Theatres 1-8",
+                checklistItems: demoChecklist(base: 1061)
+            ),
+            AnaestheticMachine(
+                id: id(107),
+                model: .draegerZeusIE,
+                location: "Cardiac Theatre",
+                checklistItems: demoChecklist(base: 1071) + [
+                    MachineCheckItem(id: id(1090),
+                                     text: "Confirm TIVA/TCI module connected and calibrated if in use",
+                                     isDefault: false)
+                ]
+            )
+        ]
 
         return Hospital(
             id: cityCentralID,
@@ -198,6 +225,14 @@ nonisolated enum DemoData {
             whoToContact: "Anaesthetic coordinator",
             phone: "Sick call number"
         )
+        orientation.anaestheticMachines = [
+            AnaestheticMachine(
+                id: id(204),
+                model: .mindrayA5,
+                location: "Theatres 1-4",
+                checklistItems: demoChecklist(base: 2041)
+            )
+        ]
 
         return Hospital(
             id: mercyPrivateID,

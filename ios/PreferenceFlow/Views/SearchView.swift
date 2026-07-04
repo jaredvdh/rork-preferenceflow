@@ -129,6 +129,21 @@ struct SearchView: View {
         }
     }
 
+    /// Anaesthetic machines across hospital orientation guides, matched by
+    /// model name, manufacturer or location.
+    private var matchingMachines: [(hospital: Hospital, machine: AnaestheticMachine)] {
+        guard !query.isBlank else { return [] }
+        return hospitalScope.flatMap { h in
+            h.orientationOrEmpty.anaestheticMachines
+                .filter {
+                    $0.displayName.localizedCaseInsensitiveContains(query)
+                    || $0.model.manufacturer.localizedCaseInsensitiveContains(query)
+                    || $0.location.localizedCaseInsensitiveContains(query)
+                }
+                .map { (h, $0) }
+        }
+    }
+
     /// Hospital contacts across orientation guides.
     private var matchingContacts: [(hospital: Hospital, contact: HospitalContact)] {
         guard !query.isBlank else { return [] }
@@ -256,7 +271,7 @@ struct SearchView: View {
             || !matchingMedications.isEmpty || !matchingEquipment.isEmpty
             || !matchingEquipmentLocations.isEmpty || !matchingContacts.isEmpty
             || !matchingSickCall.isEmpty || !matchingDocuments.isEmpty
-            || !matchingCrisisCards.isEmpty
+            || !matchingCrisisCards.isEmpty || !matchingMachines.isEmpty
     }
 
     @ViewBuilder
@@ -359,6 +374,22 @@ struct SearchView: View {
                                 title: pair.item.title,
                                 subtitle: "\(pair.hospital.name)\(pair.item.location.isBlank ? "" : " → \(pair.item.location)")",
                                 icon: pair.item.symbol
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            if !matchingMachines.isEmpty {
+                resultGroup("Anaesthetic Machines", icon: "gauge.with.dots.needle.bottom.50percent") {
+                    ForEach(matchingMachines, id: \.machine.id) { pair in
+                        NavigationLink {
+                            HospitalDetailView(hospitalID: pair.hospital.id)
+                        } label: {
+                            searchSubRow(
+                                title: pair.machine.displayName,
+                                subtitle: "\(pair.hospital.name)\(pair.machine.location.isBlank ? "" : " → \(pair.machine.location)")",
+                                icon: "gauge.with.dots.needle.bottom.50percent"
                             )
                         }
                         .buttonStyle(.plain)

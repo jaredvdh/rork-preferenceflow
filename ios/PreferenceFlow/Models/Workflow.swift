@@ -90,6 +90,9 @@ nonisolated struct WorkflowCustomization: Identifiable, Codable, Hashable {
     var customOptions: [String: [String]] = [:]
     /// Free-text notes per field id.
     var notes: [String: String] = [:]
+    /// Optional photo of the consultant's finished setup (resized JPEG), shown
+    /// alongside the consultant notes on the profile and in exports.
+    var setupPhoto: Data? = nil
 
     init(id: String) { self.id = id }
 }

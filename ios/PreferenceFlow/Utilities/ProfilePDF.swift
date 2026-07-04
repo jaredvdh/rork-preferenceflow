@@ -456,6 +456,10 @@ enum ProfilePDF {
             if !setup.equipment.isEmpty { ctx.drawBullet("Equipment: \(setup.equipment.joined(separator: ", "))") }
             if !setup.drugChanges.isBlank { ctx.drawBullet("Drug changes: \(setup.drugChanges)") }
             if !setup.specialNotes.isBlank { ctx.drawNote(setup.specialNotes) }
+            if let photo = setup.setupPhoto {
+                ctx.drawMuted("Setup photo")
+                ctx.drawImage(photo)
+            }
         }
         ctx.endSection()
     }
@@ -486,6 +490,10 @@ enum ProfilePDF {
             if !block.safetyNotes.isBlank { ctx.drawBullet("Safety: \(block.safetyNotes)") }
             if !block.setupNotes.isBlank { ctx.drawNote(block.setupNotes) }
             if !block.specialNotes.isBlank { ctx.drawNote(block.specialNotes) }
+            if let photo = block.setupPhoto {
+                ctx.drawMuted("Setup photo")
+                ctx.drawImage(photo)
+            }
         }
         ctx.endSection()
     }
@@ -557,6 +565,10 @@ enum ProfilePDF {
             for line in NeuraxialSummary.lines(for: item) {
                 ctx.drawBullet("\(line.label): \(line.value)")
             }
+            if let photo = item.resolved.customization.setupPhoto {
+                ctx.drawMuted("Setup photo")
+                ctx.drawImage(photo)
+            }
         }
         ctx.endSection()
     }
@@ -574,6 +586,10 @@ enum ProfilePDF {
             ctx.drawSubheading(item.definition.title)
             for line in ProceduralSummary.lines(for: item) {
                 ctx.drawBullet("\(line.label): \(line.value)")
+            }
+            if let photo = item.resolved.customization.setupPhoto {
+                ctx.drawMuted("Setup photo")
+                ctx.drawImage(photo)
             }
         }
         ctx.endSection()
@@ -644,6 +660,17 @@ enum ProfilePDF {
                 }
                 if !item.notes.isBlank { ctx.drawNote(item.notes) }
             }
+        }
+
+        if !o.anaestheticMachines.isEmpty {
+            ctx.drawGroupLabel("Anaesthetic Machines")
+            for machine in o.anaestheticMachines {
+                ctx.drawSubheading(machine.displayName)
+                if !machine.location.isBlank { ctx.drawBullet("Location: \(machine.location)") }
+                ctx.drawBullet("Machine check checklist in app (\(machine.checklistItems.count) items)")
+                if !machine.notes.isBlank { ctx.drawNote(machine.notes) }
+            }
+            ctx.drawNote(AnaestheticMachine.checklistCaption)
         }
 
         if !o.contacts.isEmpty {
@@ -934,6 +961,22 @@ private struct DrawContext {
         ensureSpace(rowHeight)
         text.draw(in: CGRect(x: margin + 12, y: cursorY, width: textWidth, height: ceil(height) + 2), withAttributes: attrs)
         cursorY += rowHeight
+    }
+
+    /// Draws an inline setup/reference photo at a reasonable size (rounded
+    /// corners, capped height), paginating first if needed.
+    mutating func drawImage(_ data: Data, maxHeight: CGFloat = 180) {
+        guard let image = UIImage(data: data), image.size.width > 0, image.size.height > 0 else { return }
+        let scale = min(contentWidth / image.size.width, maxHeight / image.size.height, 1)
+        let drawSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        ensureSpace(drawSize.height + 12)
+        let rect = CGRect(x: margin, y: cursorY, width: drawSize.width, height: drawSize.height)
+        let cg = context.cgContext
+        cg.saveGState()
+        UIBezierPath(roundedRect: rect, cornerRadius: 8).addClip()
+        image.draw(in: rect)
+        cg.restoreGState()
+        cursorY += drawSize.height + 10
     }
 
     mutating func drawMuted(_ text: String) {

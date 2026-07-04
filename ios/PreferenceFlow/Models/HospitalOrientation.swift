@@ -19,6 +19,9 @@ nonisolated struct HospitalOrientation: Codable, Hashable {
     var sickCall: SickCallInfo
     var policies: [PolicyWorkflow]
     var sharedFiles: [SharedFile]
+    /// Anaesthetic machine models in use at this site, each with an editable
+    /// daily machine-check checklist.
+    var anaestheticMachines: [AnaestheticMachine]
     /// Future department-mode state. Defaults to personal for MVP.
     var approval: OrientationApproval
 
@@ -28,6 +31,7 @@ nonisolated struct HospitalOrientation: Codable, Hashable {
         sickCall: SickCallInfo = SickCallInfo(),
         policies: [PolicyWorkflow] = [],
         sharedFiles: [SharedFile] = [],
+        anaestheticMachines: [AnaestheticMachine] = [],
         approval: OrientationApproval = .personal
     ) {
         self.equipmentLocations = equipmentLocations
@@ -35,12 +39,30 @@ nonisolated struct HospitalOrientation: Codable, Hashable {
         self.sickCall = sickCall
         self.policies = policies
         self.sharedFiles = sharedFiles
+        self.anaestheticMachines = anaestheticMachines
         self.approval = approval
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case equipmentLocations, contacts, sickCall, policies, sharedFiles, anaestheticMachines, approval
+    }
+
+    /// Backward-compatible decoding: records saved before anaesthetic machines
+    /// existed simply decode with an empty machine list.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        equipmentLocations = try c.decodeIfPresent([EquipmentLocation].self, forKey: .equipmentLocations) ?? []
+        contacts = try c.decodeIfPresent([HospitalContact].self, forKey: .contacts) ?? []
+        sickCall = try c.decodeIfPresent(SickCallInfo.self, forKey: .sickCall) ?? SickCallInfo()
+        policies = try c.decodeIfPresent([PolicyWorkflow].self, forKey: .policies) ?? []
+        sharedFiles = try c.decodeIfPresent([SharedFile].self, forKey: .sharedFiles) ?? []
+        anaestheticMachines = try c.decodeIfPresent([AnaestheticMachine].self, forKey: .anaestheticMachines) ?? []
+        approval = try c.decodeIfPresent(OrientationApproval.self, forKey: .approval) ?? .personal
     }
 
     var hasContent: Bool {
         !equipmentLocations.isEmpty || !contacts.isEmpty || !policies.isEmpty
-            || !sharedFiles.isEmpty || sickCall.hasContent
+            || !sharedFiles.isEmpty || !anaestheticMachines.isEmpty || sickCall.hasContent
     }
 }
 

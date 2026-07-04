@@ -515,16 +515,20 @@ enum TheatreCardPDF {
             if !block.ultrasoundProbe.isBlank { equip.append(block.ultrasoundProbe) }
             if !block.needleType.isBlank { equip.append(block.needleType) }
             let detail = equip.isEmpty ? "" : " (\(equip.joined(separator: ", ")))"
-            items.append(CardItem(text: "\(block.name)\(detail)"))
+            items.append(CardItem(
+                text: "\(block.name)\(detail)",
+                subtext: block.setupPhoto != nil ? "See app for setup photo" : nil
+            ))
         }
         // Arterial & central lines — pulled from the live workflow data (same
         // source as the on-screen "Arterial & Central Lines" section).
         for item in ProceduralSummary.configured(doctor.neuraxial) {
-            let detail = ProceduralSummary.lines(for: item)
+            var detailParts = ProceduralSummary.lines(for: item)
                 .filter { !$0.isNote }
                 .prefix(4)
                 .map { "\($0.label): \($0.value)" }
-                .joined(separator: " · ")
+            if item.resolved.customization.setupPhoto != nil { detailParts.append("See app for setup photo") }
+            let detail = detailParts.joined(separator: " · ")
             items.append(CardItem(text: item.definition.title, subtext: detail.isBlank ? nil : detail))
         }
         // Neuraxial — pulled from the live workflow data (same source as the
@@ -533,10 +537,11 @@ enum TheatreCardPDF {
         let configured = NeuraxialSummary.configured(n)
         if !configured.isEmpty {
             for item in configured {
-                let detail = NeuraxialSummary.lines(for: item)
+                var detailParts = NeuraxialSummary.lines(for: item)
                     .prefix(4)
                     .map { "\($0.label): \($0.value)" }
-                    .joined(separator: " · ")
+                if item.resolved.customization.setupPhoto != nil { detailParts.append("See app for setup photo") }
+                let detail = detailParts.joined(separator: " · ")
                 items.append(CardItem(text: item.definition.title, subtext: detail.isBlank ? nil : detail))
             }
         } else {
@@ -594,6 +599,7 @@ enum TheatreCardPDF {
         if !setup.equipment.isEmpty { parts.append("Equipment: \(setup.equipment.joined(separator: ", "))") }
         if !setup.drugChanges.isBlank { parts.append("Drugs: \(setup.drugChanges)") }
         if !setup.specialNotes.isBlank { parts.append(setup.specialNotes) }
+        if setup.setupPhoto != nil { parts.append("See app for setup photo") }
         guard !parts.isEmpty else { return [] }
         return [CardItem(text: parts.joined(separator: "  ·  "))]
     }

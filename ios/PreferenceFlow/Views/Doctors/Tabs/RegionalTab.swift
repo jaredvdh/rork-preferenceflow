@@ -118,6 +118,13 @@ struct RegionalBlockDetailView: View {
                         ForEach(categories, id: \.self) { summaryCard($0) }
                     }
 
+                    if let photo = block.setupPhoto {
+                        VStack(alignment: .leading, spacing: 0) {
+                            SetupPhotoDisplay(data: photo)
+                        }
+                        .card()
+                    }
+
                     if !hospitalItems.isEmpty {
                         PrefHospitalCard(items: hospitalItems)
                     }
@@ -554,6 +561,13 @@ struct RegionalBlockEditView: View {
                     NotesField(label: "Assistant notes", text: $block.assistantNotes)
                     NotesField(label: "Safety notes", text: $block.safetyNotes)
                     NotesField(label: "Special notes", text: $block.specialNotes)
+                }
+                Section("Setup Photo") {
+                    SetupPhotoField(
+                        help: "A photo of the needle / trolley setup for this block helps a technician match it exactly.",
+                        photoData: $block.setupPhoto
+                    )
+                    .padding(.vertical, 4)
                 }
                 if isExisting {
                     Section {

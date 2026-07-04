@@ -127,6 +127,12 @@ struct WorkflowGuideView: View {
                         Divider()
                     }
                 }
+                // Consultant notes step also carries an optional setup photo so
+                // a technician can match the finished setup visually.
+                if step.id == "consultant" {
+                    Divider()
+                    SetupPhotoField(photoData: $draft.setupPhoto)
+                }
             }
         }
         .card()

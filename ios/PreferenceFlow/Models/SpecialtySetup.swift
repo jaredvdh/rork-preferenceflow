@@ -23,6 +23,9 @@ nonisolated struct SpecialtySetup: Identifiable, Codable, Hashable {
     var drugChanges: String
     /// Any special notes for this specialty.
     var specialNotes: String
+    /// Optional photo of the finished specialty setup / equipment layout
+    /// (resized JPEG).
+    var setupPhoto: Data?
 
     init(
         id: UUID = UUID(),
@@ -31,7 +34,8 @@ nonisolated struct SpecialtySetup: Identifiable, Codable, Hashable {
         linesAndAccess: [String] = [],
         equipment: [String] = [],
         drugChanges: String = "",
-        specialNotes: String = ""
+        specialNotes: String = "",
+        setupPhoto: Data? = nil
     ) {
         self.id = id
         self.specialty = specialty
@@ -40,6 +44,7 @@ nonisolated struct SpecialtySetup: Identifiable, Codable, Hashable {
         self.equipment = equipment
         self.drugChanges = drugChanges
         self.specialNotes = specialNotes
+        self.setupPhoto = setupPhoto
     }
 
     /// Whether the setup carries any meaningful content.
@@ -47,6 +52,7 @@ nonisolated struct SpecialtySetup: Identifiable, Codable, Hashable {
         !additionalMonitoring.isEmpty || !linesAndAccess.isEmpty || !equipment.isEmpty
             || !drugChanges.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             || !specialNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || setupPhoto != nil
     }
 
     /// Number of distinct differences captured, for the dashboard card summary.
@@ -54,6 +60,7 @@ nonisolated struct SpecialtySetup: Identifiable, Codable, Hashable {
         var count = additionalMonitoring.count + linesAndAccess.count + equipment.count
         if !drugChanges.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { count += 1 }
         if !specialNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { count += 1 }
+        if setupPhoto != nil { count += 1 }
         return count
     }
 }

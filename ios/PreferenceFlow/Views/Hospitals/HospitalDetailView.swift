@@ -261,6 +261,17 @@ struct HospitalDetailView: View {
                 .buttonStyle(.plain)
 
                 NavigationLink {
+                    AnaestheticMachinesTab(hospitalID: hospitalID)
+                        .navigationTitle("Anaesthetic Machines").navigationBarTitleDisplayMode(.inline)
+                        .background(Color(.systemGroupedBackground))
+                } label: {
+                    SectionRow(icon: "gauge.with.dots.needle.bottom.50percent", tint: Color(hex: "4A90D9"),
+                               title: "Anaesthetic Machines",
+                               subtitle: "Models in use & machine check lists", count: o.anaestheticMachines.count)
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
                     DepartmentTemplatesTab(hospitalID: hospitalID)
                         .navigationTitle("Department Standards").navigationBarTitleDisplayMode(.inline)
                         .background(Color(.systemGroupedBackground))

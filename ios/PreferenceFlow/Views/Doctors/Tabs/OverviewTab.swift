@@ -816,14 +816,18 @@ private struct NeuraxialExpandableRow: View {
             badge: item.modified ? .updatedByYou : .none,
             collapsedSummary: NeuraxialSummary.collapsedSummary(for: item)
         ) {
-            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+            ForEach(Array(lines.filter { !$0.isNote }.enumerated()), id: \.offset) { _, line in
                 if line.isWarning {
                     IncompleteFieldNudge(label: line.label)
-                } else if line.isNote {
-                    PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
                 } else {
                     PrefRow(label: line.label, value: line.value)
                 }
+            }
+            if let photo = item.resolved.customization.setupPhoto {
+                SetupPhotoDisplay(data: photo)
+            }
+            ForEach(Array(lines.filter { $0.isNote }.enumerated()), id: \.offset) { _, line in
+                PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
             }
         }
     }
@@ -847,12 +851,14 @@ private struct ProceduralExpandableRow: View {
             badge: item.modified ? .updatedByYou : .none,
             collapsedSummary: ProceduralSummary.collapsedSummary(for: item)
         ) {
-            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
-                if line.isNote {
-                    PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
-                } else {
-                    PrefRow(label: line.label, value: line.value)
-                }
+            ForEach(Array(lines.filter { !$0.isNote }.enumerated()), id: \.offset) { _, line in
+                PrefRow(label: line.label, value: line.value)
+            }
+            if let photo = item.resolved.customization.setupPhoto {
+                SetupPhotoDisplay(data: photo)
+            }
+            ForEach(Array(lines.filter { $0.isNote }.enumerated()), id: \.offset) { _, line in
+                PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
             }
         }
     }
@@ -935,6 +941,9 @@ private struct RegionalBlockExpandableRow: View {
             PrefNote(label: "Equipment", text: equipment, tint: PrefGroup.technique.tint)
             PrefNote(label: "Positioning", text: block.positioningNotes, tint: PrefGroup.technique.tint)
             PrefNote(label: "Ultrasound / setup", text: block.setupNotes, tint: PrefGroup.technique.tint)
+            if let photo = block.setupPhoto {
+                SetupPhotoDisplay(data: photo)
+            }
             PrefNote(label: "Assistant", text: block.assistantNotes, tint: PrefGroup.technique.tint)
             PrefNote(label: "Safety", text: block.safetyNotes, tint: PrefGroup.technique.tint)
             PrefNote(label: "Special notes", text: block.specialNotes, tint: PrefGroup.technique.tint)

@@ -18,6 +18,7 @@ struct HospitalSearchView: View {
     @State private var editingContact: HospitalContact?
     @State private var editingPolicy: PolicyWorkflow?
     @State private var editingFile: SharedFile?
+    @State private var editingMachine: AnaestheticMachine?
 
     private var hospital: Hospital? { store.hospital(id: hospitalID) }
 
@@ -45,6 +46,15 @@ struct HospitalSearchView: View {
                             ForEach(results.equipment) { item in
                                 Button { editingEquipment = item } label: {
                                     resultRow(icon: item.symbol, title: item.title, subtitle: item.location)
+                                }.buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    if !results.machines.isEmpty {
+                        group("Anaesthetic Machines", icon: "gauge.with.dots.needle.bottom.50percent", tint: Color(hex: "4A90D9")) {
+                            ForEach(results.machines) { m in
+                                Button { editingMachine = m } label: {
+                                    resultRow(icon: "gauge.with.dots.needle.bottom.50percent", title: m.displayName, subtitle: m.location)
                                 }.buttonStyle(.plain)
                             }
                         }
@@ -114,19 +124,24 @@ struct HospitalSearchView: View {
         .sheet(item: $editingFile) { f in
             SharedFileEditView(hospitalID: hospitalID, file: f)
         }
+        .sheet(item: $editingMachine) { m in
+            MachineEditView(hospitalID: hospitalID, machine: m, isNew: false)
+        }
     }
 
     // MARK: - Results
 
     private struct Results {
         var equipment: [EquipmentLocation] = []
+        var machines: [AnaestheticMachine] = []
         var contacts: [HospitalContact] = []
         var policies: [PolicyWorkflow] = []
         var files: [SharedFile] = []
         var standards: [DepartmentTemplate] = []
 
         var isEmpty: Bool {
-            equipment.isEmpty && contacts.isEmpty && policies.isEmpty && files.isEmpty && standards.isEmpty
+            equipment.isEmpty && machines.isEmpty && contacts.isEmpty && policies.isEmpty
+                && files.isEmpty && standards.isEmpty
         }
     }
 
@@ -139,6 +154,7 @@ struct HospitalSearchView: View {
         }
         var r = Results()
         r.equipment = o.equipmentLocations.filter { hit($0.title, $0.location, $0.accessInstructions, $0.notes) }
+        r.machines = o.anaestheticMachines.filter { hit($0.displayName, $0.model.manufacturer, $0.location, $0.notes) }
         r.contacts = o.contacts.filter { hit($0.roleTitle, $0.name, $0.phone, $0.email, $0.notes) }
         r.policies = o.policies.filter { hit($0.title, $0.body) }
         r.files = o.sharedFiles.filter { hit($0.name, $0.notes) }

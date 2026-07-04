@@ -139,6 +139,13 @@ struct SpecialtySetupCards: View {
                     PrefNote(label: "", text: setup.specialNotes, tint: PrefGroup.consultantNotes.tint)
                 }
             }
+
+            if let photo = setup.setupPhoto {
+                VStack(alignment: .leading, spacing: 0) {
+                    SetupPhotoDisplay(data: photo)
+                }
+                .card()
+            }
         }
     }
 
@@ -250,6 +257,13 @@ struct SpecialtySetupEditView: View {
                 }
                 Section("Special Notes") {
                     NotesField(label: "Notes", text: $setup.specialNotes, minHeight: 60)
+                }
+                Section("Setup Photo") {
+                    SetupPhotoField(
+                        help: "A photo of the equipment layout for this list helps a technician match it exactly.",
+                        photoData: $setup.setupPhoto
+                    )
+                    .padding(.vertical, 4)
                 }
                 if !isNew {
                     Section {

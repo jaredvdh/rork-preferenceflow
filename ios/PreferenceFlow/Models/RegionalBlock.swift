@@ -28,6 +28,8 @@ nonisolated struct RegionalBlock: Identifiable, Codable, Hashable {
     var assistantNotes: String
     var safetyNotes: String
     var specialNotes: String
+    /// Optional photo of the finished block setup (resized JPEG).
+    var setupPhoto: Data?
 
     init(
         id: UUID = UUID(),
@@ -44,7 +46,8 @@ nonisolated struct RegionalBlock: Identifiable, Codable, Hashable {
         positioningNotes: String = "",
         assistantNotes: String = "",
         safetyNotes: String = "",
-        specialNotes: String = ""
+        specialNotes: String = "",
+        setupPhoto: Data? = nil
     ) {
         self.id = id
         self.name = name
@@ -61,6 +64,7 @@ nonisolated struct RegionalBlock: Identifiable, Codable, Hashable {
         self.assistantNotes = assistantNotes
         self.safetyNotes = safetyNotes
         self.specialNotes = specialNotes
+        self.setupPhoto = setupPhoto
     }
 
     /// Curated adjuvant/additive options for the multi-select editor.
