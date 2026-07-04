@@ -62,7 +62,10 @@ enum ProfilePDF {
             if options.contains(.standardSetup) { drawStandardSetup(&ctx, doctor, region: region) }
             if options.contains(.specialty) { drawSpecialty(&ctx, doctor.activeSpecialtySetups) }
             if options.contains(.regional) { drawRegional(&ctx, doctor.regionalBlocks) }
-            if options.contains(.neuraxial) { drawNeuraxial(&ctx, doctor.neuraxial) }
+            if options.contains(.neuraxial) {
+                drawNeuraxial(&ctx, doctor.neuraxial)
+                drawProcedural(&ctx, doctor.neuraxial)
+            }
             if options.contains(.notes) { drawNotes(&ctx, doctor) }
             if options.contains(.hospitalInfo), let hospital, hospital.orientationOrEmpty.hasContent {
                 drawHospitalAppendix(&ctx, hospital)
@@ -214,6 +217,7 @@ enum ProfilePDF {
         if (doctor.adultDrugs?.hasContent ?? false) || (doctor.paediatricDrugs?.hasContent ?? false) { badges.append("Drugs") }
         if doctor.regionalBlocks.contains(where: { !$0.name.isBlank }) { badges.append("Regional") }
         if neuraxialHasContent(doctor.neuraxial) { badges.append("Neuraxial") }
+        if !ProceduralSummary.configured(doctor.neuraxial).isEmpty { badges.append("Lines") }
         for s in doctor.activeSpecialtySetups { badges.append("\(specialtyEmoji(s.specialty)) \(s.specialty.rawValue)") }
         if !doctor.general.coffeePreference.isBlank { badges.append("Coffee ☕") }
         return badges
@@ -525,6 +529,24 @@ enum ProfilePDF {
             if index > 0 { ctx.drawDivider() }
             ctx.drawSubheading(item.definition.title)
             for line in NeuraxialSummary.lines(for: item) {
+                ctx.drawBullet("\(line.label): \(line.value)")
+            }
+        }
+        ctx.endSection()
+    }
+
+    // MARK: - Arterial & Central Lines
+
+    /// Configured procedural workflows (Arterial Line, CVC) — same live workflow
+    /// data the on-screen "Arterial & Central Lines" section renders.
+    private static func drawProcedural(_ ctx: inout DrawContext, _ n: NeuraxialPreferences) {
+        let configured = ProceduralSummary.configured(n)
+        guard !configured.isEmpty else { return }
+        ctx.drawSectionTitle("Arterial & Central Lines", icon: "waveform.path.ecg")
+        for (index, item) in configured.enumerated() {
+            if index > 0 { ctx.drawDivider() }
+            ctx.drawSubheading(item.definition.title)
+            for line in ProceduralSummary.lines(for: item) {
                 ctx.drawBullet("\(line.label): \(line.value)")
             }
         }

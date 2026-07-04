@@ -58,10 +58,24 @@ nonisolated enum WorkflowLibrary {
             "Ultrasound in obese patients"
         ]
         static let aLineSite = ["Radial", "Ulnar", "Brachial", "Axillary", "Femoral", "Dorsalis pedis"]
+        static let aLineLaterality = [
+            "Right radial", "Left radial", "Dominant hand avoided",
+            "Previous AV fistula avoided", "Previous radial harvest avoided",
+            "Distal radial (snuffbox)"
+        ]
         static let aLineCannulaType = [
-            "Standard cannula-over-needle", "Integrated arterial kit (Seldinger)",
-            "Arrow arterial kit", "Vygon Leader-Cath", "BD Arterioscan",
-            "Radifocus / wire-assisted"
+            "Over-the-needle (e.g. BD Insyte, Jelco)",
+            "Integrated guidewire (e.g. Arrow Arrowg+ard, Leadercath)",
+            "Modified Seldinger (needle \u{2192} wire \u{2192} dilator \u{2192} catheter)"
+        ]
+        static let aLineApproach = [
+            "Palpation",
+            "Ultrasound short-axis (out-of-plane)",
+            "Ultrasound long-axis (in-plane)",
+            "Ultrasound DNTP (dynamic needle tip positioning)"
+        ]
+        static let aLineWristPosition = [
+            "Neutral", "20\u{2013}30\u{00B0} extension", "Rolled towel", "Commercial wrist board"
         ]
         static let aLineGaugeLength = [
             "20G × 30mm (short)", "20G × 45mm (standard)", "20G × 48mm (long)",
@@ -364,68 +378,66 @@ nonisolated enum WorkflowLibrary {
         ]
     )
 
-    // MARK: - Arterial Line (demonstrates the extensible library)
+    // MARK: - Arterial Line
 
+    /// Deliberately compact: three core preference areas (cannula, technique,
+    /// positioning & securing) plus a single free-text notes step. Field ids are
+    /// kept stable with previously saved customisations.
     static let arterialLine = WorkflowDefinition(
         id: "arterialLine",
         title: "Arterial Line",
         icon: "waveform.path.ecg",
-        summary: "Site, kit, transducer and securing preferences.",
+        summary: "Cannula, technique and positioning preferences.",
         steps: [
             WorkflowStep(
-                id: "sterile", title: "Sterile Preparation", icon: "hands.and.sparkles",
-                fields: [
-                    WorkflowField(id: "sterile.level", label: "Sterile technique", kind: .singleSelect,
-                                  icon: "hands.and.sparkles", options: Opt.sterile, allowsCustom: true,
-                                  defaultSelection: "Sterile gloves only")
-                ]
-            ),
-            WorkflowStep(
-                id: "site", title: "Site & Cannula", icon: "hand.point.up.braille",
+                id: "cannula", title: "Cannula Selection", icon: "syringe",
                 fields: [
                     WorkflowField(id: "site.choice", label: "Site", kind: .singleSelect,
                                   options: Opt.aLineSite, allowsCustom: true, defaultSelection: "Radial"),
+                    WorkflowField(id: "site.laterality", label: "Laterality / avoidance", kind: .multiSelect,
+                                  options: Opt.aLineLaterality, allowsCustom: true),
                     WorkflowField(id: "site.cannulaType", label: "Cannula type", kind: .singleSelect,
                                   options: Opt.aLineCannulaType, allowsCustom: true,
-                                  defaultSelection: "Standard cannula-over-needle"),
+                                  defaultSelection: "Integrated guidewire (e.g. Arrow Arrowg+ard, Leadercath)"),
                     WorkflowField(id: "site.gaugeLength", label: "Gauge and length", kind: .singleSelect,
                                   options: Opt.aLineGaugeLength, allowsCustom: true,
-                                  defaultSelection: "20G × 45mm (standard)"),
-                    WorkflowField(id: "site.ultrasound", label: "Ultrasound guided", kind: .toggle,
-                                  icon: "dot.radiowaves.left.and.right")
+                                  defaultSelection: "20G × 45mm (standard)")
                 ]
             ),
             WorkflowStep(
-                id: "prep", title: "Site Preparation", icon: "cross.vial",
+                id: "technique", title: "Technique", icon: "eye.trianglebadge.exclamationmark",
                 fields: [
+                    WorkflowField(id: "technique.approach", label: "Preferred approach", kind: .singleSelect,
+                                  icon: "scope", options: Opt.aLineApproach, allowsCustom: true,
+                                  defaultSelection: "Ultrasound DNTP (dynamic needle tip positioning)"),
+                    WorkflowField(id: "site.ultrasound", label: "Ultrasound guided", kind: .toggle,
+                                  icon: "dot.radiowaves.left.and.right"),
                     WorkflowField(id: "prep.antiseptic", label: "Skin prep agent", kind: .singleSelect,
                                   icon: "drop.degreesign", options: Opt.antiseptic,
                                   defaultSelection: "Chlorhexidine 2% (ChloraPrep)"),
                     WorkflowField(id: "prep.la", label: "Local anaesthetic", kind: .singleSelect,
                                   icon: "syringe", options: Opt.prepLA, allowsCustom: true,
-                                  defaultSelection: "Lignocaine 1% SC"),
-                    WorkflowField(id: "prep.positioning", label: "Patient positioning", kind: .note,
-                                  help: "e.g. Rolled towel under dorsum of wrist with pronation; wrist dorsiflexed on arm board; arm abducted, supinated")
+                                  defaultSelection: "Lignocaine 1% SC")
                 ]
             ),
             WorkflowStep(
-                id: "transducer", title: "Transducer & Securing", icon: "waveform.path",
+                id: "positioning", title: "Positioning & Securing", icon: "hand.raised",
                 fields: [
+                    WorkflowField(id: "positioning.wrist", label: "Wrist position", kind: .singleSelect,
+                                  options: Opt.aLineWristPosition, allowsCustom: true),
                     WorkflowField(id: "transducer.flush", label: "Flush solution", kind: .singleSelect,
                                   icon: "drop", options: Opt.flushSolution, allowsCustom: true,
                                   defaultSelection: "Heparinised normal saline"),
-                    WorkflowField(id: "transducer.notes", label: "Transducer setup notes", kind: .note),
                     WorkflowField(id: "securing.dressing", label: "Securing / dressing", kind: .singleSelect,
                                   icon: "bandage", options: Opt.arterialDressing, allowsCustom: true,
-                                  defaultSelection: "Tegaderm 1624 (standard)"),
-                    WorkflowField(id: "securing.notes", label: "Securing notes", kind: .note,
-                                  help: "e.g. Loop suture through cannula hub if long case; arm board with IV3000")
+                                  defaultSelection: "Tegaderm 1624 (standard)")
                 ]
             ),
             WorkflowStep(
-                id: "consultant", title: "Consultant-Specific Notes", icon: "star",
+                id: "consultant", title: "Notes", icon: "star",
                 fields: [
-                    WorkflowField(id: "consultant.notes", label: "Notes", kind: .note)
+                    WorkflowField(id: "consultant.notes", label: "Notes", kind: .note,
+                                  help: "Any other preferences \u{2014} e.g. preferred brand, specific technique reminders, troubleshooting notes.")
                 ]
             )
         ]

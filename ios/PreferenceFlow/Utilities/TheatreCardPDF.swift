@@ -498,6 +498,16 @@ enum TheatreCardPDF {
             let detail = equip.isEmpty ? "" : " (\(equip.joined(separator: ", ")))"
             items.append(CardItem(text: "\(block.name)\(detail)"))
         }
+        // Arterial & central lines — pulled from the live workflow data (same
+        // source as the on-screen "Arterial & Central Lines" section).
+        for item in ProceduralSummary.configured(doctor.neuraxial) {
+            let detail = ProceduralSummary.lines(for: item)
+                .filter { !$0.isNote }
+                .prefix(4)
+                .map { "\($0.label): \($0.value)" }
+                .joined(separator: " · ")
+            items.append(CardItem(text: item.definition.title, subtext: detail.isBlank ? nil : detail))
+        }
         // Neuraxial — pulled from the live workflow data (same source as the
         // on-screen profile), with a legacy fallback for older profiles.
         let n = doctor.neuraxial

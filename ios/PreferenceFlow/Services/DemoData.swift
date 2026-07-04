@@ -281,26 +281,31 @@ nonisolated enum DemoData {
         spinal.setMulti("consultant.prefs", ["Assistant maintains shoulder support"], default: [])
         neuraxial.setCustomization(spinal)
 
-        // Arterial line — exercises the expanded cannula/prep/transducer fields.
+        // Arterial line — exercises the simplified cannula/technique/positioning model.
         var arterialLine = neuraxial.customization(for: "arterialLine")
         arterialLine.usesStandard = false
         arterialLine.isConfigured = true
         arterialLine.setSelection("site.choice", "Radial", default: "Radial")
-        arterialLine.setSelection("site.cannulaType", "Arrow arterial kit",
-                                  default: "Standard cannula-over-needle")
+        arterialLine.setMulti("site.laterality", ["Right radial", "Dominant hand avoided"], default: [])
+        arterialLine.setSelection("site.cannulaType",
+                                  "Integrated guidewire (e.g. Arrow Arrowg+ard, Leadercath)",
+                                  default: "Integrated guidewire (e.g. Arrow Arrowg+ard, Leadercath)")
         arterialLine.setSelection("site.gaugeLength", "20G × 45mm (standard)",
                                   default: "20G × 45mm (standard)")
+        arterialLine.setSelection("technique.approach",
+                                  "Ultrasound DNTP (dynamic needle tip positioning)",
+                                  default: "Ultrasound DNTP (dynamic needle tip positioning)")
         arterialLine.setBool("site.ultrasound", true, default: false)
         arterialLine.setSelection("prep.antiseptic", "Chlorhexidine 2% (ChloraPrep)",
                                   default: "Chlorhexidine 2% (ChloraPrep)")
         arterialLine.setSelection("prep.la", "Lignocaine 1% SC", default: "Lignocaine 1% SC")
-        arterialLine.setNote("prep.positioning", "Rolled towel under dorsum of wrist with pronation")
+        arterialLine.setSelection("positioning.wrist", "Rolled towel", default: "")
         arterialLine.setSelection("transducer.flush", "Heparinised normal saline",
                                   default: "Heparinised normal saline")
         arterialLine.setSelection("securing.dressing", "Tegaderm 1624 (standard)",
                                   default: "Tegaderm 1624 (standard)")
-        arterialLine.setNote("securing.notes",
-                             "Small silk loop suture through cannula hub for long cases (cardiac)")
+        arterialLine.setNote("consultant.notes",
+                             "Maintain continuous visualisation of the needle tip — advance catheter only once tip is clearly intraluminal.")
         neuraxial.setCustomization(arterialLine)
 
         // CVC — exercises line type/length, prep and confirmation extras.

@@ -175,8 +175,11 @@ struct OverviewTab: View {
             AirwayCardSection(doctor: doctor, onNavigate: onNavigate)  // 5
             drugsCard         // 6
             monitoringCard    // 7
+            if !configuredProcedural.isEmpty {
+                proceduralCard // 8
+            }
             if hasAdditional {
-                additionalCard // 8
+                additionalCard // 9
             }
         }
     }
@@ -337,6 +340,10 @@ struct OverviewTab: View {
         NeuraxialSummary.configured(doctor.neuraxial)
     }
 
+    private var configuredProcedural: [ConfiguredProcedural] {
+        ProceduralSummary.configured(doctor.neuraxial)
+    }
+
     private var specialInterests: [String] {
         doctor.subspecialties.filter { $0 != .general }.map { $0.rawValue }
     }
@@ -344,6 +351,18 @@ struct OverviewTab: View {
     private var hasAdditional: Bool {
         !namedRegionalBlocks.isEmpty || !configuredNeuraxial.isEmpty
             || !specialInterests.isEmpty || !doctor.biography.isBlank
+    }
+
+    /// Configured procedural workflows (Arterial Line, CVC) as tappable,
+    /// expand-in-place rows — the same inline pattern as Regional and Neuraxial.
+    /// Hidden entirely when nothing is configured.
+    private var proceduralCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            SectionLabel("Arterial & Central Lines", icon: "waveform.path.ecg")
+            ForEach(configuredProcedural, id: \.definition.id) { item in
+                ProceduralExpandableRow(item: item)
+            }
+        }
     }
 
     /// Each Regional block and Neuraxial item is a tappable row that expands in
@@ -796,6 +815,35 @@ private struct NeuraxialExpandableRow: View {
                 if line.isWarning {
                     IncompleteFieldNudge(label: line.label)
                 } else if line.isNote {
+                    PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
+                } else {
+                    PrefRow(label: line.label, value: line.value)
+                }
+            }
+        }
+    }
+}
+
+/// A configured procedural workflow (Arterial Line, CVC) as a tappable,
+/// expand-in-place row on the consultant profile. Content is pulled from the
+/// same workflow data the guided workflow screen edits.
+private struct ProceduralExpandableRow: View {
+    let item: ConfiguredProcedural
+
+    private var lines: [NeuraxialSummaryLine] {
+        ProceduralSummary.lines(for: item)
+    }
+
+    var body: some View {
+        ExpandableProfileRow(
+            title: item.definition.title,
+            icon: item.definition.icon,
+            tint: PrefGroup.technique.tint,
+            badge: item.modified ? .updatedByYou : .none,
+            collapsedSummary: ProceduralSummary.collapsedSummary(for: item)
+        ) {
+            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                if line.isNote {
                     PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
                 } else {
                     PrefRow(label: line.label, value: line.value)
