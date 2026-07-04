@@ -13,7 +13,7 @@ nonisolated enum CrisisManualStore {
     private static func resourceName(for region: TerminologyRegion) -> String {
         switch region {
         case .northAmerica: return "crisis_manual_us"
-        case .commonwealth: return "crisis_manual_nz_uk_au"
+        case .commonwealth, .unitedKingdom: return "crisis_manual_nz_uk_au"
         }
     }
 
