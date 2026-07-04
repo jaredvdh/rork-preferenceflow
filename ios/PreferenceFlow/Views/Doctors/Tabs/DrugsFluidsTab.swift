@@ -50,11 +50,17 @@ struct DrugsFluidsTab: View {
                 }
 
                 if setup.hasContent {
-                    ForEach(DrugCategory.allCases) { category in
+                    ForEach(DrugCategory.drugCases) { category in
                         let selection = setup.selection(for: category)
                         if !selection.isEmpty {
                             DrugCategoryCollapsibleCard(category: category, selection: selection)
                         }
+                    }
+                    if !setup.fluids.isEmpty {
+                        FluidSetupCard(fluids: setup.fluids)
+                    }
+                    if !setup.emergency.isEmpty {
+                        EmergencyDrugsCard(emergency: setup.emergency)
                     }
                     if !setup.notes.isBlank {
                         DrugsConsultantNotesCard(notes: setup.notes)
@@ -90,7 +96,7 @@ struct DrugsFluidsTab: View {
         chips.append(contentsOf: setup.induction.selected)
         chips.append(contentsOf: setup.opioid.selected.prefix(1))
         chips.append(contentsOf: setup.vasopressor.selected.prefix(1))
-        chips.append(contentsOf: setup.fluids.selected.prefix(1))
+        if !setup.fluids.primary.isBlank { chips.append(setup.fluids.primary) }
         return Array(chips.prefix(5))
     }
 
@@ -174,6 +180,163 @@ struct DrugCategoryCollapsibleCard: View {
             summary += " • Assistant may prepare"
         }
         return summary
+    }
+}
+
+/// The routine intraoperative drug categories (induction, opioid, vasopressor,
+/// muscle relaxant, reversal) grouped behind a single collapsible header — used
+/// on the main consultant card so drugs a technician only needs when drawing up
+/// medications are one tap away instead of always taking up scroll space.
+/// Fluids and Emergency Drugs deliberately stay outside this group.
+struct AnaestheticDrugsGroup: View {
+    let setup: DrugsFluidsSetup
+
+    @State private var expanded = false
+
+    private var filledCategories: [DrugCategory] {
+        DrugCategory.drugCases.filter { !setup.selection(for: $0).isEmpty }
+    }
+
+    /// e.g. "Propofol, Ketamine · Fentanyl, Remifentanil · Phenylephrine · Rocuronium".
+    private var collapsedSummary: String {
+        filledCategories
+            .map { setup.selection(for: $0).allAgents.prefix(2).joined(separator: ", ") }
+            .filter { !$0.isEmpty }
+            .joined(separator: " · ")
+    }
+
+    var body: some View {
+        let tint = PrefGroup.medications.tint
+        VStack(alignment: .leading, spacing: 10) {
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    expanded.toggle()
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(tint.opacity(0.16))
+                            .frame(width: 38, height: 38)
+                        Image(systemName: "syringe.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(tint)
+                    }
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 7) {
+                            Text("Anaesthetic Drugs")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            PrefCountBadge(count: filledCategories.count, noun: "category")
+                        }
+                        if !expanded {
+                            Text(collapsedSummary)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                }
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .card()
+
+            if expanded {
+                VStack(spacing: 10) {
+                    ForEach(filledCategories) { category in
+                        DrugCategoryCollapsibleCard(category: category, selection: setup.selection(for: category))
+                    }
+                }
+                .padding(.leading, 10)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .sensoryFeedback(.selection, trigger: expanded)
+    }
+}
+
+/// The structured IV Fluids read card — primary/secondary fluid and giving set.
+/// Always visible (never inside the collapsible drugs group) because fluid and
+/// giving-set choice affects what is primed before the case starts.
+struct FluidSetupCard: View {
+    let fluids: FluidSetup
+
+    var body: some View {
+        let tint = PrefGroup.equipment.tint
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(tint.opacity(0.16))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "drop.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(tint)
+                }
+                Text("IV Fluids")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Spacer(minLength: 0)
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                PrefRow(label: "Primary", value: fluids.primary)
+                if !fluids.secondary.isBlank {
+                    PrefRow(label: "Secondary", value: fluids.secondary)
+                }
+                PrefRow(label: "Giving set", value: fluids.givingSet.rawValue)
+                PrefNote(label: "Notes", text: fluids.notes, tint: tint)
+            }
+        }
+        .card()
+    }
+}
+
+/// The Emergency Drugs read card — drugs the consultant wants drawn up or
+/// readily available for emergencies during the case. Always visible at a
+/// glance, never collapsed. Renders only the fields that are actually set.
+struct EmergencyDrugsCard: View {
+    let emergency: EmergencyDrugSetup
+
+    var body: some View {
+        let tint = PrefGroup.monitoring.tint
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(tint.opacity(0.16))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "cross.case.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(tint)
+                }
+                Text("Emergency Drugs")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Spacer(minLength: 8)
+                if emergency.preparedBy != .caseDependent {
+                    PrefBadge(emergency.preparedBy.shortLabel + " prepares", tint)
+                }
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                if !emergency.allAgents.isEmpty {
+                    PrefChecklist(items: emergency.allAgents, tint: tint)
+                }
+                if emergency.hasPushDose {
+                    PrefRow(label: "Push-dose adrenaline", value: emergency.pushDoseAdrenalineDilution)
+                }
+                if emergency.paediatricSuxamethonium {
+                    PrefRow(label: "Paediatric", value: "Sux kept drawn up")
+                }
+                PrefNote(label: "Notes", text: emergency.notes, tint: tint)
+            }
+        }
+        .card()
     }
 }
 
@@ -306,7 +469,8 @@ struct DrugsFluidsEditView: View {
                 categorySection(.opioid, binding: setupBinding.opioid)
                 categorySection(.vasopressor, binding: setupBinding.vasopressor)
                 categorySection(.muscleRelaxant, binding: setupBinding.muscleRelaxant)
-                categorySection(.fluid, binding: setupBinding.fluids)
+                fluidsSection
+                emergencySection
 
                 if cohort == .paediatric {
                     gasInductionSection
@@ -399,6 +563,56 @@ struct DrugsFluidsEditView: View {
             Label("Gas Induction", systemImage: "wind")
         } footer: {
             Text("Stored consultant preference only — not a clinical instruction.")
+        }
+    }
+
+    /// Structured IV fluids editor: primary and secondary fluid (curated chips
+    /// plus free text for anything unusual), giving set, and notes.
+    @ViewBuilder private var fluidsSection: some View {
+        let fluids = setupBinding.fluids
+        Section {
+            SuggestionField(label: "Primary", text: fluids.primary,
+                            suggestions: FluidSetup.fluidOptions,
+                            placeholder: "e.g. Hartmann's", icon: "drop.fill")
+            SuggestionField(label: "Secondary", text: fluids.secondary,
+                            suggestions: FluidSetup.fluidOptions,
+                            placeholder: "None", icon: "drop")
+            Picker(selection: fluids.givingSet) {
+                ForEach(GivingSetType.allCases) { Text($0.rawValue).tag($0) }
+            } label: {
+                Label("Giving set", systemImage: "ivfluid.bag")
+            }
+            NotesField(label: "Notes", text: fluids.notes, minHeight: 60)
+        } header: {
+            Label("IV Fluids", systemImage: "drop.fill")
+        } footer: {
+            Text("Secondary is optional — e.g. a saline bag run first, then switching to the primary balanced fluid. Leave blank if not used.")
+        }
+    }
+
+    /// Emergency drugs editor — drugs kept drawn up or readily available during
+    /// the case, distinct from routine induction/maintenance drugs.
+    @ViewBuilder private var emergencySection: some View {
+        let emergency = setupBinding.emergency
+        Section {
+            ChipMultiSelect(selected: emergency.selected, options: EmergencyDrugSetup.drugOptions)
+                .padding(.vertical, 4)
+            CustomAgentEditor(custom: emergency.custom)
+            OptionPicker(label: "Push-dose adrenaline", selection: emergency.pushDoseAdrenalineDilution,
+                         options: EmergencyDrugSetup.dilutionOptions, icon: "syringe", allowClear: false)
+            Toggle(isOn: emergency.paediatricSuxamethonium) {
+                Label("Sux drawn up for \(settings.region.paediatric.lowercased()) cases", systemImage: "figure.child")
+            }
+            Picker(selection: emergency.preparedBy) {
+                ForEach(PreparedBy.allCases) { Text($0.shortLabel).tag($0) }
+            } label: {
+                Label("Prepared by", systemImage: "hand.raised")
+            }
+            NotesField(label: "Notes", text: emergency.notes, minHeight: 60)
+        } header: {
+            Label("Emergency Drugs", systemImage: "cross.case.fill")
+        } footer: {
+            Text("Drugs the consultant wants drawn up or immediately available for emergencies — separate from routine drugs. Stored preference only.")
         }
     }
 

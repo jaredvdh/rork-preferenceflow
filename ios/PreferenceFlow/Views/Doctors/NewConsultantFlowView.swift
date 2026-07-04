@@ -295,7 +295,7 @@ struct TemplateChoiceCard: View {
         if a.adultMale.videoSystem != .none { items.append(a.adultMale.videoSystem.rawValue) }
         items += a.supraglottic.summaryChips.map { "SGA \($0)" }
         items += template.adultDrugs.induction.selected
-        items += template.adultDrugs.fluids.selected
+        items += template.adultDrugs.fluids.allAgents.prefix(1)
         if !template.regionalBlocks.isEmpty { items.append("\(template.regionalBlocks.count) blocks") }
         return Array(items.prefix(5))
     }

@@ -403,7 +403,7 @@ enum ProfilePDF {
                 if !setup.maintenanceDetail.isBlank { value += "  (\(setup.maintenanceDetail))" }
                 ctx.drawValueRow(label: "Maintenance", value: value)
             }
-            for category in DrugCategory.allCases {
+            for category in DrugCategory.drugCases {
                 let sel = setup.selection(for: category)
                 guard !sel.isEmpty else { continue }
                 var value = sel.allAgents.joined(separator: ", ")
@@ -411,6 +411,32 @@ enum ProfilePDF {
                 if value.isBlank, !sel.notes.isBlank { value = sel.notes }
                 ctx.drawValueRow(label: category.rawValue, value: value)
                 if !sel.notes.isBlank, !sel.selected.isEmpty { ctx.drawNote(sel.notes) }
+            }
+            let fluids = setup.fluids
+            if !fluids.isEmpty {
+                if !fluids.primary.isBlank {
+                    ctx.drawValueRow(label: "Primary fluid", value: fluids.primary)
+                }
+                if !fluids.secondary.isBlank {
+                    ctx.drawValueRow(label: "Secondary fluid", value: fluids.secondary)
+                }
+                ctx.drawValueRow(label: "Giving set", value: fluids.givingSet.rawValue)
+                if !fluids.notes.isBlank { ctx.drawNote(fluids.notes) }
+            }
+            let emergency = setup.emergency
+            if !emergency.isEmpty {
+                if !emergency.allAgents.isEmpty {
+                    var value = emergency.allAgents.joined(separator: ", ")
+                    if emergency.preparedBy != .caseDependent { value += "  (\(emergency.preparedBy.rawValue))" }
+                    ctx.drawValueRow(label: "Emergency drugs", value: value)
+                }
+                if emergency.hasPushDose {
+                    ctx.drawValueRow(label: "Push-dose adrenaline", value: emergency.pushDoseAdrenalineDilution)
+                }
+                if emergency.paediatricSuxamethonium {
+                    ctx.drawValueRow(label: "Paediatric", value: "Sux kept drawn up")
+                }
+                if !emergency.notes.isBlank { ctx.drawNote(emergency.notes) }
             }
             if !setup.notes.isBlank { ctx.drawNote(setup.notes) }
         }

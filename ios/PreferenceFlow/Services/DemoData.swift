@@ -249,7 +249,12 @@ nonisolated enum DemoData {
         drugs.vasopressor = DrugSelection(selected: ["Metaraminol"], preparedBy: .assistant)
         drugs.muscleRelaxant = DrugSelection(selected: ["Rocuronium"], preparedBy: .doctor)
         drugs.reversal = DrugSelection(selected: ["Sugammadex"], preparedBy: .doctor)
-        drugs.fluids = DrugSelection(selected: ["Hartmann's"])
+        drugs.fluids = FluidSetup(primary: "Hartmann's", givingSet: .pump)
+        drugs.emergency = EmergencyDrugSetup(
+            selected: ["Atropine"],
+            pushDoseAdrenalineDilution: "1:100,000 (10mcg/mL)",
+            preparedBy: .doctor
+        )
 
         let fasciaIliaca = RegionalBlock(
             id: id(121),
@@ -414,10 +419,19 @@ nonisolated enum DemoData {
         adultDrugs.opioid = DrugSelection(selected: ["Fentanyl", "Remifentanil"], preparedBy: .doctor)
         adultDrugs.vasopressor = DrugSelection(selected: ["Phenylephrine"], preparedBy: .doctor)
         adultDrugs.muscleRelaxant = DrugSelection(selected: ["Rocuronium"], preparedBy: .doctor)
-        adultDrugs.fluids = DrugSelection(selected: ["Plasma-Lyte"])
+        adultDrugs.fluids = FluidSetup(primary: "Plasma-Lyte")
 
         var paediatricDrugs = DrugsFluidsSetup()
-        paediatricDrugs.fluids = DrugSelection(selected: ["Plasma-Lyte"])
+        // Buretrol for paediatric volume control; more dilute push-dose
+        // adrenaline appropriate for smaller patients.
+        paediatricDrugs.fluids = FluidSetup(primary: "Plasma-Lyte", givingSet: .buretrol)
+        paediatricDrugs.emergency = EmergencyDrugSetup(
+            selected: ["Atropine", "Suxamethonium"],
+            pushDoseAdrenalineDilution: "1:1,000,000 (1mcg/mL)",
+            paediatricSuxamethonium: true,
+            preparedBy: .doctor,
+            notes: "Sux drawn up and labelled for every paediatric case regardless of airway plan."
+        )
         paediatricDrugs.gasInduction = GasInductionPreferences(
             enabled: true,
             volatileAgent: "Sevoflurane",

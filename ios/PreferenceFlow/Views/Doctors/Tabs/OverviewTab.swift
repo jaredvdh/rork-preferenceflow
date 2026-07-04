@@ -295,9 +295,11 @@ struct OverviewTab: View {
     // 6. Drugs
     private var adultDrugs: DrugsFluidsSetup { doctor.adultDrugs ?? DrugsFluidsSetup() }
 
-    /// Each drug category is a collapsible card (reusing the exact component the
-    /// Drugs & Fluids tab uses) so the full checklist, "Prepared by" and category
-    /// notes are reachable here — not only on the dedicated tab.
+    /// The maintenance headline stays visible (it drives equipment setup — TCI
+    /// pump vs vaporiser). Routine intraoperative drugs collapse into a single
+    /// "Anaesthetic Drugs" group, one tap away. IV Fluids (primary/secondary/
+    /// giving set) and Emergency Drugs stay always visible — a technician needs
+    /// both at a glance without any interaction.
     private var drugsCard: some View {
         let d = adultDrugs
         return VStack(alignment: .leading, spacing: 12) {
@@ -306,11 +308,14 @@ struct OverviewTab: View {
                 MaintenanceHeadline(setup: d)
             }
             if d.hasContent {
-                ForEach(DrugCategory.allCases) { category in
-                    let selection = d.selection(for: category)
-                    if !selection.isEmpty {
-                        DrugCategoryCollapsibleCard(category: category, selection: selection)
-                    }
+                if d.hasRoutineDrugs {
+                    AnaestheticDrugsGroup(setup: d)
+                }
+                if !d.fluids.isEmpty {
+                    FluidSetupCard(fluids: d.fluids)
+                }
+                if !d.emergency.isEmpty {
+                    EmergencyDrugsCard(emergency: d.emergency)
                 }
                 if !d.notes.isBlank {
                     DrugsConsultantNotesCard(notes: d.notes)

@@ -159,7 +159,15 @@ struct DepartmentTemplateEditView: View {
                     drugChips("Induction", category: .induction, keyPath: \.induction)
                     drugChips("Opioid", category: .opioid, keyPath: \.opioid)
                     drugChips("Vasopressor", category: .vasopressor, keyPath: \.vasopressor)
-                    drugChips("IV Fluids", category: .fluid, keyPath: \.fluids)
+                    OptionPicker(
+                        label: "Primary IV fluid",
+                        selection: Binding(
+                            get: { draft.adultDrugs.fluids.primary },
+                            set: { draft.adultDrugs.fluids.primary = $0 }
+                        ),
+                        options: FluidSetup.fluidOptions,
+                        icon: "drop"
+                    )
                 }
 
                 Section("General") {

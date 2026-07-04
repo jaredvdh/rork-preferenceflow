@@ -475,7 +475,7 @@ enum TheatreCardPDF {
             items.append(CardItem(text: "Maintenance: \(setup.maintenanceTechnique.rawValue)",
                                   subtext: detail.isBlank ? nil : detail))
         }
-        for category in DrugCategory.allCases {
+        for category in DrugCategory.drugCases {
             let sel = setup.selection(for: category)
             guard !sel.allAgents.isEmpty else { continue }
             let main = "\(category.rawValue): \(sel.allAgents.joined(separator: ", "))"
@@ -484,6 +484,25 @@ enum TheatreCardPDF {
             if sel.preparedBy != .caseDependent { subParts.append(sel.preparedBy.rawValue) }
             let sub = subParts.isEmpty ? nil : subParts.joined(separator: " · ")
             items.append(CardItem(text: main, subtext: sub))
+        }
+        let fluids = setup.fluids
+        if !fluids.isEmpty {
+            var main = "IV Fluids: \(fluids.primary)"
+            if !fluids.secondary.isBlank { main += " → \(fluids.secondary)" }
+            var subParts: [String] = ["Giving set: \(fluids.givingSet.rawValue)"]
+            if !fluids.notes.isBlank { subParts.append(fluids.notes) }
+            items.append(CardItem(text: main, subtext: subParts.joined(separator: " · ")))
+        }
+        let emergency = setup.emergency
+        if !emergency.isEmpty {
+            let agents = emergency.allAgents.joined(separator: ", ")
+            let main = agents.isEmpty ? "Emergency drugs" : "Emergency drugs: \(agents)"
+            var subParts: [String] = []
+            if emergency.hasPushDose { subParts.append("Push-dose adrenaline \(emergency.pushDoseAdrenalineDilution)") }
+            if emergency.paediatricSuxamethonium { subParts.append("Paediatric: Sux kept drawn up") }
+            if emergency.preparedBy != .caseDependent { subParts.append(emergency.preparedBy.rawValue) }
+            if !emergency.notes.isBlank { subParts.append(emergency.notes) }
+            items.append(CardItem(text: main, subtext: subParts.isEmpty ? nil : subParts.joined(separator: " · ")))
         }
         return items
     }
