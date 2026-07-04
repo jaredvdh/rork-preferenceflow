@@ -267,7 +267,7 @@ struct HospitalDetailView: View {
                 } label: {
                     SectionRow(icon: "gauge.with.dots.needle.bottom.50percent", tint: Color(hex: "4A90D9"),
                                title: "Anaesthetic Machines",
-                               subtitle: "Models in use & machine check lists", count: o.anaestheticMachines.count)
+                               subtitle: "Models in use & check documents", count: o.anaestheticMachines.count)
                 }
                 .buttonStyle(.plain)
 

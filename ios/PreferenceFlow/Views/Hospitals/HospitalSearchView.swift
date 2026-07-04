@@ -154,7 +154,10 @@ struct HospitalSearchView: View {
         }
         var r = Results()
         r.equipment = o.equipmentLocations.filter { hit($0.title, $0.location, $0.accessInstructions, $0.notes) }
-        r.machines = o.anaestheticMachines.filter { hit($0.displayName, $0.model.manufacturer, $0.location, $0.notes) }
+        r.machines = o.anaestheticMachines.filter {
+            hit($0.displayName, $0.model.manufacturer, $0.location, $0.notes,
+                $0.checkDocuments.map(\.title).joined(separator: " "))
+        }
         r.contacts = o.contacts.filter { hit($0.roleTitle, $0.name, $0.phone, $0.email, $0.notes) }
         r.policies = o.policies.filter { hit($0.title, $0.body) }
         r.files = o.sharedFiles.filter { hit($0.name, $0.notes) }

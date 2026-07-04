@@ -2,17 +2,17 @@
 //  AnaestheticMachine.swift
 //  PreferenceFlow
 //
-//  Which anaesthetic machine model is in use at a hospital location, plus an
-//  editable daily machine-check checklist for it. New machines pre-populate a
-//  generic starting checklist (grouped by manufacturer for future tailoring) —
-//  a convenience reference the hospital/technician edits, never a substitute
-//  for the manufacturer's official pre-use check or local policy.
+//  Which anaesthetic machine model is in use at a hospital location, plus the
+//  actual machine-check documents the user has uploaded for it (e.g. the NZATS
+//  check document or the hospital's approved SOP). The app never authors or
+//  bundles any check content itself — it stores and displays whatever official
+//  PDF the user has legitimate access to and chooses to attach.
 //
 
 import Foundation
 
 /// One anaesthetic machine (or fleet of identical machines) at a hospital,
-/// with its location and an editable daily check checklist.
+/// with its location and any uploaded check documents.
 nonisolated struct AnaestheticMachine: Identifiable, Codable, Hashable {
     var id: UUID
     var model: MachineModel
@@ -20,7 +20,7 @@ nonisolated struct AnaestheticMachine: Identifiable, Codable, Hashable {
     var customModelName: String
     /// e.g. "Theatres 1-4", "Cardiac Theatre".
     var location: String
-    var checklistItems: [MachineCheckItem]
+    var checkDocuments: [MachineCheckDocument]
     var notes: String
 
     init(
@@ -28,49 +28,41 @@ nonisolated struct AnaestheticMachine: Identifiable, Codable, Hashable {
         model: MachineModel = .other,
         customModelName: String = "",
         location: String = "",
-        checklistItems: [MachineCheckItem] = [],
+        checkDocuments: [MachineCheckDocument] = [],
         notes: String = ""
     ) {
         self.id = id
         self.model = model
         self.customModelName = customModelName
         self.location = location
-        self.checklistItems = checklistItems
+        self.checkDocuments = checkDocuments
         self.notes = notes
+    }
+
+    /// Decode-safe against earlier saved data (which carried an app-authored
+    /// checklist instead of documents — that legacy field is intentionally
+    /// dropped, never displayed).
+    private enum CodingKeys: String, CodingKey {
+        case id, model, customModelName, location, checkDocuments, notes
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        model = try c.decodeIfPresent(MachineModel.self, forKey: .model) ?? .other
+        customModelName = try c.decodeIfPresent(String.self, forKey: .customModelName) ?? ""
+        location = try c.decodeIfPresent(String.self, forKey: .location) ?? ""
+        checkDocuments = try c.decodeIfPresent([MachineCheckDocument].self, forKey: .checkDocuments) ?? []
+        notes = try c.decodeIfPresent(String.self, forKey: .notes) ?? ""
     }
 
     var displayName: String {
         model == .other && !customModelName.isEmpty ? customModelName : model.displayName
     }
 
-    /// Generic starting checklist texts. Kept as plain strings so callers that
-    /// need deterministic item ids (e.g. demo data) can build their own items.
-    static let genericChecklistTexts: [String] = [
-        "Confirm mains power and back-up battery status",
-        "Check gas supply pressures (O2, Air, N2O if fitted) and pipeline/cylinder reserve",
-        "Perform machine self-test / auto machine check per manufacturer sequence",
-        "Check breathing circuit for leaks and correct assembly",
-        "Confirm vaporiser(s) filled, correctly seated, and leak-checked",
-        "Check APL valve and manual ventilation (bag) function",
-        "Confirm ventilator settings and perform test ventilation",
-        "Check scavenging system connected and functioning",
-        "Confirm suction unit functional with adequate vacuum",
-        "Check monitors calibrated/zeroed (gas analyser, SpO2, NIBP, ECG)",
-        "Confirm CO2 absorbent adequate and not exhausted",
-        "Check emergency O2 flush function",
-        "Confirm self-inflating bag and alternative ventilation available as backup"
-    ]
-
-    /// A sensible generic default checklist for a newly added machine. The
-    /// `model` parameter is accepted so manufacturer-specific starting points
-    /// can be added later without changing call sites.
-    static func defaultChecklist(for model: MachineModel) -> [MachineCheckItem] {
-        genericChecklistTexts.map { MachineCheckItem(text: $0, isDefault: true) }
-    }
-
-    /// The caption that must accompany any machine checklist display.
-    static let checklistCaption =
-        "Generic reference checklist — always follow your machine's official pre-use check and local hospital policy."
+    /// The caption shown alongside machine check documents.
+    static let documentsCaption =
+        "Upload the NZATS document or your hospital's approved check procedure. Always follow your machine's official pre-use check and local hospital policy."
 }
 
 /// Curated anaesthetic machine models found in most theatre suites.
@@ -89,7 +81,7 @@ nonisolated enum MachineModel: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var displayName: String { rawValue }
 
-    /// Manufacturer, used to group machines and pick a sensible default checklist.
+    /// Manufacturer, used to group machines.
     var manufacturer: String {
         switch self {
         case .geAisys, .geAisysCS2, .geAvance: return "GE"
@@ -100,16 +92,69 @@ nonisolated enum MachineModel: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-/// One line of a machine-check checklist. `isDefault` distinguishes the
-/// pre-populated generic items from hospital-added ones.
-nonisolated struct MachineCheckItem: Identifiable, Codable, Hashable {
+/// A machine-check document (PDF) the user has uploaded for a machine — e.g.
+/// the NZATS check document or a hospital's own SOP. The PDF bytes live as a
+/// separate file in the app's documents directory (see `DataStore`); only this
+/// lightweight reference is stored in the JSON snapshot so autosaves stay fast.
+nonisolated struct MachineCheckDocument: Identifiable, Codable, Hashable {
     var id: UUID
-    var text: String
-    var isDefault: Bool
+    /// e.g. "NZATS Aisys CS2 Check", "Mercy Local SOP — Mindray A5".
+    var title: String
+    var source: DocumentSource
+    /// Original file name, for display and export.
+    var fileName: String
+    /// File name of the stored PDF inside the app's MachineDocs directory.
+    var storedFileName: String
+    var uploadedAt: Date
 
-    init(id: UUID = UUID(), text: String, isDefault: Bool = false) {
+    init(
+        id: UUID = UUID(),
+        title: String,
+        source: DocumentSource,
+        fileName: String,
+        storedFileName: String,
+        uploadedAt: Date = .now
+    ) {
         self.id = id
-        self.text = text
-        self.isDefault = isDefault
+        self.title = title
+        self.source = source
+        self.fileName = fileName
+        self.storedFileName = storedFileName
+        self.uploadedAt = uploadedAt
+    }
+}
+
+/// Where a machine-check document came from.
+nonisolated enum DocumentSource: String, Codable, CaseIterable, Identifiable {
+    case nzats = "NZATS"
+    case manufacturer = "Manufacturer"
+    case hospitalSOP = "Hospital SOP"
+    case other = "Other"
+
+    var id: String { rawValue }
+
+    /// Badge tint hex for source tags.
+    var tintHex: String {
+        switch self {
+        case .nzats: return "2A8F84"
+        case .manufacturer: return "4A90D9"
+        case .hospitalSOP: return "F39C12"
+        case .other: return "8E8E93"
+        }
+    }
+}
+
+/// Errors thrown while storing machine-check documents.
+nonisolated enum MachineDocumentError: LocalizedError {
+    case machineNotFound
+    case fileTooLarge
+
+    var errorDescription: String? {
+        switch self {
+        case .machineNotFound:
+            return "This machine could not be found — it may have been deleted."
+        case .fileTooLarge:
+            return "This PDF is larger than 25 MB. Please compress it or attach a smaller version."
+        }
     }
 }

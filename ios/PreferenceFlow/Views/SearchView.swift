@@ -130,7 +130,7 @@ struct SearchView: View {
     }
 
     /// Anaesthetic machines across hospital orientation guides, matched by
-    /// model name, manufacturer or location.
+    /// model name, manufacturer, location or attached check-document titles.
     private var matchingMachines: [(hospital: Hospital, machine: AnaestheticMachine)] {
         guard !query.isBlank else { return [] }
         return hospitalScope.flatMap { h in
@@ -139,6 +139,7 @@ struct SearchView: View {
                     $0.displayName.localizedCaseInsensitiveContains(query)
                     || $0.model.manufacturer.localizedCaseInsensitiveContains(query)
                     || $0.location.localizedCaseInsensitiveContains(query)
+                    || $0.checkDocuments.contains { $0.title.localizedCaseInsensitiveContains(query) }
                 }
                 .map { (h, $0) }
         }

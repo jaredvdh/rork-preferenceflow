@@ -18,6 +18,7 @@ final class DataStore {
 
     private let fileName = "preferenceflow_store.json"
     private let documentsDirName = "KnowledgeDocs"
+    private let machineDocsDirName = "MachineDocs"
 
     init() {
         load()
@@ -93,6 +94,10 @@ final class DataStore {
     }
 
     func deleteHospital(_ hospital: Hospital) {
+        // Clean up any machine-check PDFs stored on disk for this hospital.
+        for machine in hospital.orientationOrEmpty.anaestheticMachines {
+            removeMachineDocumentFiles(for: machine)
+        }
         hospitals.removeAll { $0.id == hospital.id }
         // Detach providers from the deleted hospital but keep them.
         for index in doctors.indices where doctors[index].hospitalId == hospital.id {
@@ -359,6 +364,94 @@ final class DataStore {
         }
         hospital.orientation = orientation
         upsert(hospital)
+    }
+
+    // MARK: - Machine check documents
+
+    /// Maximum accepted machine-check PDF size (25 MB).
+    static let maxMachineDocumentBytes = 25 * 1024 * 1024
+
+    /// Directory holding uploaded machine-check PDF binaries; created lazily.
+    /// Only lightweight references live in the JSON snapshot — the PDF bytes
+    /// stay out of the autosave path so saves remain fast.
+    private var machineDocsDirectory: URL {
+        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(machineDocsDirName, isDirectory: true)
+        if !FileManager.default.fileExists(atPath: dir.path) {
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        }
+        return dir
+    }
+
+    /// Resolves the on-disk URL for a machine-check document's PDF.
+    func machineDocumentURL(for document: MachineCheckDocument) -> URL {
+        machineDocsDirectory.appendingPathComponent(document.storedFileName)
+    }
+
+    /// Whether the PDF backing this document still exists on disk.
+    func machineDocumentFileExists(_ document: MachineCheckDocument) -> Bool {
+        FileManager.default.fileExists(atPath: machineDocumentURL(for: document).path)
+    }
+
+    /// Writes the uploaded PDF to disk and attaches its reference record to the
+    /// machine. Throws if the machine no longer exists or the file is oversized.
+    @discardableResult
+    func addMachineCheckDocument(
+        pdfData: Data,
+        title: String,
+        source: DocumentSource,
+        originalFileName: String,
+        hospitalID: UUID,
+        machineID: UUID
+    ) throws -> MachineCheckDocument {
+        guard pdfData.count <= Self.maxMachineDocumentBytes else {
+            throw MachineDocumentError.fileTooLarge
+        }
+        guard var hospital = hospital(id: hospitalID) else {
+            throw MachineDocumentError.machineNotFound
+        }
+        var orientation = hospital.orientationOrEmpty
+        guard let index = orientation.anaestheticMachines.firstIndex(where: { $0.id == machineID }) else {
+            throw MachineDocumentError.machineNotFound
+        }
+
+        let id = UUID()
+        let storedFileName = "\(id.uuidString).pdf"
+        try pdfData.write(to: machineDocsDirectory.appendingPathComponent(storedFileName), options: [.atomic])
+
+        let cleanTitle = title.isBlank
+            ? (originalFileName as NSString).deletingPathExtension
+            : title
+        let document = MachineCheckDocument(
+            id: id,
+            title: cleanTitle,
+            source: source,
+            fileName: originalFileName,
+            storedFileName: storedFileName
+        )
+        orientation.anaestheticMachines[index].checkDocuments.append(document)
+        hospital.orientation = orientation
+        upsert(hospital)
+        return document
+    }
+
+    /// Removes a machine-check document — both its record and its on-disk PDF.
+    func deleteMachineCheckDocument(_ document: MachineCheckDocument, hospitalID: UUID, machineID: UUID) {
+        try? FileManager.default.removeItem(at: machineDocumentURL(for: document))
+        guard var hospital = hospital(id: hospitalID) else { return }
+        var orientation = hospital.orientationOrEmpty
+        guard let index = orientation.anaestheticMachines.firstIndex(where: { $0.id == machineID }) else { return }
+        orientation.anaestheticMachines[index].checkDocuments.removeAll { $0.id == document.id }
+        hospital.orientation = orientation
+        upsert(hospital)
+    }
+
+    /// Removes the on-disk PDFs backing a machine's documents. Call before
+    /// deleting the machine itself so no orphaned files accumulate.
+    func removeMachineDocumentFiles(for machine: AnaestheticMachine) {
+        for document in machine.checkDocuments {
+            try? FileManager.default.removeItem(at: machineDocumentURL(for: document))
+        }
     }
 
     // MARK: - Demo Mode

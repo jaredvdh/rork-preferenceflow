@@ -667,10 +667,16 @@ enum ProfilePDF {
             for machine in o.anaestheticMachines {
                 ctx.drawSubheading(machine.displayName)
                 if !machine.location.isBlank { ctx.drawBullet("Location: \(machine.location)") }
-                ctx.drawBullet("Machine check checklist in app (\(machine.checklistItems.count) items)")
+                if machine.checkDocuments.isEmpty {
+                    ctx.drawBullet("No check document uploaded yet")
+                } else {
+                    for document in machine.checkDocuments {
+                        ctx.drawBullet("Check document: \(document.title) (\(document.source.rawValue)) — see app")
+                    }
+                }
                 if !machine.notes.isBlank { ctx.drawNote(machine.notes) }
             }
-            ctx.drawNote(AnaestheticMachine.checklistCaption)
+            ctx.drawNote(AnaestheticMachine.documentsCaption)
         }
 
         if !o.contacts.isEmpty {
