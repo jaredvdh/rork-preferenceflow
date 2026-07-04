@@ -5,364 +5,44 @@
 
 import SwiftUI
 
-/// Airway management — adult and paediatric preferences behind a segmented
-/// control, presented as the same calm card language as Drugs & Fluids.
+/// Airway management — a direct inline editor reached from Edit mode. The
+/// Adult / Paediatric cohort picker stays pinned at the top as a navigation aid;
+/// everything below it is immediately editable. The read presentation lives on
+/// the Overview card and read-mode specialty tabs.
 struct AirwayTab: View {
-    @Environment(DataStore.self) private var store
     @Environment(AppSettings.self) private var settings
     let doctor: Doctor
 
     @State private var cohort: Cohort = .adult
-    @State private var editing = false
-    @State private var paed = PaediatricPatient()
 
     enum Cohort: String, CaseIterable, Identifiable {
         case adult, paediatric
         var id: String { rawValue }
     }
 
-    private var a: AirwayPreferences { doctor.airway }
-    private var hospital: Hospital? { store.hospital(id: doctor.hospitalId) }
-
     var body: some View {
-        ScrollView {
-            VStack(spacing: 14) {
+        ConsultantEditSession(doctor: doctor) { $draft in
+            VStack(spacing: 0) {
                 Picker("Cohort", selection: $cohort) {
                     Text("Adult").tag(Cohort.adult)
                     Text(settings.region.paediatric).tag(Cohort.paediatric)
                 }
                 .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
 
-                PrefSummaryHeader(
-                    icon: "lungs.fill",
-                    title: "Airway",
-                    status: status,
-                    chips: cohort == .adult ? highlightChips : []
-                )
-
-                if cohort == .adult {
-                    adultCards
-                } else {
-                    paediatricCards
+                Form {
+                    AirwayFormSections(draft: $draft, cohort: cohort)
+                    Section {
+                    } footer: {
+                        InlineEditFooter()
+                    }
                 }
-
-                if !hospitalItems.isEmpty {
-                    PrefHospitalCard(items: hospitalItems)
-                }
-
-                EditSectionButton(title: "Edit Airway Preferences") { editing = true }
-                PrefDisclaimer()
+                .scrollDismissesKeyboard(.interactively)
             }
-            .padding(16)
-            .animation(.easeInOut(duration: 0.25), value: cohort)
+            .background(Color(.systemGroupedBackground))
+            .sensoryFeedback(.selection, trigger: cohort)
         }
-        .sheet(isPresented: $editing) {
-            AirwayEditView(doctor: doctor)
-        }
-    }
-
-    // MARK: - Status & highlights
-
-    private var status: PrefStatus {
-        .custom(text: "Standard airway setup", icon: "lungs.fill", color: Theme.accent)
-    }
-
-    private var highlightChips: [String] {
-        var chips: [String] = []
-        let m = a.adultMale
-        let f = a.adultFemale
-        if m.primaryTechnique == .video, m.videoSystem != .none { chips.append(m.videoSystem.rawValue) }
-        // Blade — show both when male and female differ, otherwise a single chip.
-        chips.append(contentsOf: splitChips(male: bladeValue(m), female: bladeValue(f)))
-        // ETT — show both when male and female differ, otherwise a single chip.
-        chips.append(contentsOf: splitChips(prefix: "ETT ", male: m.tubeSize, female: f.tubeSize))
-        if !m.bougiePreference.isBlank { chips.append("Bougie \(m.bougiePreference)") }
-        // Non-standard adult tube types are clinically important — surface them.
-        if m.tubeType != .standard { chips.append(m.tubeType.rawValue) }
-        else if f.tubeType != .standard { chips.append(f.tubeType.rawValue) }
-        if isModified { chips.append(contentsOf: a.supraglottic.summaryChips.map { "SGA \($0)" }) }
-        return Array(chips.prefix(6))
-    }
-
-    /// Builds summary chips for a male/female parameter pair: a single chip when
-    /// the values match (or only one is present), or two gender-labelled chips
-    /// when they differ. Never silently drops the female value.
-    private func splitChips(prefix: String = "", male: String, female: String) -> [String] {
-        let m = male.isBlank ? nil : male
-        let f = female.isBlank ? nil : female
-        switch (m, f) {
-        case let (mv?, fv?):
-            if mv == fv { return ["\(prefix)\(mv)"] }
-            return ["\(prefix)\(mv) (M)", "\(prefix)\(fv) (F)"]
-        case let (mv?, nil): return ["\(prefix)\(mv)"]
-        case let (nil, fv?): return ["\(prefix)\(fv)"]
-        default: return []
-        }
-    }
-
-    private var isModified: Bool {
-        if case .modified = status { return true }
-        return false
-    }
-
-    // MARK: - Shared emptiness helpers
-
-    private func ettEmpty(_ s: AirwaySetup) -> Bool {
-        s.tubeSize.isBlank && s.styletPreference.isBlank
-            && s.bougiePreference.isBlank && s.tubeSecuring.isBlank
-            && s.tubeType == .standard
-    }
-
-    private func laryngoscopyEmpty(_ s: AirwaySetup) -> Bool {
-        bladeValue(s).isBlank && !(s.primaryTechnique == .video)
-    }
-
-    private var supraglotticEmpty: Bool {
-        let s = a.supraglottic
-        return s.adultFemale.isEmpty && s.adultMale.isEmpty && s.largeAdult.isEmpty
-    }
-
-    private var primarySupraglottic: SupraglotticChoice? {
-        let s = a.supraglottic
-        for choice in [s.adultMale, s.adultFemale, s.largeAdult] where !choice.isEmpty {
-            return choice
-        }
-        return nil
-    }
-
-    private var difficultEmpty: Bool {
-        let d = a.difficultAirway
-        return d.backupPlan.isBlank && d.fibreopticPreference.isBlank
-            && d.surgicalAirwayNotes.isBlank && d.specialEquipment.isBlank
-    }
-
-    // MARK: - Adult cards
-
-    private var adultEttEmpty: Bool { ettEmpty(a.adultMale) && ettEmpty(a.adultFemale) }
-    private var adultLaryngoscopyEmpty: Bool { laryngoscopyEmpty(a.adultMale) && laryngoscopyEmpty(a.adultFemale) }
-    private var adultNotes: [(label: String, text: String)] {
-        var out: [(String, String)] = []
-        if !a.adultMale.notes.isBlank { out.append(("Adult Male", a.adultMale.notes)) }
-        if !a.adultFemale.notes.isBlank { out.append(("Adult Female", a.adultFemale.notes)) }
-        if !a.supraglottic.notes.isBlank { out.append(("Supraglottic", a.supraglottic.notes)) }
-        return out.map { (label: $0.0, text: $0.1) }
-    }
-
-    @ViewBuilder private var adultCards: some View {
-        if adultEttEmpty && adultLaryngoscopyEmpty && supraglotticEmpty && difficultEmpty && adultNotes.isEmpty {
-            emptyState
-        } else {
-            if !adultEttEmpty { ettCard }
-            if !adultLaryngoscopyEmpty { laryngoscopyCard }
-            if !supraglotticEmpty { supraglotticCard }
-            if !difficultEmpty { difficultCard }
-            if !adultNotes.isEmpty { notesCard(adultNotes) }
-        }
-    }
-
-    private var ettCard: some View {
-        var tokens: [String] = []
-        if !a.adultMale.tubeSize.isBlank { tokens.append("M \(a.adultMale.tubeSize)") }
-        if !a.adultFemale.tubeSize.isBlank { tokens.append("F \(a.adultFemale.tubeSize)") }
-        let summary = tokens.isEmpty ? "Tube, cuff, stylet & bougie" : "ETT " + tokens.joined(separator: " · ")
-        return PrefCollapsibleCard(group: .equipment, title: "Endotracheal Tube", icon: "lungs.fill", collapsedSummary: summary) {
-            ettSubgroup("Adult Male", a.adultMale)
-            ettSubgroup("Adult Female", a.adultFemale)
-        }
-    }
-
-    @ViewBuilder private func ettSubgroup(_ title: String, _ s: AirwaySetup) -> some View {
-        if !ettEmpty(s) {
-            PrefSubgroup(title: title, tint: PrefGroup.equipment.tint) {
-                PrefRow(label: "Tube size", value: s.tubeSize)
-                // Adult tubes are cuffed by default — only surface tube type when non-standard.
-                if s.tubeType != .standard {
-                    PrefRow(label: "Tube type", value: s.tubeType.rawValue)
-                    PrefRow(label: "Tube note", value: s.tubeTypeNote)
-                }
-                PrefRow(label: "Stylet", value: s.styletPreference)
-                PrefRow(label: "Bougie", value: s.bougiePreference)
-                PrefRow(label: "Securing", value: s.tubeSecuring)
-            }
-        }
-    }
-
-    private var laryngoscopyCard: some View {
-        return PrefCollapsibleCard(group: .technique, title: "Laryngoscopy", icon: "scope", collapsedSummary: adultLaryngoscopySummary) {
-            laryngoscopySubgroup("Adult Male", a.adultMale)
-            laryngoscopySubgroup("Adult Female", a.adultFemale)
-        }
-    }
-
-    /// Collapsed-row subtitle for adult laryngoscopy. Shows a single line when
-    /// male and female parameters match (or only one is set), and a combined
-    /// "M: … / F: …" line when they differ so the female value is never dropped.
-    private var adultLaryngoscopySummary: String {
-        let m = a.adultMale
-        let f = a.adultFemale
-        let mEmpty = laryngoscopyEmpty(m)
-        let fEmpty = laryngoscopyEmpty(f)
-        if fEmpty { return laryngoscopySummary(m) }
-        if mEmpty { return laryngoscopySummary(f) }
-        let mSummary = laryngoscopySummary(m)
-        let fSummary = laryngoscopySummary(f)
-        if mSummary == fSummary { return mSummary }
-        return "M: \(mSummary) / F: \(fSummary)"
-    }
-
-    @ViewBuilder private func laryngoscopySubgroup(_ title: String, _ s: AirwaySetup) -> some View {
-        if !laryngoscopyEmpty(s) {
-            PrefSubgroup(title: title, tint: PrefGroup.technique.tint) {
-                PrefRow(label: "Technique", value: techniqueValue(s))
-                PrefRow(label: "Blade", value: bladeValue(s))
-            }
-        }
-    }
-
-    private func laryngoscopySummary(_ s: AirwaySetup) -> String {
-        var tokens: [String] = []
-        tokens.append(techniqueValue(s))
-        let blade = bladeValue(s)
-        if !blade.isBlank { tokens.append(blade) }
-        return tokens.joined(separator: " · ")
-    }
-
-    private var supraglotticCard: some View {
-        let s = a.supraglottic
-        let summary = (primarySupraglottic?.summary).flatMap { $0.isBlank ? nil : $0 } ?? "Backup supraglottic airway"
-        return PrefCollapsibleCard(group: .equipment, title: "Supraglottic Airways", icon: "lungs", collapsedSummary: summary) {
-            PrefRow(label: "Adult female", value: s.adultFemale.summary)
-            PrefRow(label: "Adult male", value: s.adultMale.summary)
-            PrefRow(label: "Large adult / high IBW", value: s.largeAdult.summary)
-        }
-    }
-
-    private var difficultCard: some View {
-        let d = a.difficultAirway
-        let summary = [d.backupPlan, d.fibreopticPreference].first { !$0.isBlank } ?? "Backup plan & equipment"
-        return PrefCollapsibleCard(group: .workflow, title: "Difficult Airway", icon: "exclamationmark.triangle.fill", collapsedSummary: summary) {
-            PrefRow(label: "Backup plan", value: d.backupPlan)
-            PrefRow(label: "Fibreoptic", value: d.fibreopticPreference)
-            PrefRow(label: "Surgical airway", value: d.surgicalAirwayNotes)
-            PrefRow(label: "Special equipment", value: d.specialEquipment)
-        }
-    }
-
-    private func notesCard(_ notes: [(label: String, text: String)]) -> some View {
-        PrefCollapsibleCard(
-            group: .consultantNotes,
-            title: "Notes",
-            collapsedSummary: notes.map(\.label).joined(separator: " • ")
-        ) {
-            ForEach(Array(notes.enumerated()), id: \.offset) { _, note in
-                PrefNote(label: note.label, text: note.text, tint: PrefGroup.consultantNotes.tint)
-            }
-        }
-    }
-
-    // MARK: - Paediatric cards
-
-    @ViewBuilder private var paediatricCards: some View {
-        PaediatricPatientCard(patient: $paed)
-        PaediatricETTCard(ageYears: paed.ageYears, cuffedPreference: a.paediatric.cuffedPreference)
-        PaediatricSupraglotticCard(weightKg: paed.effectiveWeightKg, usingActual: paed.useActualWeight, device: primarySupraglottic?.device ?? .none)
-        gasInductionLinkCard
-        if paedTapingHasContent { paedTapingCard }
-        if !laryngoscopyEmpty(a.paediatric) { paedLaryngoscopyCard }
-        PaediatricBladeCard()
-        if !difficultEmpty { difficultCard }
-        if !a.paediatric.notes.isBlank {
-            notesCard([(label: settings.region.paediatric, text: a.paediatric.notes)])
-        }
-    }
-
-    private var gasInductionLinkCard: some View {
-        let gas = doctor.paediatricDrugs?.gasInduction
-        let configured = gas?.enabled == true
-        let summary: String = configured
-            ? [gas!.headlineSummary, gas!.sequenceSummary].filter { !$0.isEmpty }.joined(separator: " · ")
-            : "Set in Drugs & Fluids → \(settings.region.paediatric)"
-        return PrefCollapsibleCard(group: .medications, title: "Mask / Gas Induction", icon: "wind", collapsedSummary: summary) {
-            if let gas, gas.enabled {
-                PrefRow(label: "Volatile", value: gas.volatileAgent)
-                PrefRow(label: "Carrier", value: gas.carrierShort)
-                PrefRow(label: "Step-up", value: gas.sequenceSummary)
-                PrefNote(label: "Notes", text: gas.notes, tint: PrefGroup.medications.tint)
-            } else {
-                Text("Gas induction preference is recorded in Drugs & Fluids → \(settings.region.paediatric).")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-    }
-
-    private var paedTapingHasContent: Bool {
-        let s = a.paediatric
-        return !s.tubeSecuring.isBlank || !s.tapingTape.isBlank
-            || !s.tapingTechnique.isBlank || s.tapingTechniquePhoto != nil
-    }
-
-    private var paedTapingCard: some View {
-        let s = a.paediatric
-        let summary = [s.tapingTechnique, s.tubeSecuring].first { !$0.isBlank } ?? "Taping technique"
-        return PrefCollapsibleCard(group: .technique, title: "Tube Securing", icon: "bandage.fill", collapsedSummary: summary) {
-            PrefRow(label: "Method", value: s.tubeSecuring)
-            PrefRow(label: "Tape", value: s.tapingTape)
-            PrefRow(label: "Technique", value: s.tapingTechnique)
-            if let data = s.tapingTechniquePhoto, let image = UIImage(data: data) {
-                Color(.secondarySystemBackground)
-                    .frame(height: 200)
-                    .frame(maxWidth: .infinity)
-                    .overlay { Image(uiImage: image).resizable().aspectRatio(contentMode: .fit).allowsHitTesting(false) }
-                    .clipShape(.rect(cornerRadius: Theme.cornerMedium))
-            }
-        }
-    }
-
-    private var paedLaryngoscopyCard: some View {
-        let s = a.paediatric
-        return PrefCollapsibleCard(group: .technique, title: "Video / Direct Laryngoscopy", icon: "scope", collapsedSummary: laryngoscopySummary(s)) {
-            PrefRow(label: "Technique", value: techniqueValue(s))
-            PrefRow(label: "Blade", value: bladeValue(s))
-        }
-    }
-
-    // MARK: - Value helpers
-
-    private func techniqueValue(_ s: AirwaySetup) -> String {
-        if s.primaryTechnique == .video {
-            return s.videoSystem == .none ? "Video" : "Video — \(s.videoSystem.rawValue)"
-        }
-        return "Direct"
-    }
-
-    private func bladeValue(_ s: AirwaySetup) -> String {
-        switch s.blade {
-        case .macintosh: return s.bladeSize.isBlank ? "" : "Mac \(s.bladeSize)"
-        case .miller: return s.bladeSize.isBlank ? "" : "Miller \(s.bladeSize)"
-        case .other, .none: return s.bladeSize
-        }
-    }
-
-    // MARK: - Hospital information
-
-    private var hospitalItems: [PrefHospitalItem] {
-        PrefHospital.items(for: hospital, kinds: [
-            .difficultIntubationTrolley, .emergencyAirway, .videoLaryngoscopes,
-            .paediatricTrolley, .anaestheticWorkroom
-        ])
-    }
-
-    private var emptyState: some View {
-        EmptyStateView(
-            icon: "lungs",
-            title: "No airway setup yet",
-            message: "Add the standard airway preferences this consultant uses.",
-            actionTitle: "Set Up",
-            action: { editing = true }
-        )
-        .card()
     }
 }
 
@@ -648,42 +328,5 @@ struct PaediatricSupraglotticCard: View {
             RoundedRectangle(cornerRadius: 14)
                 .strokeBorder(preferred ? Theme.accent.opacity(0.5) : .clear, lineWidth: 1.5)
         )
-    }
-}
-
-/// A compact stat row used on airway cards; hidden when the value is empty.
-struct AirwayStatRow: View {
-    let label: String
-    let value: String
-    var accent: Bool = false
-
-    var body: some View {
-        if !value.isBlank {
-            HStack {
-                Text(label).font(.subheadline).foregroundStyle(.secondary)
-                Spacer()
-                Text(value)
-                    .font(accent ? .headline : .subheadline.weight(.medium))
-                    .foregroundStyle(accent ? Theme.accentDeep : .primary)
-            }
-            .padding(.vertical, 6)
-        }
-    }
-}
-
-/// A standard "Edit …" pill button used at the top of preference tabs.
-struct EditSectionButton: View {
-    let title: String
-    var action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Label(title, systemImage: "pencil")
-                .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(Theme.accent.opacity(0.12), in: .capsule)
-                .foregroundStyle(Theme.accent)
-        }
     }
 }

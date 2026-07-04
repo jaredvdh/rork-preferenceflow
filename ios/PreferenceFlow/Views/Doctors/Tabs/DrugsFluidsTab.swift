@@ -5,101 +5,62 @@
 
 import SwiftUI
 
-/// Drugs & Fluids — adult and paediatric structured preferences behind a toggle.
-/// Each cohort is fully independent. Selections come from curated lists; only the
-/// per-category notes are free text.
+/// Drugs & Fluids — a direct inline editor with the Adult / Paediatric cohort
+/// picker pinned at the top. Each cohort is fully independent; selections come
+/// from curated lists and only notes are free text. This tab is only reachable
+/// from Edit mode — the read presentation lives on the Overview card.
 struct DrugsFluidsTab: View {
-    @Environment(DataStore.self) private var store
     @Environment(AppSettings.self) private var settings
     let doctor: Doctor
 
     @State private var cohort: Cohort = .adult
-    @State private var editing = false
 
     enum Cohort: String, CaseIterable, Identifiable {
         case adult, paediatric
         var id: String { rawValue }
     }
 
-    private var setup: DrugsFluidsSetup {
-        switch cohort {
-        case .adult: return doctor.adultDrugs ?? DrugsFluidsSetup()
-        case .paediatric: return doctor.paediatricDrugs ?? DrugsFluidsSetup()
-        }
-    }
-
-
     var body: some View {
-        ScrollView {
-            VStack(spacing: 14) {
+        ConsultantEditSession(doctor: doctor) { $draft in
+            VStack(spacing: 0) {
                 Picker("Cohort", selection: $cohort) {
                     Text("Adult").tag(Cohort.adult)
                     Text(settings.region.paediatric).tag(Cohort.paediatric)
                 }
                 .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
 
-                PrefSummaryHeader(
-                    icon: "syringe.fill",
-                    title: "Drugs & Fluids",
-                    caption: "\(cohortLabel) — standard theatre drugs",
-                    chips: highlightChips
-                )
-
-                if cohort == .paediatric, let gas = setup.gasInduction, gas.enabled {
-                    GasInductionCard(prefs: gas)
+                Form {
+                    DrugsFluidsFormSections(setup: setupBinding($draft), cohort: cohort)
+                    Section {
+                    } footer: {
+                        InlineEditFooter()
+                    }
                 }
-
-                if setup.hasContent {
-                    ForEach(DrugCategory.drugCases) { category in
-                        let selection = setup.selection(for: category)
-                        if !selection.isEmpty {
-                            DrugCategoryCollapsibleCard(category: category, selection: selection)
-                        }
-                    }
-                    if !setup.fluids.isEmpty {
-                        FluidSetupCard(fluids: setup.fluids)
-                    }
-                    if !setup.emergency.isEmpty {
-                        EmergencyDrugsCard(emergency: setup.emergency)
-                    }
-                    if !setup.notes.isBlank {
-                        DrugsConsultantNotesCard(notes: setup.notes)
-                    }
-                } else if !(cohort == .paediatric && setup.gasInduction?.enabled == true) {
-                    EmptyStateView(
-                        icon: "syringe",
-                        title: "No \(cohortLabel.lowercased()) drugs set",
-                        message: "Pick induction agents, opioids, vasopressors, relaxants and fluids from curated lists.",
-                        actionTitle: "Set Up",
-                        action: { editing = true }
-                    )
-                    .card()
-                }
-
-                EditSectionButton(title: "Edit \(cohortLabel) Drugs & Fluids") { editing = true }
-                PrefDisclaimer()
+                .scrollDismissesKeyboard(.interactively)
             }
-            .padding(16)
-            .animation(.easeInOut(duration: 0.25), value: cohort)
-        }
-        .sheet(isPresented: $editing) {
-            DrugsFluidsEditView(doctor: doctor, cohort: cohort)
+            .background(Color(.systemGroupedBackground))
+            .sensoryFeedback(.selection, trigger: cohort)
         }
     }
 
-    private var cohortLabel: String {
-        cohort == .adult ? "Adult" : settings.region.paediatric
+    /// Binds the selected cohort's structured setup on the session draft,
+    /// materialising the optional on first edit.
+    private func setupBinding(_ draft: Binding<Doctor>) -> Binding<DrugsFluidsSetup> {
+        switch cohort {
+        case .adult:
+            return Binding(
+                get: { draft.wrappedValue.adultDrugs ?? DrugsFluidsSetup() },
+                set: { draft.wrappedValue.adultDrugs = $0 }
+            )
+        case .paediatric:
+            return Binding(
+                get: { draft.wrappedValue.paediatricDrugs ?? DrugsFluidsSetup() },
+                set: { draft.wrappedValue.paediatricDrugs = $0 }
+            )
+        }
     }
-
-    private var highlightChips: [String] {
-        var chips: [String] = []
-        chips.append(contentsOf: setup.induction.selected)
-        chips.append(contentsOf: setup.opioid.selected.prefix(1))
-        chips.append(contentsOf: setup.vasopressor.selected.prefix(1))
-        if !setup.fluids.primary.isBlank { chips.append(setup.fluids.primary) }
-        return Array(chips.prefix(5))
-    }
-
 }
 
 /// The maintenance technique headline shown prominently at the top of the adult
@@ -425,76 +386,38 @@ struct GasInductionCard: View {
     }
 }
 
-/// Editor for one cohort's drugs & fluids.
-struct DrugsFluidsEditView: View {
-    @Environment(DataStore.self) private var store
+/// The drugs & fluids form fields for one cohort, bound to the Edit-mode
+/// session draft. Rendered inline inside the Drugs & Fluids tab's Form — no
+/// modal chrome, no separate Save step.
+struct DrugsFluidsFormSections: View {
     @Environment(AppSettings.self) private var settings
-    @Environment(\.dismiss) private var dismiss
-    @State private var draft: Doctor
-    private let cohort: DrugsFluidsTab.Cohort
-
-    init(doctor: Doctor, cohort: DrugsFluidsTab.Cohort) {
-        _draft = State(initialValue: doctor)
-        self.cohort = cohort
-        // Ensure the optional structured setup exists for editing.
-        if cohort == .adult, doctor.adultDrugs == nil {
-            _draft = State(initialValue: { var d = doctor; d.adultDrugs = DrugsFluidsSetup(); return d }())
-        } else if cohort == .paediatric, doctor.paediatricDrugs == nil {
-            _draft = State(initialValue: { var d = doctor; d.paediatricDrugs = DrugsFluidsSetup(); return d }())
-        }
-    }
-
-    private var setupBinding: Binding<DrugsFluidsSetup> {
-        switch cohort {
-        case .adult:
-            return Binding(
-                get: { draft.adultDrugs ?? DrugsFluidsSetup() },
-                set: { draft.adultDrugs = $0 }
-            )
-        case .paediatric:
-            return Binding(
-                get: { draft.paediatricDrugs ?? DrugsFluidsSetup() },
-                set: { draft.paediatricDrugs = $0 }
-            )
-        }
-    }
+    @Binding var setup: DrugsFluidsSetup
+    let cohort: DrugsFluidsTab.Cohort
 
     var body: some View {
-        NavigationStack {
-            Form {
-                if cohort == .adult {
-                    maintenanceSection
-                }
-                categorySection(.induction, binding: setupBinding.induction)
-                categorySection(.opioid, binding: setupBinding.opioid)
-                categorySection(.vasopressor, binding: setupBinding.vasopressor)
-                categorySection(.muscleRelaxant, binding: setupBinding.muscleRelaxant)
-                fluidsSection
-                emergencySection
+        if cohort == .adult {
+            maintenanceSection
+        }
+        categorySection(.induction, binding: $setup.induction)
+        categorySection(.opioid, binding: $setup.opioid)
+        categorySection(.vasopressor, binding: $setup.vasopressor)
+        categorySection(.muscleRelaxant, binding: $setup.muscleRelaxant)
+        fluidsSection
+        emergencySection
 
-                if cohort == .paediatric {
-                    gasInductionSection
-                }
+        if cohort == .paediatric {
+            gasInductionSection
+        }
 
-                Section("Overall Notes") {
-                    NotesField(label: "Special notes", text: setupBinding.notes)
-                }
-            }
-            .navigationTitle(cohort == .adult ? "Adult" : settings.region.paediatric)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { store.upsert(draft); dismiss() }
-                }
-            }
+        Section("Overall Notes") {
+            NotesField(label: "Special notes", text: $setup.notes)
         }
     }
 
     private var maintenanceBinding: Binding<MaintenanceTechnique> {
         Binding(
-            get: { setupBinding.wrappedValue.maintenanceTechnique },
-            set: { setupBinding.wrappedValue.maintenance = $0 }
+            get: { setup.maintenanceTechnique },
+            set: { setup.maintenance = $0 }
         )
     }
 
@@ -509,12 +432,12 @@ struct DrugsFluidsEditView: View {
 
             switch technique.wrappedValue {
             case .tiva:
-                OptionPicker(label: "TCI agent", selection: setupBinding.tciAgent,
+                OptionPicker(label: "TCI agent", selection: $setup.tciAgent,
                              options: MaintenanceTechnique.tciAgentOptions, icon: "ivfluid.bag")
-                OptionPicker(label: "TCI model", selection: setupBinding.tciModel,
+                OptionPicker(label: "TCI model", selection: $setup.tciModel,
                              options: MaintenanceTechnique.tciModelOptions, icon: "function")
             case .volatile, .balanced:
-                OptionPicker(label: "Volatile agent", selection: setupBinding.maintenanceVolatileAgent,
+                OptionPicker(label: "Volatile agent", selection: $setup.maintenanceVolatileAgent,
                              options: MaintenanceTechnique.volatileAgentOptions, icon: "aqi.medium")
             case .notSpecified:
                 EmptyView()
@@ -528,8 +451,8 @@ struct DrugsFluidsEditView: View {
 
     private var gasInductionBinding: Binding<GasInductionPreferences> {
         Binding(
-            get: { setupBinding.wrappedValue.gasInduction ?? GasInductionPreferences() },
-            set: { setupBinding.wrappedValue.gasInduction = $0 }
+            get: { setup.gasInduction ?? GasInductionPreferences() },
+            set: { setup.gasInduction = $0 }
         )
     }
 
@@ -569,7 +492,7 @@ struct DrugsFluidsEditView: View {
     /// Structured IV fluids editor: primary and secondary fluid (curated chips
     /// plus free text for anything unusual), giving set, and notes.
     @ViewBuilder private var fluidsSection: some View {
-        let fluids = setupBinding.fluids
+        let fluids = $setup.fluids
         Section {
             SuggestionField(label: "Primary", text: fluids.primary,
                             suggestions: FluidSetup.fluidOptions,
@@ -593,7 +516,7 @@ struct DrugsFluidsEditView: View {
     /// Emergency drugs editor — drugs kept drawn up or readily available during
     /// the case, distinct from routine induction/maintenance drugs.
     @ViewBuilder private var emergencySection: some View {
-        let emergency = setupBinding.emergency
+        let emergency = $setup.emergency
         Section {
             ChipMultiSelect(selected: emergency.selected, options: EmergencyDrugSetup.drugOptions)
                 .padding(.vertical, 4)

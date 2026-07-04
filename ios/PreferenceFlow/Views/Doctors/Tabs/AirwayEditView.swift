@@ -27,84 +27,63 @@ enum AirwayOptions {
     static let paedSgSizes = ["1", "1.5", "2", "2.5", "3"]
 }
 
-/// Editor for the full airway preferences set using structured selectors.
-struct AirwayEditView: View {
-    @Environment(DataStore.self) private var store
+/// The airway preference form fields, bound to the Edit-mode session draft and
+/// filtered by the Adult / Paediatric cohort picker. Rendered inline inside the
+/// Airway tab's Form — no modal chrome, no separate Save step.
+struct AirwayFormSections: View {
     @Environment(AppSettings.self) private var settings
-    @Environment(\.dismiss) private var dismiss
-    @State private var draft: Doctor
+    @Binding var draft: Doctor
+    let cohort: AirwayTab.Cohort
+
     @State private var tapingPhotoItem: PhotosPickerItem?
     @State private var showingTapingCamera = false
     @State private var showingTapingLibrary = false
 
-    init(doctor: Doctor) {
-        _draft = State(initialValue: doctor)
-    }
-
     var body: some View {
-        NavigationStack {
-            Form {
-                airwaySetupSection("Adult Male", tubes: AirwayOptions.maleTube, setup: $draft.airway.adultMale)
-                airwaySetupSection("Adult Female", tubes: AirwayOptions.femaleTube, setup: $draft.airway.adultFemale)
-                airwaySetupSection(settings.region.paediatric, tubes: AirwayOptions.paedTube, setup: $draft.airway.paediatric, showTubeSize: false, blades: AirwayOptions.paedBladeSize, notesLabel: "Cuff inflation / tube notes (e.g. Kimberly-Clark)", isPaediatric: true)
+        if cohort == .adult {
+            airwaySetupSection("Adult Male", tubes: AirwayOptions.maleTube, setup: $draft.airway.adultMale)
+            airwaySetupSection("Adult Female", tubes: AirwayOptions.femaleTube, setup: $draft.airway.adultFemale)
 
-                paediatricTapingSection
-
-                Section {
-                    supraglotticChoiceRows("Adult Female", choice: $draft.airway.supraglottic.adultFemale)
-                } header: {
-                    Text("Adult Female")
-                } footer: {
-                    Text("e.g. i-gel Size 4 or LMA Supreme Size 4.")
-                }
-
-                Section("Adult Male") {
-                    supraglotticChoiceRows("Adult Male", choice: $draft.airway.supraglottic.adultMale)
-                }
-
-                Section {
-                    supraglotticChoiceRows("Large Adult", choice: $draft.airway.supraglottic.largeAdult)
-                } header: {
-                    Text("Large Adult / High IBW (optional)")
-                } footer: {
-                    Text("For consultants who routinely upsize larger patients. Leave blank if not used. Paediatric sizing is on the airway summary's weight-based reference.")
-                }
-
-                Section("Supraglottic Notes") {
-                    NotesField(label: "Special notes", text: $draft.airway.supraglottic.notes)
-                }
-
-                Section("Difficult Airway") {
-                    NotesField(label: "Backup plan", text: $draft.airway.difficultAirway.backupPlan)
-                    NotesField(label: "Fibreoptic preference", text: $draft.airway.difficultAirway.fibreopticPreference)
-                    NotesField(label: "Surgical airway notes", text: $draft.airway.difficultAirway.surgicalAirwayNotes)
-                    NotesField(label: "Special equipment", text: $draft.airway.difficultAirway.specialEquipment)
-                }
+            Section {
+                supraglotticChoiceRows(choice: $draft.airway.supraglottic.adultFemale)
+            } header: {
+                Text("Supraglottic — Adult Female")
+            } footer: {
+                Text("e.g. i-gel Size 4 or LMA Supreme Size 4.")
             }
-            .navigationTitle("Airway")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { store.upsert(draft); dismiss() }
-                }
+
+            Section("Supraglottic — Adult Male") {
+                supraglotticChoiceRows(choice: $draft.airway.supraglottic.adultMale)
             }
-            .onChange(of: tapingPhotoItem) { _, item in Task { await loadTapingPhoto(item) } }
-            .photosPicker(isPresented: $showingTapingLibrary, selection: $tapingPhotoItem, matching: .images)
-            .fullScreenCover(isPresented: $showingTapingCamera) {
-                CameraImagePicker { image in
-                    if let resized = image?.resizedJPEG(maxDimension: 1000, quality: 0.8) {
-                        draft.airway.paediatric.tapingTechniquePhoto = resized
-                    }
-                }
-                .ignoresSafeArea()
+
+            Section {
+                supraglotticChoiceRows(choice: $draft.airway.supraglottic.largeAdult)
+            } header: {
+                Text("Supraglottic — Large Adult / High IBW (optional)")
+            } footer: {
+                Text("For consultants who routinely upsize larger patients. Leave blank if not used. Paediatric sizing is on the airway summary's weight-based reference.")
             }
+
+            Section("Supraglottic Notes") {
+                NotesField(label: "Special notes", text: $draft.airway.supraglottic.notes)
+            }
+        } else {
+            airwaySetupSection(settings.region.paediatric, tubes: AirwayOptions.paedTube, setup: $draft.airway.paediatric, showTubeSize: false, blades: AirwayOptions.paedBladeSize, notesLabel: "Cuff inflation / tube notes (e.g. Kimberly-Clark)", isPaediatric: true)
+
+            paediatricTapingSection
+        }
+
+        Section("Difficult Airway") {
+            NotesField(label: "Backup plan", text: $draft.airway.difficultAirway.backupPlan)
+            NotesField(label: "Fibreoptic preference", text: $draft.airway.difficultAirway.fibreopticPreference)
+            NotesField(label: "Surgical airway notes", text: $draft.airway.difficultAirway.surgicalAirwayNotes)
+            NotesField(label: "Special equipment", text: $draft.airway.difficultAirway.specialEquipment)
         }
     }
 
     /// Device + size pickers for a single supraglottic cohort.
     @ViewBuilder
-    private func supraglotticChoiceRows(_ title: String, choice: Binding<SupraglotticChoice>) -> some View {
+    private func supraglotticChoiceRows(choice: Binding<SupraglotticChoice>) -> some View {
         OptionPicker(label: "Device", selection: deviceBinding(choice), options: AirwayOptions.supraglottic, icon: "lungs")
         OptionPicker(label: "Size", selection: choice.size, options: AirwayOptions.sgSizes)
     }
@@ -178,6 +157,16 @@ struct AirwayEditView: View {
         } footer: {
             Text("Paediatric taping is often consultant-specific. A photo of the finished technique helps a technician match it exactly.")
         }
+        .onChange(of: tapingPhotoItem) { _, item in Task { await loadTapingPhoto(item) } }
+        .photosPicker(isPresented: $showingTapingLibrary, selection: $tapingPhotoItem, matching: .images)
+        .fullScreenCover(isPresented: $showingTapingCamera) {
+            CameraImagePicker { image in
+                if let resized = image?.resizedJPEG(maxDimension: 1000, quality: 0.8) {
+                    draft.airway.paediatric.tapingTechniquePhoto = resized
+                }
+            }
+            .ignoresSafeArea()
+        }
     }
 
     @ViewBuilder
@@ -185,7 +174,7 @@ struct AirwayEditView: View {
         if let data = draft.airway.paediatric.tapingTechniquePhoto, let image = UIImage(data: data) {
             Color(.secondarySystemBackground)
                 .frame(height: 180)
-                .overlay { Image(uiImage: image).resizable().aspectRatio(contentMode: .fill).allowsHitTesting(false) }
+                .overlay { Image(uiImage: image).resizable().aspectRatio(contentMode: .fit).allowsHitTesting(false) }
                 .clipShape(.rect(cornerRadius: Theme.cornerMedium))
                 .overlay(alignment: .topTrailing) {
                     Menu {

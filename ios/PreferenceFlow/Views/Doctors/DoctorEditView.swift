@@ -6,156 +6,44 @@
 import SwiftUI
 import PhotosUI
 
-/// The "Consultant Details" section of the single Edit Consultant experience.
-/// Shows a scannable summary of who the consultant is, with one button into the
-/// identity editor — mirroring how every clinical section reads then edits.
+/// The "Consultant Details" section of the single Edit Consultant experience —
+/// a direct inline editor. Selecting the Details tab in Edit mode lands straight
+/// on editable identity fields; changes autosave via the edit session.
 struct DetailsTab: View {
-    @Environment(DataStore.self) private var store
     let doctor: Doctor
 
-    @State private var editing = false
-
-    private var hospitalName: String? { store.hospital(id: doctor.hospitalId)?.name }
-
     var body: some View {
-        ScrollView {
-            VStack(spacing: 14) {
-                header
-
-                detailsCard
-
-                if !doctor.biography.isBlank || !doctor.personalNotes.isBlank {
-                    notesCard
-                }
-
-                EditSectionButton(title: "Edit Consultant Details") { editing = true }
-            }
-            .padding(16)
-        }
-        .sheet(isPresented: $editing) {
-            DoctorEditView(doctor: doctor, isNew: false)
-        }
-    }
-
-    private var header: some View {
-        VStack(spacing: 12) {
-            DoctorAvatar(doctor: doctor, size: 88)
-            VStack(spacing: 4) {
-                Text(doctor.displayName)
-                    .font(.title2.weight(.bold))
-                    .multilineTextAlignment(.center)
-                if !doctor.role.isBlank {
-                    Text(doctor.role)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+        ConsultantEditSession(doctor: doctor, isValid: { !$0.fullName.isBlank }) { $draft in
+            Form {
+                DoctorDetailsFormSections(draft: $draft)
+                Section {
+                } footer: {
+                    InlineEditFooter()
                 }
             }
-            if !doctor.subspecialties.isEmpty {
-                PrefChips(values: doctor.subspecialties.map(\.rawValue), tint: Theme.accent)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-    }
-
-    private var detailsCard: some View {
-        PrefCollapsibleCard(
-            group: .personal,
-            title: "Consultant Details",
-            icon: "person.crop.circle",
-            collapsedSummary: [hospitalName, doctor.department.isBlank ? nil : doctor.department]
-                .compactMap { $0 }.joined(separator: " • ")
-        ) {
-            PrefRow(label: "Role", value: doctor.role)
-            PrefRow(label: "Hospital", value: hospitalName ?? "")
-            PrefRow(label: "Department", value: doctor.department)
-            PrefRow(label: "Phone", value: doctor.phone)
-            PrefRow(label: "Email", value: doctor.email)
-            if !doctor.subspecialties.isEmpty {
-                PrefRow(label: "Special interests", value: doctor.subspecialties.map(\.rawValue).joined(separator: ", "))
-            }
-        }
-    }
-
-    private var notesCard: some View {
-        PrefCollapsibleCard(
-            group: .consultantNotes,
-            title: "Notes",
-            collapsedSummary: [doctor.biography, doctor.personalNotes].filter { !$0.isBlank }.first ?? ""
-        ) {
-            if !doctor.biography.isBlank {
-                PrefNote(label: "Biography", text: doctor.biography, tint: PrefGroup.consultantNotes.tint)
-            }
-            if !doctor.personalNotes.isBlank {
-                PrefNote(label: "Personal notes", text: doctor.personalNotes, tint: PrefGroup.consultantNotes.tint)
-            }
+            .scrollDismissesKeyboard(.interactively)
         }
     }
 }
 
-/// Create / edit a provider's identity, professional info and notes. Preference
-/// sections are edited from within their respective profile tabs.
-struct DoctorEditView: View {
+/// The consultant identity form fields (photos, identity, professional info,
+/// notes), bound to the Edit-mode session draft. Rendered inline inside the
+/// Details tab's Form — no modal chrome.
+struct DoctorDetailsFormSections: View {
     @Environment(DataStore.self) private var store
     @Environment(AppSettings.self) private var settings
-    @Environment(\.dismiss) private var dismiss
+    @Binding var draft: Doctor
 
-    @State private var draft: Doctor
     @State private var photoItem: PhotosPickerItem?
     @State private var referenceItem: PhotosPickerItem?
     @State private var showCamera = false
-    @State private var showVerifyPrompt = false
-    @State private var saveSuccess = false
-    private let isNew: Bool
-
-    init(doctor: Doctor, isNew: Bool) {
-        _draft = State(initialValue: doctor)
-        self.isNew = isNew
-    }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                photoSection
-                referencePhotoSection
-                identitySection
-                professionalSection
-                notesSection
-            }
-            .navigationTitle(isNew ? "New Consultant" : "Consultant Details")
-            .navigationBarTitleDisplayMode(.inline)
-            .sensoryFeedback(.success, trigger: saveSuccess)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        if isNew {
-                            showVerifyPrompt = true
-                        } else {
-                            store.upsert(draft)
-                            saveSuccess = true
-                            dismiss()
-                        }
-                    }
-                    .disabled(draft.fullName.isBlank)
-                }
-            }
-            .confirmationDialog(
-                "Mark this profile as verified?",
-                isPresented: $showVerifyPrompt,
-                titleVisibility: .visible
-            ) {
-                Button("Yes, verified") { saveWith(verified: true) }
-                Button("Not yet") { saveWith(verified: false) }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Mark as verified only if these preferences were confirmed with the consultant. Choose \u{201C}Not yet\u{201D} if you\u{2019}re creating this from memory or a paper card \u{2014} a reminder banner will show until it\u{2019}s verified.")
-            }
+        photoSection
             .onChange(of: photoItem) { _, newItem in
                 Task { await loadPhoto(newItem) }
             }
+        referencePhotoSection
             .onChange(of: referenceItem) { _, newItem in
                 Task { await loadReferencePhoto(newItem) }
             }
@@ -167,7 +55,9 @@ struct DoctorEditView: View {
                 }
                 .ignoresSafeArea()
             }
-        }
+        identitySection
+        professionalSection
+        notesSection
     }
 
     private var referencePhotoSection: some View {
@@ -270,12 +160,6 @@ struct DoctorEditView: View {
             NotesField(label: "Biography", text: $draft.biography)
             NotesField(label: "Personal notes", text: $draft.personalNotes)
         }
-    }
-
-    private func saveWith(verified: Bool) {
-        draft.isVerified = verified
-        store.upsert(draft)
-        dismiss()
     }
 
     private func loadPhoto(_ item: PhotosPickerItem?) async {
