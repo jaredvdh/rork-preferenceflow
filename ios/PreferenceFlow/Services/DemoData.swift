@@ -368,6 +368,7 @@ nonisolated enum DemoData {
             ecgLeads: .fiveLead,
             depthMonitoring: .bis,
             tofMonitoring: .standaloneStimulator,
+            bpCuffPlacement: .oppositeArmFromIV,
             additional: [
                 "Arterial line (routine)", "CVP (routine)",
                 "Temperature (continuous)", "Cerebral oximetry (NIRS)"
@@ -379,7 +380,7 @@ nonisolated enum DemoData {
             specialty: .cardiac,
             additionalMonitoring: [
                 "Arterial line", "TEE", "BIS / Entropy (depth of anaesthesia)",
-                "Cerebral oximetry (NIRS)", "Temperature", "Urinary catheter"
+                "Cardiac output", "Cerebral oximetry (NIRS)", "Temperature", "Urinary catheter"
             ],
             linesAndAccess: ["Quad lumen CVC", "Arterial line", "Large-bore IV", "Rapid infuser"],
             equipment: ["Cell saver", "Forced-air warmer (lower body)", "Defibrillator pads", "Pacing"],

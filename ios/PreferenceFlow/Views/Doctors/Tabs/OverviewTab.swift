@@ -329,15 +329,38 @@ struct OverviewTab: View {
         }
     }
 
-    // 7. Monitoring — "Standard ASA monitoring" alone when nothing extra is
-    // configured (identical to the pre-model display), or the baseline plus
-    // each genuine addition (5-lead ECG, depth, TOF, extras). Consultant notes
-    // sit in a tap-to-expand card so they never clutter the checklist.
+    // 7. Monitoring — the spelled-out ASA baseline alone when nothing extra is
+    // configured, or the baseline plus each genuine addition (depth, TOF, BP
+    // cuff, extras — 5-lead folds into the baseline line). Consultant notes
+    // sit in a tap-to-expand card so they never clutter the checklist. A
+    // cross-reference links to any specialty carrying case-specific monitoring
+    // so "always applies" vs "applies for this specialty" is explicit.
+    private var specialtiesWithCaseMonitoring: [SpecialtySetup] {
+        activeSpecialties.filter { !$0.additionalMonitoring.isEmpty }
+    }
+
     private var monitoringCard: some View {
         let m = doctor.monitoringPreferences
         return VStack(alignment: .leading, spacing: 12) {
             DetailSection(title: "Monitoring", icon: "waveform.path.ecg") {
-                PrefChecklist(items: m.displayItems, tint: PrefGroup.monitoring.tint)
+                VStack(alignment: .leading, spacing: 10) {
+                    PrefChecklist(items: m.displayItems, tint: PrefGroup.monitoring.tint)
+                    ForEach(specialtiesWithCaseMonitoring) { setup in
+                        Button { onSelectSpecialty(setup) } label: {
+                            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                Image(systemName: "arrow.turn.down.right")
+                                    .font(.caption2.weight(.semibold))
+                                Text("See \(setup.specialty.rawValue) for case-specific monitoring (e.g. cardiac output, additional lines)")
+                                    .font(.caption)
+                                    .multilineTextAlignment(.leading)
+                                    .underline()
+                            }
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
             if !m.notes.isBlank {
                 PrefCollapsibleCard(

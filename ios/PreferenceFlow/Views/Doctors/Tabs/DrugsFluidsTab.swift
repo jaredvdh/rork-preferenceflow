@@ -597,6 +597,11 @@ struct MonitoringFormSection: View {
             } label: {
                 Label("TOF monitoring", systemImage: "bolt.badge.clock")
             }
+            Picker(selection: $monitoring.bpCuffPlacement) {
+                ForEach(BPCuffPlacement.allCases) { Text($0.rawValue).tag($0) }
+            } label: {
+                Label("BP cuff placement", systemImage: "gauge.with.needle")
+            }
             VStack(alignment: .leading, spacing: 8) {
                 Text("Additional")
                     .font(.caption.weight(.semibold))

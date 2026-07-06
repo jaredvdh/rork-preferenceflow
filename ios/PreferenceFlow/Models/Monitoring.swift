@@ -53,6 +53,16 @@ nonisolated enum TOFMonitoring: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+/// NIBP cuff placement preference relative to IV access — a genuinely common
+/// consultant preference worth capturing (e.g. "cuff opposite arm from IV").
+nonisolated enum BPCuffPlacement: String, Codable, CaseIterable, Identifiable {
+    case noPreference = "No preference"
+    case oppositeArmFromIV = "Opposite arm from IV, where possible"
+    case sameArmAsIV = "Same arm as IV"
+
+    var id: String { rawValue }
+}
+
 /// Structured monitoring preferences beyond the standard ASA baseline.
 /// Standard ASA monitoring (SpO2, NIBP, ECG, EtCO2, temperature) is the
 /// baseline for every case and isn't itself a toggle — it's always present.
@@ -61,6 +71,7 @@ nonisolated struct MonitoringPreferences: Codable, Hashable {
     var ecgLeads: ECGLeads
     var depthMonitoring: DepthMonitoring
     var tofMonitoring: TOFMonitoring
+    var bpCuffPlacement: BPCuffPlacement
     /// Curated extras beyond the structured fields (multi-select).
     var additional: [String]
     /// Custom extras added by the user.
@@ -68,11 +79,12 @@ nonisolated struct MonitoringPreferences: Codable, Hashable {
     var notes: String
 
     init(ecgLeads: ECGLeads = .threeLead, depthMonitoring: DepthMonitoring = .none,
-         tofMonitoring: TOFMonitoring = .none, additional: [String] = [],
-         customAdditional: [String] = [], notes: String = "") {
+         tofMonitoring: TOFMonitoring = .none, bpCuffPlacement: BPCuffPlacement = .noPreference,
+         additional: [String] = [], customAdditional: [String] = [], notes: String = "") {
         self.ecgLeads = ecgLeads
         self.depthMonitoring = depthMonitoring
         self.tofMonitoring = tofMonitoring
+        self.bpCuffPlacement = bpCuffPlacement
         self.additional = additional
         self.customAdditional = customAdditional
         self.notes = notes
@@ -90,24 +102,29 @@ nonisolated struct MonitoringPreferences: Codable, Hashable {
     /// summary or the fuller detail.
     var hasAdditions: Bool {
         ecgLeads != .threeLead || depthMonitoring != .none || tofMonitoring != .none
+            || bpCuffPlacement != .noPreference
             || !additional.isEmpty || !customAdditional.isEmpty || !notes.isEmpty
     }
 
-    /// The checklist lines shown on the consultant card and in exports:
-    /// always "Standard ASA monitoring" first, then only genuine additions
-    /// (3-lead ECG is the default and never listed).
+    /// The checklist lines shown on the consultant card and in exports. The
+    /// baseline line spells out the actual components of standard ASA
+    /// monitoring (so it reads as real information, not a placeholder) and
+    /// folds the ECG lead count into itself — a 5-lead preference updates the
+    /// baseline rather than adding a redundant second line. Only genuine
+    /// additions follow.
     var displayItems: [String] {
-        var items = ["Standard ASA monitoring"]
-        if ecgLeads == .fiveLead { items.append("5-lead ECG") }
+        let leads = ecgLeads == .fiveLead ? "5-lead ECG" : "3-lead ECG"
+        var items = ["SpO\u{2082}, \(leads), NIBP, EtCO\u{2082}, temperature (standard ASA monitoring)"]
         if depthMonitoring != .none { items.append(depthMonitoring.rawValue) }
         if tofMonitoring != .none { items.append(tofMonitoring.displayItem) }
+        if bpCuffPlacement != .noPreference { items.append("BP cuff: \(bpCuffPlacement.rawValue)") }
         items.append(contentsOf: additional)
         items.append(contentsOf: customAdditional)
         return items
     }
 
     private enum CodingKeys: String, CodingKey {
-        case ecgLeads, depthMonitoring, tofMonitoring, additional, customAdditional, notes
+        case ecgLeads, depthMonitoring, tofMonitoring, bpCuffPlacement, additional, customAdditional, notes
     }
 
     /// Backward-compatible decoding: every field falls back to its default so
@@ -117,6 +134,7 @@ nonisolated struct MonitoringPreferences: Codable, Hashable {
         ecgLeads = try c.decodeIfPresent(ECGLeads.self, forKey: .ecgLeads) ?? .threeLead
         depthMonitoring = try c.decodeIfPresent(DepthMonitoring.self, forKey: .depthMonitoring) ?? .none
         tofMonitoring = try c.decodeIfPresent(TOFMonitoring.self, forKey: .tofMonitoring) ?? .none
+        bpCuffPlacement = try c.decodeIfPresent(BPCuffPlacement.self, forKey: .bpCuffPlacement) ?? .noPreference
         additional = try c.decodeIfPresent([String].self, forKey: .additional) ?? []
         customAdditional = try c.decodeIfPresent([String].self, forKey: .customAdditional) ?? []
         notes = try c.decodeIfPresent(String.self, forKey: .notes) ?? ""
