@@ -12,6 +12,7 @@ enum ProfileTab: String, CaseIterable, Identifiable {
     case general = "General"
     case airway = "Airway"
     case drugs = "Drugs & Fluids"
+    case monitoring = "Monitoring & Lines"
     case regional = "Regional"
     case neuraxial = "Neuraxial"
     case procedures = "Procedures"
@@ -20,7 +21,7 @@ enum ProfileTab: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     /// Sections shown in the single "Edit Consultant" experience, in order.
-    static let editTabs: [ProfileTab] = [.details, .general, .airway, .drugs, .regional, .neuraxial, .procedures, .share]
+    static let editTabs: [ProfileTab] = [.details, .general, .airway, .drugs, .monitoring, .regional, .neuraxial, .procedures, .share]
 
     var icon: String {
         switch self {
@@ -29,6 +30,7 @@ enum ProfileTab: String, CaseIterable, Identifiable {
         case .general: return "checklist"
         case .airway: return "lungs"
         case .drugs: return "syringe"
+        case .monitoring: return "waveform.path.ecg"
         case .regional: return "scope"
         case .neuraxial: return "figure.walk.motion"
         case .procedures: return "cross.case"
@@ -470,6 +472,7 @@ struct DoctorDetailView: View {
         case .general: GeneralTab(doctor: doctor)
         case .airway: AirwayTab(doctor: doctor)
         case .drugs: DrugsFluidsTab(doctor: doctor)
+        case .monitoring: MonitoringLinesTab(doctor: doctor)
         case .regional: RegionalTab(doctor: doctor)
         case .neuraxial: NeuraxialTab(doctor: doctor)
         case .procedures: OperationsTab(doctor: doctor)

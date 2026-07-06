@@ -33,7 +33,6 @@ struct DrugsFluidsTab: View {
 
                 Form {
                     DrugsFluidsFormSections(setup: setupBinding($draft), cohort: cohort)
-                    MonitoringFormSection(monitoring: monitoringBinding($draft))
                     Section {
                     } footer: {
                         InlineEditFooter()
@@ -44,16 +43,6 @@ struct DrugsFluidsTab: View {
             .background(Color(.systemGroupedBackground))
             .sensoryFeedback(.selection, trigger: cohort)
         }
-    }
-
-    /// Binds the doctor-level monitoring preferences on the session draft,
-    /// materialising the optional on first edit. Monitoring is shared across
-    /// both cohorts, so the section appears identically under each.
-    private func monitoringBinding(_ draft: Binding<Doctor>) -> Binding<MonitoringPreferences> {
-        Binding(
-            get: { draft.wrappedValue.monitoring ?? MonitoringPreferences() },
-            set: { draft.wrappedValue.monitoring = $0 }
-        )
     }
 
     /// Binds the selected cohort's structured setup on the session draft,
@@ -565,57 +554,6 @@ struct DrugsFluidsFormSections: View {
             NotesField(label: "Notes", text: binding.notes, minHeight: 60)
         } header: {
             Label(category.rawValue, systemImage: category.symbol)
-        }
-    }
-}
-
-/// The Monitoring editor section — ECG leads, depth of anaesthesia, TOF
-/// neuromuscular monitoring, curated extras and notes. Standard ASA monitoring
-/// is the assumed baseline and is not itself a toggle. Doctor-level (shared
-/// across adult and paediatric cohorts).
-struct MonitoringFormSection: View {
-    @Environment(AppSettings.self) private var settings
-    @Binding var monitoring: MonitoringPreferences
-
-    var body: some View {
-        Section {
-            VStack(alignment: .leading, spacing: 8) {
-                Label("ECG leads", systemImage: "waveform.path.ecg")
-                Picker("ECG leads", selection: $monitoring.ecgLeads) {
-                    ForEach(ECGLeads.allCases) { Text($0.shortLabel).tag($0) }
-                }
-                .pickerStyle(.segmented)
-            }
-            .padding(.vertical, 4)
-            Picker(selection: $monitoring.depthMonitoring) {
-                ForEach(DepthMonitoring.allCases) { Text($0.rawValue).tag($0) }
-            } label: {
-                Label("Depth monitoring", systemImage: "brain.head.profile")
-            }
-            Picker(selection: $monitoring.tofMonitoring) {
-                ForEach(TOFMonitoring.allCases) { Text($0.rawValue).tag($0) }
-            } label: {
-                Label("TOF monitoring", systemImage: "bolt.badge.clock")
-            }
-            Picker(selection: $monitoring.bpCuffPlacement) {
-                ForEach(BPCuffPlacement.allCases) { Text($0.rawValue).tag($0) }
-            } label: {
-                Label("BP cuff placement", systemImage: "gauge.with.needle")
-            }
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Additional")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                ChipMultiSelect(selected: $monitoring.additional,
-                                options: MonitoringPreferences.additionalOptions)
-                CustomAgentEditor(custom: $monitoring.customAdditional)
-            }
-            .padding(.vertical, 4)
-            NotesField(label: "Notes", text: $monitoring.notes, minHeight: 60)
-        } header: {
-            Label("Monitoring", systemImage: "waveform.path.ecg")
-        } footer: {
-            Text("Standard ASA monitoring (SpO\u{2082}, NIBP, ECG, EtCO\u{2082}, temperature) is always assumed \u{2014} record only what this consultant sets up beyond it. Shared across adult and \(settings.region.paediatric.lowercased()) cases.")
         }
     }
 }
