@@ -23,10 +23,10 @@ nonisolated struct ConfiguredProcedural {
 nonisolated enum ProceduralSummary {
     /// The procedural workflows this consultant has actively configured, in
     /// library order (Arterial Line, CVC), each with resolved values.
-    static func configured(_ n: NeuraxialPreferences) -> [ConfiguredProcedural] {
+    static func configured(_ p: ProceduralPreferences) -> [ConfiguredProcedural] {
         WorkflowLibrary.procedural.compactMap { definition in
-            guard n.isConfigured(definition.id) else { return nil }
-            let resolved = ResolvedWorkflow(definition: definition, customization: n.customization(for: definition.id))
+            guard p.isConfigured(definition.id) else { return nil }
+            let resolved = ResolvedWorkflow(definition: definition, customization: p.customization(for: definition.id))
             return ConfiguredProcedural(
                 definition: definition,
                 resolved: resolved,

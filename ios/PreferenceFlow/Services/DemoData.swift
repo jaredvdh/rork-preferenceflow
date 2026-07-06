@@ -308,8 +308,12 @@ nonisolated enum DemoData {
         spinal.setMulti("consultant.prefs", ["Assistant maintains shoulder support"], default: [])
         neuraxial.setCustomization(spinal)
 
+        // Procedural lines (Arterial Line, CVC) — stored in their own
+        // `procedural` preferences, not neuraxial.
+        var procedural = ProceduralPreferences()
+
         // Arterial line — exercises the simplified cannula/technique/positioning model.
-        var arterialLine = neuraxial.customization(for: "arterialLine")
+        var arterialLine = procedural.customization(for: "arterialLine")
         arterialLine.usesStandard = false
         arterialLine.isConfigured = true
         arterialLine.setSelection("site.choice", "Radial", default: "Radial")
@@ -333,10 +337,10 @@ nonisolated enum DemoData {
                                   default: "Tegaderm 1624 (standard)")
         arterialLine.setNote("consultant.notes",
                              "Maintain continuous visualisation of the needle tip — advance catheter only once tip is clearly intraluminal.")
-        neuraxial.setCustomization(arterialLine)
+        procedural.setCustomization(arterialLine)
 
         // CVC — exercises line type/length, prep and confirmation extras.
-        var cvc = neuraxial.customization(for: "cvc")
+        var cvc = procedural.customization(for: "cvc")
         cvc.usesStandard = false
         cvc.isConfigured = true
         cvc.setSelection("site.choice", "Right IJ", default: "Right IJ")
@@ -359,7 +363,7 @@ nonisolated enum DemoData {
                          default: "Tegaderm CHG (chlorhexidine-impregnated, standard)")
         cvc.setNote("fixation.notes",
                     "Loop silk through CVC hub wing before dressing. Label all ports with colour-coded stickers.")
-        neuraxial.setCustomization(cvc)
+        procedural.setCustomization(cvc)
 
         // Monitoring — exercises the expanded display: 5-lead ECG, BIS depth
         // monitoring, standalone TOF, and routine extras consistent with her
@@ -404,6 +408,7 @@ nonisolated enum DemoData {
             airway: airway,
             regionalBlocks: [fasciaIliaca],
             neuraxial: neuraxial,
+            procedural: procedural,
             specialtySetups: [cardiac]
         )
     }

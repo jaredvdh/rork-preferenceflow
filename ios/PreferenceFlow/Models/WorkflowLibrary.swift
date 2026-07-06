@@ -537,4 +537,11 @@ nonisolated enum WorkflowLibrary {
     static func definition(id: String) -> WorkflowDefinition? {
         all.first { $0.id == id }
     }
+
+    /// Whether a workflow id belongs to the procedural family (Arterial Line,
+    /// CVC). Drives which storage on `Doctor` a customization reads from and
+    /// saves to: `procedural` vs `neuraxial`.
+    static func isProcedural(_ id: String) -> Bool {
+        procedural.contains { $0.id == id }
+    }
 }

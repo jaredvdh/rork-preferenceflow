@@ -72,6 +72,11 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     var airway: AirwayPreferences
     var regionalBlocks: [RegionalBlock]
     var neuraxial: NeuraxialPreferences
+    /// Procedural workflow customisations (Arterial Line, CVC) — stored
+    /// separately from neuraxial because an arterial line is not a neuraxial
+    /// technique. Optional for backward-compatible decoding: profiles saved
+    /// before this existed decode as nil and read as empty.
+    var procedural: ProceduralPreferences?
     var operations: [ProcedureTemplate]
     /// Per-specialty setup modifications (what changes vs the standard setup).
     /// Optional for backward-compatible decoding of profiles saved earlier.
@@ -110,6 +115,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         airway: AirwayPreferences = AirwayPreferences(),
         regionalBlocks: [RegionalBlock] = [],
         neuraxial: NeuraxialPreferences = NeuraxialPreferences(),
+        procedural: ProceduralPreferences? = nil,
         operations: [ProcedureTemplate] = [],
         specialtySetups: [SpecialtySetup]? = nil,
         departmentTemplateId: UUID? = nil,
@@ -142,6 +148,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         self.airway = airway
         self.regionalBlocks = regionalBlocks
         self.neuraxial = neuraxial
+        self.procedural = procedural
         self.operations = operations
         self.specialtySetups = specialtySetups
         self.departmentTemplateId = departmentTemplateId
@@ -230,6 +237,18 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     /// The monitoring preferences with the nil legacy case normalised to the
     /// default (standard ASA baseline, nothing additional).
     var monitoringPreferences: MonitoringPreferences { monitoring ?? MonitoringPreferences() }
+
+    /// The procedural workflow storage (Arterial Line, CVC) with the nil legacy
+    /// case normalised to empty.
+    var proceduralPreferences: ProceduralPreferences { procedural ?? ProceduralPreferences() }
+
+    /// Inserts or replaces a procedural workflow customization, creating the
+    /// storage on first write.
+    mutating func setProceduralCustomization(_ customization: WorkflowCustomization) {
+        var updated = procedural ?? ProceduralPreferences()
+        updated.setCustomization(customization)
+        procedural = updated
+    }
 }
 
 /// Which preference sections carry over when copying a profile to another

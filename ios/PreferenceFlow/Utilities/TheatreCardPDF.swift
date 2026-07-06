@@ -529,7 +529,7 @@ enum TheatreCardPDF {
         }
         // Arterial & central lines — pulled from the live workflow data (same
         // source as the on-screen "Arterial & Central Lines" section).
-        for item in ProceduralSummary.configured(doctor.neuraxial) {
+        for item in ProceduralSummary.configured(doctor.proceduralPreferences) {
             var detailParts = ProceduralSummary.lines(for: item)
                 .filter { !$0.isNote }
                 .prefix(4)

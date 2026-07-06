@@ -181,7 +181,13 @@ struct WorkflowGuideView: View {
     private func save() {
         guard var doctor = store.doctor(id: doctorID) else { dismiss(); return }
         draft.isConfigured = true
-        doctor.neuraxial.setCustomization(draft)
+        // Procedural workflows (Arterial Line, CVC) live in their own storage;
+        // everything else remains under neuraxial.
+        if WorkflowLibrary.isProcedural(definition.id) {
+            doctor.setProceduralCustomization(draft)
+        } else {
+            doctor.neuraxial.setCustomization(draft)
+        }
         store.upsert(doctor)
         saveSuccess = true
         dismiss()

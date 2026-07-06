@@ -32,6 +32,9 @@ struct OverviewTab: View {
     @State private var editingSpecialty: SpecialtySetup?
     @State private var addingSpecialty = false
     @State private var viewingReferencePhoto = false
+    /// The procedural workflow (Arterial Line, CVC) being created or edited via
+    /// the guided workflow editor.
+    @State private var addingProcedural: WorkflowDefinition?
 
     private var hospital: Hospital? {
         store.hospital(id: hospitalID ?? doctor.hospitalId)
@@ -53,6 +56,13 @@ struct OverviewTab: View {
         }
         .sheet(item: $editingSpecialty) { setup in
             SpecialtySetupEditView(doctor: doctor, setup: setup, isNew: false)
+        }
+        .sheet(item: $addingProcedural) { definition in
+            WorkflowGuideView(
+                doctorID: doctor.id,
+                definition: definition,
+                existing: doctor.proceduralPreferences.customization(for: definition.id)
+            )
         }
         .fullScreenCover(isPresented: $viewingReferencePhoto) {
             if let data = doctor.referencePhotoData, let image = UIImage(data: data) {
@@ -175,9 +185,7 @@ struct OverviewTab: View {
             AirwayCardSection(doctor: doctor, onNavigate: onNavigate)  // 5
             drugsCard         // 6
             monitoringCard    // 7
-            if !configuredProcedural.isEmpty {
-                proceduralCard // 8
-            }
+            proceduralCard    // 8 — always present: configured rows and/or "+ Add" buttons
             if hasAdditional {
                 additionalCard // 9
             }
@@ -385,7 +393,13 @@ struct OverviewTab: View {
     }
 
     private var configuredProcedural: [ConfiguredProcedural] {
-        ProceduralSummary.configured(doctor.neuraxial)
+        ProceduralSummary.configured(doctor.proceduralPreferences)
+    }
+
+    /// Procedural workflows (Arterial Line, CVC) not yet configured — each gets
+    /// a "+ Add" affordance so preferences can be created from scratch.
+    private var unconfiguredProcedural: [WorkflowDefinition] {
+        WorkflowLibrary.procedural.filter { !doctor.proceduralPreferences.isConfigured($0.id) }
     }
 
     private var specialInterests: [String] {
@@ -397,16 +411,39 @@ struct OverviewTab: View {
             || !specialInterests.isEmpty || !doctor.biography.isBlank
     }
 
-    /// Configured procedural workflows (Arterial Line, CVC) as tappable,
-    /// expand-in-place rows — the same inline pattern as Regional and Neuraxial.
-    /// Hidden entirely when nothing is configured.
+    /// Procedural workflows (Arterial Line, CVC): configured ones render as
+    /// tappable, expand-in-place rows (same inline pattern as Regional and
+    /// Neuraxial, with an Edit action inside); unconfigured ones get a "+ Add"
+    /// button — the creation entry point — matching the "+ Add" pattern used by
+    /// Specialty Setups on this same card.
     private var proceduralCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             SectionLabel("Arterial & Central Lines", icon: "waveform.path.ecg")
             ForEach(configuredProcedural, id: \.definition.id) { item in
-                ProceduralExpandableRow(item: item)
+                ProceduralExpandableRow(item: item) {
+                    addingProcedural = item.definition
+                }
+            }
+            ForEach(unconfiguredProcedural) { definition in
+                Button { addingProcedural = definition } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                        Text("Add \(proceduralShortTitle(definition)) preferences")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(Color(.tertiarySystemFill), in: .capsule)
+                    .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
             }
         }
+    }
+
+    /// Friendly short names for the add buttons ("Central Venous Catheter" →
+    /// "Central Line").
+    private func proceduralShortTitle(_ definition: WorkflowDefinition) -> String {
+        definition.id == "cvc" ? "Central Line" : definition.title
     }
 
     /// Each Regional block and Neuraxial item is a tappable row that expands in
@@ -877,6 +914,9 @@ private struct NeuraxialExpandableRow: View {
 /// same workflow data the guided workflow screen edits.
 private struct ProceduralExpandableRow: View {
     let item: ConfiguredProcedural
+    /// Opens the guided editor for this workflow — without it, a configured
+    /// arterial line / CVC would be creatable once and then locked forever.
+    var onEdit: (() -> Void)? = nil
 
     private var lines: [NeuraxialSummaryLine] {
         ProceduralSummary.lines(for: item)
@@ -898,6 +938,15 @@ private struct ProceduralExpandableRow: View {
             }
             ForEach(Array(lines.filter { $0.isNote }.enumerated()), id: \.offset) { _, line in
                 PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
+            }
+            if let onEdit {
+                Button(action: onEdit) {
+                    Label("Edit \(item.definition.title)", systemImage: "slider.horizontal.3")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.accent)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 2)
             }
         }
     }

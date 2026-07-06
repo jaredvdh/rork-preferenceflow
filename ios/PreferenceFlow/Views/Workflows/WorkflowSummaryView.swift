@@ -29,7 +29,11 @@ struct WorkflowSummaryView: View {
     private var hospital: Hospital? { store.hospital(id: doctor?.hospitalId) }
 
     private var customization: WorkflowCustomization {
-        doctor?.neuraxial.customization(for: definition.id) ?? WorkflowCustomization(id: definition.id)
+        guard let doctor else { return WorkflowCustomization(id: definition.id) }
+        // Procedural workflows (Arterial Line, CVC) read from their own storage.
+        return WorkflowLibrary.isProcedural(definition.id)
+            ? doctor.proceduralPreferences.customization(for: definition.id)
+            : doctor.neuraxial.customization(for: definition.id)
     }
 
     private var resolved: ResolvedWorkflow {

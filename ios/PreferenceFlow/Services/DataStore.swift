@@ -54,12 +54,14 @@ final class DataStore {
     }
 
     /// One-time, idempotent migrations applied to profiles after they load.
-    /// Currently folds any legacy Combined Spinal Epidural struct data into the
-    /// guided workflow system so the workflow is the single source of truth.
+    /// Folds any legacy Combined Spinal Epidural struct data into the guided
+    /// workflow system, and moves procedural workflows (Arterial Line, CVC)
+    /// out of neuraxial storage into their own `procedural` storage.
     private func migrateLegacyNeuraxial() {
         var changed = false
         for index in doctors.indices {
             if doctors[index].neuraxial.migrateLegacyCSEIfNeeded() { changed = true }
+            if doctors[index].migrateProceduralStorageIfNeeded() { changed = true }
         }
         if changed { save() }
     }
@@ -253,6 +255,9 @@ final class DataStore {
         if scope.contains(.regionalNeuraxial) {
             copy.regionalBlocks = source.regionalBlocks
             copy.neuraxial = source.neuraxial
+            // Procedural lines (Arterial Line, CVC) travel with this scope —
+            // they historically lived inside neuraxial storage.
+            copy.procedural = source.procedural
         }
         if scope.contains(.procedures) {
             copy.operations = source.operations
