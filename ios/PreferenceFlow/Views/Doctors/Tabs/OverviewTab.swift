@@ -35,6 +35,12 @@ struct OverviewTab: View {
     /// The procedural workflow (Arterial Line, CVC) being created or edited via
     /// the guided workflow editor.
     @State private var addingProcedural: WorkflowDefinition?
+    /// The neuraxial workflow (Spinal, Epidural, CSE) being edited in place from
+    /// its expandable row — routes to the same guided editor the Neuraxial tab uses.
+    @State private var editingNeuraxial: WorkflowDefinition?
+    /// The regional block being edited in place from its expandable row — routes
+    /// to the same structured editor the Regional tab uses.
+    @State private var editingBlock: RegionalBlock?
 
     private var hospital: Hospital? {
         store.hospital(id: hospitalID ?? doctor.hospitalId)
@@ -63,6 +69,16 @@ struct OverviewTab: View {
                 definition: definition,
                 existing: doctor.proceduralPreferences.customization(for: definition.id)
             )
+        }
+        .sheet(item: $editingNeuraxial) { definition in
+            WorkflowGuideView(
+                doctorID: doctor.id,
+                definition: definition,
+                existing: doctor.neuraxial.customization(for: definition.id)
+            )
+        }
+        .sheet(item: $editingBlock) { block in
+            RegionalBlockEditView(doctor: doctor, block: block)
         }
         .fullScreenCover(isPresented: $viewingReferencePhoto) {
             if let data = doctor.referencePhotoData, let image = UIImage(data: data) {
@@ -456,14 +472,18 @@ struct OverviewTab: View {
             if !namedRegionalBlocks.isEmpty {
                 subgroupHeader("Regional Blocks")
                 ForEach(namedRegionalBlocks) { block in
-                    RegionalBlockExpandableRow(block: block)
+                    RegionalBlockExpandableRow(block: block) {
+                        editingBlock = block
+                    }
                 }
             }
 
             if !configuredNeuraxial.isEmpty {
                 subgroupHeader("Neuraxial")
                 ForEach(configuredNeuraxial, id: \.definition.id) { item in
-                    NeuraxialExpandableRow(item: item)
+                    NeuraxialExpandableRow(item: item) {
+                        editingNeuraxial = item.definition
+                    }
                 }
             }
 
@@ -879,6 +899,9 @@ private struct ExpandableProfileRow<Content: View>: View {
 /// dedicated guided screen uses.
 private struct NeuraxialExpandableRow: View {
     let item: ConfiguredNeuraxial
+    /// Opens the guided editor for this workflow — the same one-tap edit action
+    /// ProceduralExpandableRow exposes, so the whole zone behaves identically.
+    var onEdit: (() -> Void)? = nil
 
     private var lines: [NeuraxialSummaryLine] {
         NeuraxialSummary.lines(for: item)
@@ -904,6 +927,15 @@ private struct NeuraxialExpandableRow: View {
             }
             ForEach(Array(lines.filter { $0.isNote }.enumerated()), id: \.offset) { _, line in
                 PrefNote(label: line.label, text: line.value, tint: PrefGroup.technique.tint)
+            }
+            if let onEdit {
+                Button(action: onEdit) {
+                    Label("Edit \(item.definition.title)", systemImage: "slider.horizontal.3")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.accent)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 2)
             }
         }
     }
@@ -987,6 +1019,9 @@ struct IncompleteFieldNudge: View {
 /// A regional block as a tappable, expand-in-place row on the consultant profile.
 private struct RegionalBlockExpandableRow: View {
     let block: RegionalBlock
+    /// Opens the structured block editor — the same one-tap edit action
+    /// ProceduralExpandableRow exposes, so the whole zone behaves identically.
+    var onEdit: (() -> Void)? = nil
 
     private var localAnaesthetic: String {
         [block.drug, block.concentration, block.typicalVolume]
@@ -1035,6 +1070,15 @@ private struct RegionalBlockExpandableRow: View {
             PrefNote(label: "Assistant", text: block.assistantNotes, tint: PrefGroup.technique.tint)
             PrefNote(label: "Safety", text: block.safetyNotes, tint: PrefGroup.technique.tint)
             PrefNote(label: "Special notes", text: block.specialNotes, tint: PrefGroup.technique.tint)
+            if let onEdit {
+                Button(action: onEdit) {
+                    Label("Edit \(block.name.isBlank ? "Block" : block.name)", systemImage: "slider.horizontal.3")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.accent)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 2)
+            }
         }
     }
 }
