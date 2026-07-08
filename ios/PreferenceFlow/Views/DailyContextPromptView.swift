@@ -41,6 +41,7 @@ struct DailyContextPromptView: View {
                         ))
                 }
             }
+            .readableColumn(maxWidth: 600)
         }
         .onAppear {
             phase = startPhase

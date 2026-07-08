@@ -170,7 +170,7 @@ struct DoctorDetailView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingEmergency) {
+        .adaptiveFullScreenSheet(isPresented: $showingEmergency) {
             EmergencyGuidesHubView(hospitalID: dailyHospitalID ?? doctor?.hospitalId, presentedAsSheet: true)
         }
         .sheet(isPresented: $migrating) {

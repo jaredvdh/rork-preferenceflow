@@ -54,7 +54,7 @@ struct HospitalDetailView: View {
         .sheet(isPresented: $editing) {
             HospitalManageView(hospitalID: hospitalID)
         }
-        .sheet(isPresented: $showingEmergency) {
+        .adaptiveFullScreenSheet(isPresented: $showingEmergency) {
             EmergencyGuidesHubView(hospitalID: hospitalID, presentedAsSheet: true)
         }
         .sheet(isPresented: $showingSearch) {

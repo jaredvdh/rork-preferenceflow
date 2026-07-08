@@ -45,7 +45,7 @@ struct TodayView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingPrompt) {
+        .adaptiveFullScreenSheet(isPresented: $showingPrompt) {
             DailyContextPromptView(startPhase: promptPhase)
                 .presentationDetents([.large])
                 .presentationCornerRadius(24)

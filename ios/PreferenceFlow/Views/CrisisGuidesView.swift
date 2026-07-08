@@ -181,6 +181,7 @@ struct CrisisCardDetailView: View {
                 doubleTapHint
             }
             .padding(16)
+            .readableColumn(maxWidth: 760)
         }
         .background(Color(.systemGroupedBackground))
     }
@@ -224,6 +225,7 @@ struct CrisisCardDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(20)
+            .readableColumn(maxWidth: 760)
         }
         .background(Color(.systemBackground))
         .dynamicTypeSize(.accessibility1)

@@ -61,7 +61,7 @@ struct RootTabView: View {
         }
         .tint(Theme.accent)
         .onOpenURL { url in handleDeepLink(url) }
-        .sheet(isPresented: $showGuidedTour) {
+        .adaptiveFullScreenSheet(isPresented: $showGuidedTour) {
             GuidedTourView(
                 onSetupHospital: {
                     settings.pendingOpenAddHospital = true

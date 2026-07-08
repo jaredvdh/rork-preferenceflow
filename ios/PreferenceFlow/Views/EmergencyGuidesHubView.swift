@@ -52,6 +52,7 @@ struct EmergencyGuidesHubView: View {
                     note
                 }
                 .padding(16)
+                .readableColumn(maxWidth: 760)
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Emergency Guides")
@@ -261,7 +262,7 @@ struct EmergencyAccessButton: View {
                 }
             }
         }
-        .sheet(isPresented: $presenting) {
+        .adaptiveFullScreenSheet(isPresented: $presenting) {
             EmergencyGuidesHubView(hospitalID: hospitalID, presentedAsSheet: true)
         }
     }

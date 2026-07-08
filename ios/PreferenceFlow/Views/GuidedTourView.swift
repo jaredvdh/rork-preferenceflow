@@ -34,6 +34,7 @@ struct GuidedTourView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut, value: step)
             }
+            .readableColumn(maxWidth: 600)
         }
         .interactiveDismissDisabled()
         .onAppear { withAnimation(.easeOut(duration: 0.6)) { appear = true } }
