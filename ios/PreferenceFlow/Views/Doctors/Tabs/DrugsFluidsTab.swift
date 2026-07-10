@@ -69,6 +69,8 @@ struct DrugsFluidsTab: View {
 /// indicator for the technique and, where set, the agent/model detail below.
 struct MaintenanceHeadline: View {
     let setup: DrugsFluidsSetup
+    /// Shows the standard "Edit …" footer (matching the Arterial/CVC rows) when set.
+    var onEdit: (() -> Void)? = nil
 
     var body: some View {
         let tint = PrefGroup.medications.tint
@@ -96,6 +98,9 @@ struct MaintenanceHeadline: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            if let onEdit {
+                CardEditButton(title: "Maintenance", action: onEdit)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -151,6 +156,8 @@ struct DrugCategoryCollapsibleCard: View {
 /// Fluids and Emergency Drugs deliberately stay outside this group.
 struct AnaestheticDrugsGroup: View {
     let setup: DrugsFluidsSetup
+    /// Shows the standard "Edit …" footer under the expanded category list.
+    var onEdit: (() -> Void)? = nil
 
     @State private var expanded = false
 
@@ -209,9 +216,13 @@ struct AnaestheticDrugsGroup: View {
             .card()
 
             if expanded {
-                VStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 10) {
                     ForEach(filledCategories) { category in
                         DrugCategoryCollapsibleCard(category: category, selection: setup.selection(for: category))
+                    }
+                    if let onEdit {
+                        CardEditButton(title: "Anaesthetic Drugs", action: onEdit)
+                            .padding(.leading, 4)
                     }
                 }
                 .padding(.leading, 10)
@@ -227,6 +238,8 @@ struct AnaestheticDrugsGroup: View {
 /// giving-set choice affects what is primed before the case starts.
 struct FluidSetupCard: View {
     let fluids: FluidSetup
+    /// Shows the standard "Edit …" footer (matching the Arterial/CVC rows) when set.
+    var onEdit: (() -> Void)? = nil
 
     var body: some View {
         let tint = PrefGroup.equipment.tint
@@ -252,6 +265,9 @@ struct FluidSetupCard: View {
                 }
                 PrefRow(label: "Giving set", value: fluids.givingSet.rawValue)
                 PrefNote(label: "Notes", text: fluids.notes, tint: tint)
+                if let onEdit {
+                    CardEditButton(title: "IV Fluids", action: onEdit)
+                }
             }
         }
         .card()
@@ -263,6 +279,8 @@ struct FluidSetupCard: View {
 /// glance, never collapsed. Renders only the fields that are actually set.
 struct EmergencyDrugsCard: View {
     let emergency: EmergencyDrugSetup
+    /// Shows the standard "Edit …" footer (matching the Arterial/CVC rows) when set.
+    var onEdit: (() -> Void)? = nil
 
     var body: some View {
         let tint = PrefGroup.monitoring.tint
@@ -295,6 +313,9 @@ struct EmergencyDrugsCard: View {
                     PrefRow(label: "Paediatric", value: "Sux kept drawn up")
                 }
                 PrefNote(label: "Notes", text: emergency.notes, tint: tint)
+                if let onEdit {
+                    CardEditButton(title: "Emergency Drugs", action: onEdit)
+                }
             }
         }
         .card()
@@ -305,11 +326,14 @@ struct EmergencyDrugsCard: View {
 /// the tab and the main card render it identically.
 struct DrugsConsultantNotesCard: View {
     let notes: String
+    /// Shows the standard "Edit …" footer (matching the Arterial/CVC rows) when set.
+    var onEdit: (() -> Void)? = nil
 
     var body: some View {
         PrefCollapsibleCard(
             group: .consultantNotes,
-            collapsedSummary: notes
+            collapsedSummary: notes,
+            onEdit: onEdit
         ) {
             PrefNote(label: "", text: notes, tint: PrefGroup.consultantNotes.tint)
         }

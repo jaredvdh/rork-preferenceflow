@@ -224,6 +224,8 @@ struct OverviewTab: View {
                 if isGeneralEmpty {
                     IncompleteNudge(text: "Incomplete — tap to add general preferences") { onNavigate(.general) }
                 }
+                CardEditButton(title: "General") { onNavigate(.general) }
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .card()
             generalMoreDetail
@@ -241,7 +243,8 @@ struct OverviewTab: View {
                 title: "Theatre Setup",
                 icon: "tshirt.fill",
                 collapsedSummary: [g.maskPreference, g.theatreShoeSize, g.roomTemperature]
-                    .filter { !$0.isBlank }.prefix(2).joined(separator: " • ")
+                    .filter { !$0.isBlank }.prefix(2).joined(separator: " • "),
+                onEdit: { onNavigate(.general) }
             ) {
                 PrefRow(label: "Mask", value: g.maskPreference)
                 PrefRow(label: "Shoe size", value: g.theatreShoeSize)
@@ -253,7 +256,8 @@ struct OverviewTab: View {
                 group: .personal,
                 title: "Personal",
                 collapsedSummary: [g.teaPreference, g.favouriteSnacks]
-                    .filter { !$0.isBlank }.joined(separator: " • ")
+                    .filter { !$0.isBlank }.joined(separator: " • "),
+                onEdit: { onNavigate(.general) }
             ) {
                 PrefRow(label: "Tea", value: g.teaPreference)
                 PrefRow(label: "Snacks", value: g.favouriteSnacks)
@@ -264,7 +268,8 @@ struct OverviewTab: View {
                 group: .workflow,
                 title: "Workflow",
                 collapsedSummary: (generalWorkflowFlags + [g.briefingStyle.isBlank ? "" : "Briefing"])
-                    .filter { !$0.isEmpty }.prefix(2).joined(separator: " • ")
+                    .filter { !$0.isEmpty }.prefix(2).joined(separator: " • "),
+                onEdit: { onNavigate(.general) }
             ) {
                 if !generalWorkflowFlags.isEmpty {
                     PrefChecklist(items: generalWorkflowFlags, tint: PrefGroup.workflow.tint)
@@ -277,7 +282,8 @@ struct OverviewTab: View {
                 group: .monitoring,
                 title: "Communication",
                 icon: "bubble.left.and.bubble.right.fill",
-                collapsedSummary: g.contactPreferences
+                collapsedSummary: g.contactPreferences,
+                onEdit: { onNavigate(.general) }
             ) {
                 PrefNote(label: "", text: g.contactPreferences, tint: PrefGroup.monitoring.tint)
             }
@@ -285,7 +291,8 @@ struct OverviewTab: View {
         if !g.generalNotes.isBlank {
             PrefCollapsibleCard(
                 group: .consultantNotes,
-                collapsedSummary: g.generalNotes
+                collapsedSummary: g.generalNotes,
+                onEdit: { onNavigate(.general) }
             ) {
                 PrefNote(label: "", text: g.generalNotes, tint: PrefGroup.consultantNotes.tint)
             }
@@ -329,20 +336,20 @@ struct OverviewTab: View {
         return VStack(alignment: .leading, spacing: 12) {
             SectionLabel("Drugs & Fluids", icon: "syringe.fill")
             if d.hasMaintenance {
-                MaintenanceHeadline(setup: d)
+                MaintenanceHeadline(setup: d, onEdit: { onNavigate(.drugs) })
             }
             if d.hasContent {
                 if d.hasRoutineDrugs {
-                    AnaestheticDrugsGroup(setup: d)
+                    AnaestheticDrugsGroup(setup: d, onEdit: { onNavigate(.drugs) })
                 }
                 if !d.fluids.isEmpty {
-                    FluidSetupCard(fluids: d.fluids)
+                    FluidSetupCard(fluids: d.fluids, onEdit: { onNavigate(.drugs) })
                 }
                 if !d.emergency.isEmpty {
-                    EmergencyDrugsCard(emergency: d.emergency)
+                    EmergencyDrugsCard(emergency: d.emergency, onEdit: { onNavigate(.drugs) })
                 }
                 if !d.notes.isBlank {
-                    DrugsConsultantNotesCard(notes: d.notes)
+                    DrugsConsultantNotesCard(notes: d.notes, onEdit: { onNavigate(.drugs) })
                 }
             } else {
                 VStack(spacing: 8) {
@@ -384,6 +391,7 @@ struct OverviewTab: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    CardEditButton(title: "Monitoring") { onNavigate(.monitoring) }
                 }
             }
             if !m.notes.isBlank {
@@ -391,7 +399,8 @@ struct OverviewTab: View {
                     group: .monitoring,
                     title: "Monitoring Notes",
                     icon: "note.text",
-                    collapsedSummary: m.notes
+                    collapsedSummary: m.notes,
+                    onEdit: { onNavigate(.monitoring) }
                 ) {
                     PrefNote(label: "", text: m.notes, tint: PrefGroup.monitoring.tint)
                 }
@@ -678,6 +687,8 @@ private struct AirwayCardSection: View {
             if isAirwayEmpty {
                 IncompleteNudge(text: "Incomplete — tap to add airway setup") { onNavigate(.airway) }
             }
+            CardEditButton(title: "Airway") { onNavigate(.airway) }
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .card()
     }
@@ -754,6 +765,8 @@ private struct AirwayCardSection: View {
             PrefRow(label: "Cuff preference", value: a.paediatric.cuffedPreference)
             PrefRow(label: "Securing", value: a.paediatric.tubeSecuring)
             PrefNote(label: "Notes", text: a.paediatric.notes, tint: PrefGroup.technique.tint)
+            CardEditButton(title: "Paediatric Airway") { onNavigate(.airway) }
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 

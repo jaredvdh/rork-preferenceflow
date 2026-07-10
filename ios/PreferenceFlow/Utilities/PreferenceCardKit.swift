@@ -137,6 +137,26 @@ struct PrefModificationLabel: View {
     }
 }
 
+// MARK: - Card edit footer
+
+/// The standard "Edit …" footer action used at the bottom of preference boxes —
+/// the exact affordance introduced on the Arterial Line / CVC expandable rows,
+/// shared so every box on the consultant card edits the same way.
+struct CardEditButton: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label("Edit \(title)", systemImage: "slider.horizontal.3")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Theme.accent)
+        }
+        .buttonStyle(.plain)
+        .padding(.top, 2)
+    }
+}
+
 // MARK: - Collapsible card
 
 /// A colour-coded, collapsible preference card. Collapsed it shows a one-line
@@ -148,6 +168,9 @@ struct PrefCollapsibleCard<Content: View>: View {
     var modified: Bool = false
     var collapsedSummary: String
     var startExpanded: Bool = false
+    /// When set, an "Edit …" footer (matching the Arterial/CVC rows) renders at
+    /// the bottom of the expanded content so the box is editable in one tap.
+    var onEdit: (() -> Void)?
     @ViewBuilder var content: () -> Content
 
     @State private var expanded: Bool
@@ -159,6 +182,7 @@ struct PrefCollapsibleCard<Content: View>: View {
         modified: Bool = false,
         collapsedSummary: String,
         startExpanded: Bool = false,
+        onEdit: (() -> Void)? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.group = group
@@ -167,6 +191,7 @@ struct PrefCollapsibleCard<Content: View>: View {
         self.modified = modified
         self.collapsedSummary = collapsedSummary
         self.startExpanded = startExpanded
+        self.onEdit = onEdit
         self.content = content
         _expanded = State(initialValue: startExpanded)
     }
@@ -214,6 +239,9 @@ struct PrefCollapsibleCard<Content: View>: View {
                 Divider().padding(.vertical, 12)
                 VStack(alignment: .leading, spacing: 16) {
                     content()
+                    if let onEdit {
+                        CardEditButton(title: title, action: onEdit)
+                    }
                 }
             }
         }
