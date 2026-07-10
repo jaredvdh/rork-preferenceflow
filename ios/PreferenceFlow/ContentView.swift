@@ -5,9 +5,13 @@
 
 import SwiftUI
 
-/// Root view. Gates onboarding, then presents the main tab navigation.
+/// Root view. Gates onboarding, applies the optional app lock, then presents
+/// the main tab navigation. The lock engages on launch and again whenever the
+/// app is backgrounded, and clears via Face ID / Touch ID / passcode.
 struct ContentView: View {
     @Environment(AppSettings.self) private var settings
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var appLock = AppLockManager()
 
     var body: some View {
         Group {
@@ -21,6 +25,26 @@ struct ContentView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: settings.didCompleteOnboarding)
         .appTextSize(settings.appTextSize)
+        .overlay {
+            if appLock.isLocked {
+                AppLockScreen(manager: appLock)
+                    .transition(.opacity)
+            }
+        }
+        .onAppear {
+            if settings.isAppLockEnabled { appLock.lock() }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard settings.isAppLockEnabled else { return }
+            switch newPhase {
+            case .background:
+                appLock.lock()
+            case .active:
+                Task { await appLock.autoAuthenticateIfNeeded() }
+            default:
+                break
+            }
+        }
     }
 }
 

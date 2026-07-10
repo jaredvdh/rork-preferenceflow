@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var showRemoveDemoConfirm = false
     @State private var showBackupTip = false
     @State private var showDemoAddedConfirm = false
+    @State private var showLockUnavailable = false
     var embedInStack: Bool = true
 
     var body: some View {
@@ -96,6 +97,21 @@ struct SettingsView: View {
                     Text("Daily Context")
                 } footer: {
                     Text(settings.dailyContextMode.explanation)
+                }
+
+                Section {
+                    Toggle(isOn: appLockBinding) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Label("Require \(AppLockManager.biometryLabel.name)", systemImage: AppLockManager.biometryLabel.icon)
+                            Text("Lock the app when it opens or returns from the background.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } header: {
+                    Text("Privacy")
+                } footer: {
+                    Text("Unlocks with \(AppLockManager.biometryLabel.name), falling back to your device passcode. Turning this off requires verifying it's you.")
                 }
 
                 Section("Data") {
@@ -201,6 +217,11 @@ struct SettingsView: View {
         } message: {
             Text("Your real profiles are untouched.")
         }
+        .alert("Can't enable app lock", isPresented: $showLockUnavailable) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Set a device passcode (Settings \u{2192} Face ID & Passcode) to use the app lock.")
+        }
         .alert("Back up first?", isPresented: $showBackupTip) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -212,6 +233,30 @@ struct SettingsView: View {
     /// actually remains in the store rather than the persisted flag.
     private func finishRemovalIfClear() {
         settings.isDemoMode = store.hasDemoData
+    }
+
+    /// Drives the app-lock toggle. Enabling checks the device can authenticate
+    /// at all; disabling requires a successful identity check first so someone
+    /// picking up an unlocked phone can't quietly remove the lock.
+    private var appLockBinding: Binding<Bool> {
+        Binding(
+            get: { settings.isAppLockEnabled },
+            set: { newValue in
+                if newValue {
+                    if AppLockManager.canUseDeviceAuthentication {
+                        settings.isAppLockEnabled = true
+                    } else {
+                        showLockUnavailable = true
+                    }
+                } else {
+                    Task {
+                        if await AppLockManager.verifyIdentity(reason: "Confirm it's you to turn off the app lock.") {
+                            settings.isAppLockEnabled = false
+                        }
+                    }
+                }
+            }
+        )
     }
 
     /// Drives the Demo Mode toggle. The displayed state reflects what's actually in

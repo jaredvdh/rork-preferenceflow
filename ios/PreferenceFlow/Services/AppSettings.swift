@@ -55,6 +55,7 @@ final class AppSettings {
         static let demoMode = "pf.isDemoMode"
         static let demoEverEnabled = "pf.demoEverEnabled"
         static let safetyBannerViews = "pf.safetyBannerFullViewCount"
+        static let appLock = "pf.appLockEnabled"
     }
 
     private let defaults: UserDefaults
@@ -109,6 +110,12 @@ final class AppSettings {
     /// enable, never again.
     var hasEnabledDemoModeBefore: Bool {
         didSet { defaults.set(hasEnabledDemoModeBefore, forKey: Keys.demoEverEnabled) }
+    }
+
+    /// Whether the app requires Face ID / Touch ID / passcode on launch and
+    /// when returning from the background. Off by default.
+    var isAppLockEnabled: Bool {
+        didSet { defaults.set(isAppLockEnabled, forKey: Keys.appLock) }
     }
 
     // MARK: - Safety banner
@@ -181,6 +188,7 @@ final class AppSettings {
         self.hasSeenGuidedTour = defaults.bool(forKey: Keys.hasLaunchedBefore)
         self.isDemoMode = defaults.bool(forKey: Keys.demoMode)
         self.hasEnabledDemoModeBefore = defaults.bool(forKey: Keys.demoEverEnabled)
+        self.isAppLockEnabled = defaults.bool(forKey: Keys.appLock)
         self.safetyBannerFullViewCount = defaults.integer(forKey: Keys.safetyBannerViews)
         self.country = defaults.string(forKey: Keys.country) ?? ""
         self.regionName = defaults.string(forKey: Keys.regionName) ?? ""
