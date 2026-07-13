@@ -56,10 +56,15 @@ struct SettingsView: View {
                     LabeledRow(label: "Provider term", value: settings.region.provider)
                     LabeledRow(label: "Assistant term", value: settings.region.assistant)
                     LabeledRow(label: "Spelling", value: settings.region.discipline)
+                    Picker(selection: crisisEditionBinding) {
+                        ForEach(CrisisEdition.allCases) { Text($0.displayName).tag($0) }
+                    } label: {
+                        Label("Crisis card units", systemImage: "cross.case")
+                    }
                 } header: {
                     Text("Terminology")
                 } footer: {
-                    Text("Choose whichever set of titles and spelling matches how your team talks. You can change this anytime — it doesn't affect any saved preference data.")
+                    Text("Choose whichever set of titles and spelling matches how your team talks — it doesn't affect any saved preference data. Crisis card units picks which edition of the emergency cards you read: US (epinephrine, °F alongside °C) or UK / SI (adrenaline, mmol/L, °C). You can also switch from any crisis card.")
                 }
 
                 Section {
@@ -206,6 +211,7 @@ struct SettingsView: View {
         .sensoryFeedback(.selection, trigger: settings.isAppLockEnabled)
         .sensoryFeedback(.selection, trigger: settings.isCloudAutoBackupEnabled)
         .sensoryFeedback(.selection, trigger: settings.isDemoMode)
+        .sensoryFeedback(.selection, trigger: settings.crisisEditionOverride)
         .sensoryFeedback(.success, trigger: cloudMessage) { _, newValue in newValue != nil && !isCloudError }
         .sensoryFeedback(.error, trigger: cloudMessage) { _, newValue in newValue != nil && isCloudError }
         .onAppear { cloudBackup.refreshAvailability() }
@@ -266,6 +272,15 @@ struct SettingsView: View {
     /// actually remains in the store rather than the persisted flag.
     private func finishRemovalIfClear() {
         settings.isDemoMode = store.hasDemoData
+    }
+
+    /// Drives the crisis-card edition picker; an explicit choice persists even
+    /// if the app region changes later.
+    private var crisisEditionBinding: Binding<CrisisEdition> {
+        Binding(
+            get: { settings.crisisEdition },
+            set: { settings.crisisEditionOverride = $0 }
+        )
     }
 
     private var lastBackupText: String {

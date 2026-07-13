@@ -14,9 +14,9 @@ struct SearchView: View {
     @State private var hospitalFilter: UUID?
     @State private var specialtyFilter: Subspecialty?
 
-    /// Structured crisis manual for the active region, loaded offline.
+    /// Structured crisis manual for the active edition (US or UK/SI), loaded offline.
     private var crisisManual: CrisisManual? {
-        CrisisManualStore.manual(for: settings.region)
+        CrisisManualStore.manual(for: settings.crisisEdition)
     }
 
     var body: some View {

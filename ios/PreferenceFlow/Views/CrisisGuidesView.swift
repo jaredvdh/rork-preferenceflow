@@ -142,10 +142,24 @@ struct CrisisCardDetailView: View {
     let manual: CrisisManual
     let card: CrisisCard
 
+    @Environment(AppSettings.self) private var settings
+
     /// Emergency large-text mode — toggled by a double-tap anywhere on the card.
     /// Strips the card down to the essential "Do now" checklist at large, high
     /// contrast type for fast reading under stress with gloved hands.
     @State private var emergencyBoost = false
+
+    /// The manual in the edition the user is currently reading. Falls back to
+    /// the manual passed in if the edition resource were ever missing.
+    private var activeManual: CrisisManual {
+        CrisisManualStore.manual(for: settings.crisisEdition) ?? manual
+    }
+
+    /// The same card in the active edition — card ids are identical across the
+    /// US and UK/SI files, so switching re-reads this card in the other units.
+    private var activeCard: CrisisCard {
+        activeManual.card(id: card.id) ?? card
+    }
 
     var body: some View {
         Group {
@@ -161,8 +175,14 @@ struct CrisisCardDetailView: View {
             generator.impactOccurred()
             withAnimation(.easeInOut(duration: 0.25)) { emergencyBoost.toggle() }
         }
-        .navigationTitle(card.title)
+        .navigationTitle(activeCard.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                CrisisEditionSwitcher()
+            }
+        }
+        .sensoryFeedback(.selection, trigger: settings.crisisEdition)
     }
 
     private var normalView: some View {
@@ -204,13 +224,13 @@ struct CrisisCardDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(CrisisColor.red, in: .rect(cornerRadius: Theme.cornerMedium))
 
-                Text(card.title)
+                Text(activeCard.title)
                     .font(.largeTitle.weight(.heavy))
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 VStack(alignment: .leading, spacing: 18) {
-                    ForEach(Array(card.doing.enumerated()), id: \.offset) { index, item in
+                    ForEach(Array(activeCard.doing.enumerated()), id: \.offset) { index, item in
                         HStack(alignment: .firstTextBaseline, spacing: 14) {
                             Text("\(index + 1)")
                                 .font(.title.weight(.heavy))
@@ -249,7 +269,7 @@ struct CrisisCardDetailView: View {
             Image(systemName: "text.book.closed.fill")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-            Text(manual.meta.sourceAcknowledgement)
+            Text(activeManual.meta.sourceAcknowledgement)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
@@ -265,20 +285,26 @@ struct CrisisCardDetailView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Text("\(card.sectionTag) · \(card.id.uppercased())")
+                Text("\(activeCard.sectionTag) · \(activeCard.id.uppercased())")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 8).padding(.vertical, 4)
-                    .background(card.color == "red" ? CrisisColor.red : Theme.accent, in: .capsule)
-                Text(card.sectionLabel.uppercased())
+                    .background(activeCard.color == "red" ? CrisisColor.red : Theme.accent, in: .capsule)
+                Text(activeCard.sectionLabel.uppercased())
                     .font(.caption.weight(.semibold))
                     .tracking(0.5)
                     .foregroundStyle(.secondary)
+                Spacer()
+                Text(settings.crisisEdition.shortLabel + " units")
+                    .font(.caption2.weight(.bold))
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(Color(.tertiarySystemFill), in: .capsule)
+                    .foregroundStyle(.secondary)
             }
-            Text(card.title).font(.title2.weight(.bold))
+            Text(activeCard.title).font(.title2.weight(.bold))
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "flag.fill").font(.caption).foregroundStyle(CrisisColor.red)
-                Text(card.priority)
+                Text(activeCard.priority)
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.primary)
             }
@@ -292,10 +318,10 @@ struct CrisisCardDetailView: View {
 
     @ViewBuilder
     private var doingBox: some View {
-        if !card.doing.isEmpty {
+        if !activeCard.doing.isEmpty {
             CrisisBox(color: CrisisColor.red, icon: "bolt.fill", label: "Do now") {
                 VStack(alignment: .leading, spacing: 10) {
-                    ForEach(Array(card.doing.enumerated()), id: \.offset) { index, item in
+                    ForEach(Array(activeCard.doing.enumerated()), id: \.offset) { index, item in
                         HStack(alignment: .top, spacing: 10) {
                             Text("\(index + 1)")
                                 .font(.caption.weight(.bold))
@@ -317,10 +343,10 @@ struct CrisisCardDetailView: View {
 
     @ViewBuilder
     private var thinkingBox: some View {
-        if !card.thinking.isEmpty {
+        if !activeCard.thinking.isEmpty {
             CrisisBox(color: CrisisColor.yellow, icon: "lightbulb.fill", label: "Think / consider") {
                 VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Array(card.thinking.enumerated()), id: \.offset) { _, item in
+                    ForEach(Array(activeCard.thinking.enumerated()), id: \.offset) { _, item in
                         HStack(alignment: .top, spacing: 10) {
                             Image(systemName: "circle.fill")
                                 .font(.system(size: 5))
@@ -341,7 +367,7 @@ struct CrisisCardDetailView: View {
 
     @ViewBuilder
     private var gradingTable: some View {
-        if let grading = card.grading {
+        if let grading = activeCard.grading {
             CrisisBox(color: Theme.accent, icon: "tablecells", label: "Grading") {
                 CrisisTableView(table: grading)
             }
@@ -352,7 +378,7 @@ struct CrisisCardDetailView: View {
 
     @ViewBuilder
     private var pedsTable: some View {
-        if let peds = card.pedsTable {
+        if let peds = activeCard.pedsTable {
             CrisisBox(color: Theme.accent, icon: "figure.child", label: "Paediatric values") {
                 CrisisTableView(table: peds)
             }
@@ -363,7 +389,7 @@ struct CrisisCardDetailView: View {
 
     @ViewBuilder
     private var bloodCompatTable: some View {
-        if let bc = card.bloodCompat {
+        if let bc = activeCard.bloodCompat {
             CrisisBox(color: CrisisColor.red, icon: "drop.fill", label: "Blood compatibility") {
                 VStack(alignment: .leading, spacing: 14) {
                     CrisisTableView(table: CrisisTable(columns: ["Patient", "Compatible red cells"], rows: bc.rbc))
@@ -381,9 +407,9 @@ struct CrisisCardDetailView: View {
 
     @ViewBuilder
     private var drugsBox: some View {
-        if !card.drugs.isEmpty {
+        if !activeCard.drugs.isEmpty {
             CrisisBox(color: CrisisColor.green, icon: "cross.vial.fill", label: "Doses & equipment") {
-                CrisisDrugTable(drugs: card.drugs)
+                CrisisDrugTable(drugs: activeCard.drugs)
             }
         }
     }
@@ -392,7 +418,7 @@ struct CrisisCardDetailView: View {
 
     @ViewBuilder
     private var crossRefChips: some View {
-        let refs = card.crossRefs.compactMap { manual.card(id: $0) }
+        let refs = activeCard.crossRefs.compactMap { activeManual.card(id: $0) }
         if !refs.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 SectionLabel("Related cards", icon: "link")
@@ -407,7 +433,7 @@ struct CrisisCardDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "exclamationmark.triangle.fill").font(.caption2).foregroundStyle(CrisisColor.red)
-                Text(manual.meta.disclaimer)
+                Text(activeManual.meta.disclaimer)
                     .font(.caption2).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -419,6 +445,42 @@ struct CrisisCardDetailView: View {
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(CrisisColor.red.opacity(0.06), in: .rect(cornerRadius: Theme.cornerMedium))
+    }
+}
+
+// MARK: - Edition switcher
+
+/// Compact toolbar menu that flips the crisis manual between the US and UK/SI
+/// editions (units + drug terminology, e.g. epinephrine vs adrenaline). The
+/// choice persists and applies everywhere crisis cards appear.
+struct CrisisEditionSwitcher: View {
+    @Environment(AppSettings.self) private var settings
+
+    private var editionBinding: Binding<CrisisEdition> {
+        Binding(
+            get: { settings.crisisEdition },
+            set: { settings.crisisEditionOverride = $0 }
+        )
+    }
+
+    var body: some View {
+        Menu {
+            Picker("Units & terminology", selection: editionBinding) {
+                ForEach(CrisisEdition.allCases) { edition in
+                    Text("\(edition.displayName)\n\(edition.detail)").tag(edition)
+                }
+            }
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "globe")
+                Text(settings.crisisEdition.shortLabel)
+            }
+            .font(.caption.weight(.bold))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Theme.accent.opacity(0.12), in: .capsule)
+            .foregroundStyle(Theme.accent)
+        }
     }
 }
 

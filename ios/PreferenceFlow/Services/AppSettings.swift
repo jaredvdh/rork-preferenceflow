@@ -57,6 +57,7 @@ final class AppSettings {
         static let safetyBannerViews = "pf.safetyBannerFullViewCount"
         static let appLock = "pf.appLockEnabled"
         static let cloudAutoBackup = "pf.cloudAutoBackup"
+        static let crisisEdition = "pf.crisisEdition"
     }
 
     private let defaults: UserDefaults
@@ -123,6 +124,24 @@ final class AppSettings {
     /// private iCloud Drive whenever it goes to the background. Off by default.
     var isCloudAutoBackupEnabled: Bool {
         didSet { defaults.set(isCloudAutoBackupEnabled, forKey: Keys.cloudAutoBackup) }
+    }
+
+    /// Explicit crisis-manual edition (units + drug terminology) chosen by the
+    /// user. `nil` means "follow the app region" — US region reads the US
+    /// edition, everywhere else reads the UK/SI edition.
+    var crisisEditionOverride: CrisisEdition? {
+        didSet {
+            if let crisisEditionOverride {
+                defaults.set(crisisEditionOverride.rawValue, forKey: Keys.crisisEdition)
+            } else {
+                defaults.removeObject(forKey: Keys.crisisEdition)
+            }
+        }
+    }
+
+    /// The crisis-manual edition currently in effect.
+    var crisisEdition: CrisisEdition {
+        crisisEditionOverride ?? CrisisEdition.default(for: region)
     }
 
     // MARK: - Safety banner
@@ -197,6 +216,7 @@ final class AppSettings {
         self.hasEnabledDemoModeBefore = defaults.bool(forKey: Keys.demoEverEnabled)
         self.isAppLockEnabled = defaults.bool(forKey: Keys.appLock)
         self.isCloudAutoBackupEnabled = defaults.bool(forKey: Keys.cloudAutoBackup)
+        self.crisisEditionOverride = defaults.string(forKey: Keys.crisisEdition).flatMap(CrisisEdition.init)
         self.safetyBannerFullViewCount = defaults.integer(forKey: Keys.safetyBannerViews)
         self.country = defaults.string(forKey: Keys.country) ?? ""
         self.regionName = defaults.string(forKey: Keys.regionName) ?? ""

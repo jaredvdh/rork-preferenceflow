@@ -30,9 +30,10 @@ struct EmergencyGuidesHubView: View {
         store.hospital(id: hospitalID ?? settings.activeHospitalId)
     }
 
-    /// The structured crisis manual for the active region, loaded offline.
+    /// The structured crisis manual for the active edition (US or UK/SI),
+    /// loaded offline. Both editions ship in the bundle.
     private var manual: CrisisManual? {
-        CrisisManualStore.manual(for: settings.region)
+        CrisisManualStore.manual(for: settings.crisisEdition)
     }
 
     var body: some View {
@@ -63,12 +64,16 @@ struct EmergencyGuidesHubView: View {
             .navigationDestination(for: KnowledgeArticle.self) { KnowledgeArticleView(article: $0) }
             .navigationDestination(for: KnowledgeDocument.self) { DocumentReaderView(documentID: $0.id) }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    CrisisEditionSwitcher()
+                }
                 if presentedAsSheet {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Done") { dismiss() }.fontWeight(.semibold)
                     }
                 }
             }
+            .sensoryFeedback(.selection, trigger: settings.crisisEdition)
             .onAppear {
                 if let initialCardID, let card = manual?.card(id: initialCardID), path.isEmpty {
                     path.append(card)
@@ -106,6 +111,9 @@ struct EmergencyGuidesHubView: View {
                 Text("Crisis quick-reference").font(.headline)
                 Text("Tap a guide for recognition, immediate priorities and kit.")
                     .font(.caption).foregroundStyle(.secondary)
+                Text("\(settings.crisisEdition.displayName) — tap \(Image(systemName: "globe")) to switch")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(Theme.accent)
             }
             Spacer()
         }

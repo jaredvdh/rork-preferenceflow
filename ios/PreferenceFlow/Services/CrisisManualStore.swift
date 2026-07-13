@@ -5,17 +5,60 @@
 
 import Foundation
 
-/// Loads the bundled crisis manual JSON for the active region, fully offline.
-/// Decoded manuals are cached so repeated screen visits are instant. There is no
-/// network dependency — both region files ship inside the app bundle.
-nonisolated enum CrisisManualStore {
-    /// Bundle resource name for a given terminology region.
-    private static func resourceName(for region: TerminologyRegion) -> String {
-        switch region {
-        case .northAmerica: return "crisis_manual_us"
-        case .commonwealth, .unitedKingdom: return "crisis_manual_nz_uk_au"
+/// Which edition of the crisis manual to display. Both editions ship inside the
+/// app bundle and cover the same 33 cards with identical ids — they differ in
+/// units and drug terminology (adrenaline vs epinephrine, °C vs °F alongside).
+nonisolated enum CrisisEdition: String, Codable, CaseIterable, Identifiable {
+    /// SI units with UK / NZ / AU drug names (adrenaline, salbutamol, lignocaine).
+    case si
+    /// US drug names (epinephrine, albuterol, lidocaine) with °F shown alongside °C.
+    case us
+
+    var id: String { rawValue }
+
+    /// Full name for pickers.
+    var displayName: String {
+        switch self {
+        case .si: return "UK / NZ / AU — SI units"
+        case .us: return "US — US terminology"
         }
     }
+
+    /// Compact label for the in-card switcher pill.
+    var shortLabel: String {
+        switch self {
+        case .si: return "UK · SI"
+        case .us: return "US"
+        }
+    }
+
+    /// One-line description of what changes in this edition.
+    var detail: String {
+        switch self {
+        case .si: return "Adrenaline · salbutamol · mmol/L · °C"
+        case .us: return "Epinephrine · albuterol · °F alongside °C"
+        }
+    }
+
+    /// Bundled JSON resource for this edition.
+    var resourceName: String {
+        switch self {
+        case .si: return "crisis_manual_nz_uk_au"
+        case .us: return "crisis_manual_us"
+        }
+    }
+
+    /// The natural edition for a terminology region, used until the user
+    /// explicitly picks one.
+    static func `default`(for region: TerminologyRegion) -> CrisisEdition {
+        region == .northAmerica ? .us : .si
+    }
+}
+
+/// Loads the bundled crisis manual JSON for the active edition, fully offline.
+/// Decoded manuals are cached so repeated screen visits are instant. There is no
+/// network dependency — both edition files ship inside the app bundle.
+nonisolated enum CrisisManualStore {
 
     private static let cache = NSCache<NSString, CacheBox>()
 
@@ -25,11 +68,11 @@ nonisolated enum CrisisManualStore {
         init(_ manual: CrisisManual) { self.manual = manual }
     }
 
-    /// Returns the decoded manual for the region, loading and caching on first use.
+    /// Returns the decoded manual for the edition, loading and caching on first use.
     /// Returns nil only if the resource is missing or fails to decode (which would
     /// indicate a packaging error rather than a runtime condition).
-    static func manual(for region: TerminologyRegion) -> CrisisManual? {
-        let name = resourceName(for: region)
+    static func manual(for edition: CrisisEdition) -> CrisisManual? {
+        let name = edition.resourceName
         if let cached = cache.object(forKey: name as NSString) {
             return cached.manual
         }
