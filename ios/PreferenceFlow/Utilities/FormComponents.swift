@@ -136,6 +136,11 @@ struct OptionPicker: View {
     var allowClear: Bool = true
 
     var body: some View {
+        picker
+            .sensoryFeedback(.selection, trigger: selection)
+    }
+
+    private var picker: some View {
         Menu {
             if allowClear {
                 Button("Not set") { selection = "" }
@@ -180,6 +185,8 @@ struct SuggestionField: View {
     var placeholder: String = ""
     var icon: String?
 
+    @State private var chipTapCount = 0
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             LabeledField(label: label, text: $text, placeholder: placeholder, icon: icon)
@@ -187,6 +194,7 @@ struct SuggestionField: View {
                 HStack(spacing: 8) {
                     ForEach(suggestions, id: \.self) { suggestion in
                         Button {
+                            chipTapCount += 1
                             text = suggestion
                         } label: {
                             Chip(text: suggestion, selected: text.caseInsensitiveCompare(suggestion) == .orderedSame)
@@ -198,6 +206,7 @@ struct SuggestionField: View {
             }
         }
         .padding(.vertical, 2)
+        .sensoryFeedback(.selection, trigger: chipTapCount)
     }
 }
 
@@ -218,6 +227,7 @@ struct SegmentedRow: View {
             .pickerStyle(.segmented)
         }
         .padding(.vertical, 2)
+        .sensoryFeedback(.selection, trigger: selection)
     }
 }
 
@@ -227,10 +237,13 @@ struct ChipMultiSelect: View {
     @Binding var selected: [String]
     let options: [String]
 
+    @State private var tapCount = 0
+
     var body: some View {
         FlowLayout(spacing: 8) {
             ForEach(options, id: \.self) { option in
                 Button {
+                    tapCount += 1
                     toggle(option)
                 } label: {
                     Chip(text: option, selected: selected.contains(option))
@@ -239,6 +252,7 @@ struct ChipMultiSelect: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .sensoryFeedback(.selection, trigger: tapCount)
     }
 
     private func toggle(_ option: String) {

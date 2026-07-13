@@ -93,6 +93,9 @@ struct CloudRestoreView: View {
         } message: {
             Text(message ?? "")
         }
+        .sensoryFeedback(.warning, trigger: pendingRestore?.id) { _, newValue in newValue != nil }
+        .sensoryFeedback(.success, trigger: message) { _, newValue in newValue != nil && !isError }
+        .sensoryFeedback(.error, trigger: message) { _, newValue in newValue != nil && isError }
     }
 
     private func backupRow(_ item: CloudBackupItem) -> some View {

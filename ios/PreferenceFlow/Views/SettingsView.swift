@@ -203,6 +203,11 @@ struct SettingsView: View {
                 }
             }
         .navigationTitle("Settings")
+        .sensoryFeedback(.selection, trigger: settings.isAppLockEnabled)
+        .sensoryFeedback(.selection, trigger: settings.isCloudAutoBackupEnabled)
+        .sensoryFeedback(.selection, trigger: settings.isDemoMode)
+        .sensoryFeedback(.success, trigger: cloudMessage) { _, newValue in newValue != nil && !isCloudError }
+        .sensoryFeedback(.error, trigger: cloudMessage) { _, newValue in newValue != nil && isCloudError }
         .onAppear { cloudBackup.refreshAvailability() }
         .alert(isCloudError ? "Backup failed" : "Backed up", isPresented: .constant(cloudMessage != nil)) {
             Button("OK") { cloudMessage = nil }

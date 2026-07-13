@@ -146,14 +146,20 @@ struct CardEditButton: View {
     let title: String
     let action: () -> Void
 
+    @State private var tapCount = 0
+
     var body: some View {
-        Button(action: action) {
+        Button {
+            tapCount += 1
+            action()
+        } label: {
             Label("Edit \(title)", systemImage: "slider.horizontal.3")
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(Theme.accent)
         }
         .buttonStyle(.plain)
         .padding(.top, 2)
+        .sensoryFeedback(.impact(weight: .light), trigger: tapCount)
     }
 }
 
@@ -510,6 +516,7 @@ struct PrefHospitalCard: View {
                 }
             }
         }
+        .sensoryFeedback(.selection, trigger: expanded)
         .card()
     }
 }
