@@ -92,7 +92,7 @@ struct ImportsView: View {
             }
             Text("Import a shared profile")
                 .font(.title3.weight(.semibold))
-            Text("Open a profile a colleague shared with you via AirDrop, Messages, Mail or Files. Sharing is peer-to-peer — there is no cloud sync.")
+            Text("Open a profile a colleague shared with you via AirDrop, Messages, Mail or Files. Sharing is peer-to-peer — files never pass through a server.")
                 .font(.subheadline).foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             Button { showFileImporter = true } label: {
@@ -135,7 +135,7 @@ struct ImportsView: View {
             SectionLabel("How sharing works", icon: "info.circle")
             VStack(alignment: .leading, spacing: 10) {
                 bullet("Peer-to-peer only — profiles move device to device, never through a server.")
-                bullet("All data stays on your device. No account, no cloud sync.")
+                bullet("All data stays on your device. Optional iCloud backups (Settings → iCloud Backup) go to your own private iCloud Drive.")
                 bullet("When a profile already exists, you can replace it or keep both.")
             }
             .card()

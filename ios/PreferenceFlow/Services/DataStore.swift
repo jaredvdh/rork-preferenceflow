@@ -653,6 +653,30 @@ final class DataStore {
         save()
     }
 
+    /// Restores a full iCloud backup. Unlike a peer-to-peer import, restored
+    /// profiles keep their original source and modification flags — this is the
+    /// user's own data coming home, not a colleague's share. Matching IDs are
+    /// overwritten; anything not in the backup is left untouched.
+    func restoreBackup(_ export: PreferenceExport) {
+        for hospital in export.hospitals {
+            if let index = hospitals.firstIndex(where: { $0.id == hospital.id }) {
+                hospitals[index] = hospital
+            } else {
+                hospitals.append(hospital)
+            }
+        }
+        for incoming in export.doctors {
+            if let index = doctors.firstIndex(where: { $0.id == incoming.id }) {
+                doctors[index] = incoming
+            } else {
+                doctors.append(incoming)
+            }
+        }
+        hospitals.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        sortDoctors()
+        save()
+    }
+
     /// Writes an export to a temporary file and returns the URL for sharing.
     func writeExportFile(_ export: PreferenceExport) throws -> URL {
         let data = try PreferenceCoding.encoder().encode(export)

@@ -9,12 +9,15 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(AppSettings.self) private var settings
     @Environment(DataStore.self) private var store
+    @Environment(CloudBackupManager.self) private var cloudBackup
 
     @State private var showSafety = false
     @State private var showRemoveDemoConfirm = false
     @State private var showBackupTip = false
     @State private var showDemoAddedConfirm = false
     @State private var showLockUnavailable = false
+    @State private var cloudMessage: String?
+    @State private var isCloudError = false
     var embedInStack: Bool = true
 
     var body: some View {
@@ -139,29 +142,48 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    HStack(spacing: 12) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10).fill(Color(.tertiarySystemFill)).frame(width: 36, height: 36)
-                            Image(systemName: "icloud")
-                                .foregroundStyle(.secondary)
+                    if cloudBackup.availability == .noAccount {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10).fill(Color(.tertiarySystemFill)).frame(width: 36, height: 36)
+                                Image(systemName: "icloud.slash")
+                                    .foregroundStyle(.secondary)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("iCloud not available")
+                                Text("Sign in to iCloud in the Settings app to back up your profiles.")
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
                         }
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Cloud sync").foregroundStyle(.primary)
-                            Text("Share one source of truth across your whole department")
-                                .font(.caption).foregroundStyle(.secondary)
+                        .padding(.vertical, 2)
+                    } else {
+                        Toggle(isOn: $settings.isCloudAutoBackupEnabled) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Label("Automatic backup", systemImage: "icloud.and.arrow.up")
+                                Text("Backs up every profile whenever you leave the app.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
-                        Spacer()
-                        Text("Coming soon")
-                            .font(.caption2.weight(.semibold))
-                            .padding(.horizontal, 8).padding(.vertical, 4)
-                            .background(Theme.accent.opacity(0.12), in: .capsule)
-                            .foregroundStyle(Theme.accent)
+                        Button(action: backUpNow) {
+                            HStack {
+                                Label("Back Up Now", systemImage: "arrow.clockwise.icloud")
+                                Spacer()
+                                if cloudBackup.isWorking { ProgressView() }
+                            }
+                        }
+                        .disabled(cloudBackup.isWorking || store.doctors.isEmpty)
+                        LabeledRow(label: "Last backup", value: lastBackupText)
+                        NavigationLink {
+                            CloudRestoreView()
+                        } label: {
+                            Label("Restore from iCloud", systemImage: "icloud.and.arrow.down")
+                        }
                     }
-                    .padding(.vertical, 2)
                 } header: {
-                    Text("Sync")
+                    Text("iCloud Backup")
                 } footer: {
-                    Text("A future version will sync profiles to a central hospital database so every technician shares one source of truth. For now, everything stays on this device and sharing is peer-to-peer.")
+                    Text("Backups go to your own private iCloud Drive \u{2014} no accounts, no third-party servers. The newest 10 backups are kept, and they appear automatically on any device signed in to the same iCloud account.")
                 }
 
                 Section("Safety") {
@@ -177,10 +199,16 @@ struct SettingsView: View {
                 } header: {
                     Text("About")
                 } footer: {
-                    Text("All data is stored locally on this device. No accounts. No servers.")
+                    Text("All data is stored locally on this device. Optional backups go to your own private iCloud \u{2014} no accounts, no third-party servers.")
                 }
             }
         .navigationTitle("Settings")
+        .onAppear { cloudBackup.refreshAvailability() }
+        .alert(isCloudError ? "Backup failed" : "Backed up", isPresented: .constant(cloudMessage != nil)) {
+            Button("OK") { cloudMessage = nil }
+        } message: {
+            Text(cloudMessage ?? "")
+        }
         .sheet(isPresented: $showSafety) {
             SafetyDisclaimerSheet()
         }
@@ -233,6 +261,26 @@ struct SettingsView: View {
     /// actually remains in the store rather than the persisted flag.
     private func finishRemovalIfClear() {
         settings.isDemoMode = store.hasDemoData
+    }
+
+    private var lastBackupText: String {
+        guard let date = cloudBackup.lastBackupDate else { return "Never" }
+        return date.formatted(.relative(presentation: .named))
+    }
+
+    /// Backs up all profiles to the user's iCloud Drive immediately.
+    private func backUpNow() {
+        let export = store.makeExport(region: settings.region)
+        Task {
+            do {
+                try await cloudBackup.backUp(export)
+                isCloudError = false
+                cloudMessage = "Backed up \(export.doctors.count) profile(s) and \(export.hospitals.count) hospital(s) to your iCloud Drive."
+            } catch {
+                isCloudError = true
+                cloudMessage = error.localizedDescription
+            }
+        }
     }
 
     /// Drives the app-lock toggle. Enabling checks the device can authenticate

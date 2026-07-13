@@ -56,6 +56,7 @@ final class AppSettings {
         static let demoEverEnabled = "pf.demoEverEnabled"
         static let safetyBannerViews = "pf.safetyBannerFullViewCount"
         static let appLock = "pf.appLockEnabled"
+        static let cloudAutoBackup = "pf.cloudAutoBackup"
     }
 
     private let defaults: UserDefaults
@@ -116,6 +117,12 @@ final class AppSettings {
     /// when returning from the background. Off by default.
     var isAppLockEnabled: Bool {
         didSet { defaults.set(isAppLockEnabled, forKey: Keys.appLock) }
+    }
+
+    /// Whether the app automatically backs up all profiles to the user's
+    /// private iCloud Drive whenever it goes to the background. Off by default.
+    var isCloudAutoBackupEnabled: Bool {
+        didSet { defaults.set(isCloudAutoBackupEnabled, forKey: Keys.cloudAutoBackup) }
     }
 
     // MARK: - Safety banner
@@ -189,6 +196,7 @@ final class AppSettings {
         self.isDemoMode = defaults.bool(forKey: Keys.demoMode)
         self.hasEnabledDemoModeBefore = defaults.bool(forKey: Keys.demoEverEnabled)
         self.isAppLockEnabled = defaults.bool(forKey: Keys.appLock)
+        self.isCloudAutoBackupEnabled = defaults.bool(forKey: Keys.cloudAutoBackup)
         self.safetyBannerFullViewCount = defaults.integer(forKey: Keys.safetyBannerViews)
         self.country = defaults.string(forKey: Keys.country) ?? ""
         self.regionName = defaults.string(forKey: Keys.regionName) ?? ""
