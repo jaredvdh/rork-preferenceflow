@@ -85,9 +85,6 @@ struct DoctorDetailView: View {
     /// the toolbar button) because a `.sheet` attached to a view inside a
     /// `ToolbarItem` is hoisted out of the hierarchy and often fails to present.
     @State private var showingEmergency = false
-    /// One-page laminate-ready theatre card, shared via the system sheet.
-    @State private var theatreCardPayload: SharePayload?
-    @State private var theatreCardError: String?
 
     init(
         doctorID: UUID,
@@ -130,7 +127,6 @@ struct DoctorDetailView: View {
         .sensoryFeedback(.selection, trigger: readTab)
         .sensoryFeedback(.success, trigger: isEditing) { oldValue, newValue in oldValue && !newValue }
         .sensoryFeedback(.success, trigger: sharePayload?.id) { _, newValue in newValue != nil }
-        .sensoryFeedback(.success, trigger: theatreCardPayload?.id) { _, newValue in newValue != nil }
         .background(Color(.systemGroupedBackground))
         .navigationTitle(doctor?.displayName ?? "Provider")
         .navigationBarTitleDisplayMode(.inline)
@@ -159,8 +155,7 @@ struct DoctorDetailView: View {
                     Menu {
                         Button { withAnimation(.spring(response: 0.3)) { readTab = .overview; isEditing = true; tab = .details } } label: { Label("Edit", systemImage: "pencil") }
                         Button { shareProfileFile() } label: { Label("Share Profile", systemImage: "square.and.arrow.up") }
-                        Button { exportingPDF = true } label: { Label("Export as PDF", systemImage: "doc.richtext") }
-                        Button { generateTheatreCard() } label: { Label("Print Theatre Card", systemImage: "printer") }
+                        Button { exportingPDF = true } label: { Label("Export / Print PDF", systemImage: "printer") }
                         Button { duplicateProfile() } label: { Label("Duplicate", systemImage: "plus.square.on.square") }
                         Divider()
                         Button(role: .destructive) { confirmingDelete = true } label: { Label("Delete", systemImage: "trash") }
@@ -177,18 +172,10 @@ struct DoctorDetailView: View {
             if let doctor { ProfileMigrationView(source: doctor) }
         }
         .sheet(isPresented: $exportingPDF) {
-            if let doctor { PreferenceCardExportView(doctor: doctor) }
+            if let doctor { PreferenceCardExportView(doctor: doctor, hospitalID: dailyHospitalID) }
         }
         .sheet(item: $sharePayload) { payload in
             ShareSheet(items: [payload.url])
-        }
-        .sheet(item: $theatreCardPayload) { payload in
-            ShareSheet(items: [payload.url])
-        }
-        .alert("Couldn't create card", isPresented: .constant(theatreCardError != nil)) {
-            Button("OK") { theatreCardError = nil }
-        } message: {
-            Text(theatreCardError ?? "")
         }
         .alert("Share Failed", isPresented: .constant(shareError != nil)) {
             Button("OK") { shareError = nil }
@@ -370,20 +357,6 @@ struct DoctorDetailView: View {
             sharePayload = SharePayload(url: url)
         } catch {
             shareError = error.localizedDescription
-        }
-    }
-
-    /// Builds the one-page laminate-ready theatre card and opens the system share
-    /// sheet (print, AirDrop, save to Files). This is the condensed card format,
-    /// distinct from "Export as PDF" which produces the full detailed export.
-    private func generateTheatreCard() {
-        guard let doctor else { return }
-        let hospital = store.hospital(id: dailyHospitalID ?? doctor.hospitalId)
-        do {
-            let url = try TheatreCardPDF.writeFile(for: doctor, hospital: hospital, region: settings.region)
-            theatreCardPayload = SharePayload(url: url)
-        } catch {
-            theatreCardError = error.localizedDescription
         }
     }
 

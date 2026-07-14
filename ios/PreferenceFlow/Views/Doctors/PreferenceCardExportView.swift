@@ -5,8 +5,33 @@
 
 import SwiftUI
 
-/// Lets the user choose which sections to include, then generates and shares a
-/// polished "Consultant Preference Card" PDF. Presented from the profile "…"
+/// The two printable document formats, merged into one export flow.
+enum PDFExportFormat: String, CaseIterable, Identifiable {
+    /// One A4 page, condensed — lives laminated by the anaesthetic machine.
+    case theatreCard = "Theatre Card"
+    /// Multi-page detailed export with selectable sections and appendix.
+    case fullCard = "Full Preference Card"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .theatreCard: return "printer"
+        case .fullCard: return "doc.richtext"
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .theatreCard: return "One page, laminate-ready — airway, drugs, equipment at a glance"
+        case .fullCard: return "Detailed multi-page card — choose sections, add hospital appendix"
+        }
+    }
+}
+
+/// Single "Export / Print PDF" flow: pick a format (one-page Theatre Card or the
+/// full detailed Preference Card), tune options where relevant, then share via
+/// the system sheet (print, AirDrop, Files). Presented from the profile "…"
 /// menu and the Share tab.
 struct PreferenceCardExportView: View {
     @Environment(DataStore.self) private var store
@@ -14,14 +39,18 @@ struct PreferenceCardExportView: View {
     @Environment(\.dismiss) private var dismiss
 
     let doctor: Doctor
+    /// Preferred hospital context (e.g. today's hospital); falls back to the
+    /// doctor's own hospital.
+    var hospitalID: UUID? = nil
 
+    @State private var format: PDFExportFormat = .theatreCard
     @State private var options: PreferenceCardOptions = .standard
     @State private var includeQR = false
     @State private var sharePayload: SharePayload?
     @State private var isGenerating = false
     @State private var errorMessage: String?
 
-    private var hospital: Hospital? { store.hospital(id: doctor.hospitalId) }
+    private var hospital: Hospital? { store.hospital(id: hospitalID ?? doctor.hospitalId) }
     private var hospitalHasOrientation: Bool { hospital?.orientationOrEmpty.hasContent ?? false }
 
     /// The selectable export sections, in document order.
@@ -41,57 +70,63 @@ struct PreferenceCardExportView: View {
             Form {
                 previewHeader
 
-                Section("Include sections") {
-                    ForEach(sectionRows, id: \.member.rawValue) { row in
-                        toggleRow(row.member, title: row.title, icon: row.icon, subtitle: row.subtitle)
-                    }
-                }
+                formatSection
 
-                Section {
-                    if hospitalHasOrientation {
-                        toggleRow(
-                            .hospitalInfo,
-                            title: "Hospital Information",
-                            icon: "building.2",
-                            subtitle: "Equipment locations, contacts, sick-call — appendix for locums"
-                        )
-                    } else {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Hospital Information").foregroundStyle(.secondary)
-                                Text("Add equipment locations or contacts to the hospital to include them")
-                                    .font(.caption).foregroundStyle(.tertiary)
-                            }
-                        } icon: {
-                            Image(systemName: "building.2").foregroundStyle(.tertiary)
+                if format == .fullCard {
+                    Section("Include sections") {
+                        ForEach(sectionRows, id: \.member.rawValue) { row in
+                            toggleRow(row.member, title: row.title, icon: row.icon, subtitle: row.subtitle)
                         }
                     }
-                } header: {
-                    Text("Optional appendix")
-                }
 
-                Section {
-                    Toggle(isOn: $includeQR) {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("QR code")
-                                Text("Adds a scannable link to open this profile in-app (deep-linking coming soon)")
-                                    .font(.caption).foregroundStyle(.secondary)
+                    Section {
+                        if hospitalHasOrientation {
+                            toggleRow(
+                                .hospitalInfo,
+                                title: "Hospital Information",
+                                icon: "building.2",
+                                subtitle: "Equipment locations, contacts, sick-call — appendix for locums"
+                            )
+                        } else {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Hospital Information").foregroundStyle(.secondary)
+                                    Text("Add equipment locations or contacts to the hospital to include them")
+                                        .font(.caption).foregroundStyle(.tertiary)
+                                }
+                            } icon: {
+                                Image(systemName: "building.2").foregroundStyle(.tertiary)
                             }
-                        } icon: {
-                            Image(systemName: "qrcode").foregroundStyle(Theme.accent)
                         }
+                    } header: {
+                        Text("Optional appendix")
                     }
-                    .tint(Theme.accent)
-                } header: {
-                    Text("Extras")
-                }
 
-                Section {
-                    presetButtons
+                    Section {
+                        Toggle(isOn: $includeQR) {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("QR code")
+                                    Text("Adds a scannable link to open this profile in-app (deep-linking coming soon)")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
+                            } icon: {
+                                Image(systemName: "qrcode").foregroundStyle(Theme.accent)
+                            }
+                        }
+                        .tint(Theme.accent)
+                    } header: {
+                        Text("Extras")
+                    }
+
+                    Section {
+                        presetButtons
+                    }
                 }
             }
-            .navigationTitle("Export Preference Card")
+            .animation(.easeInOut(duration: 0.2), value: format)
+            .sensoryFeedback(.selection, trigger: format)
+            .navigationTitle("Export / Print PDF")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -107,7 +142,7 @@ struct PreferenceCardExportView: View {
                             Text("Generate").fontWeight(.semibold)
                         }
                     }
-                    .disabled(options.isEmpty || isGenerating)
+                    .disabled((format == .fullCard && options.isEmpty) || isGenerating)
                 }
             }
             .sensoryFeedback(.success, trigger: sharePayload?.id) { _, newValue in newValue != nil }
@@ -132,15 +167,49 @@ struct PreferenceCardExportView: View {
                     if let hospital, !hospital.name.isEmpty {
                         Text(hospital.name).font(.subheadline).foregroundStyle(.secondary)
                     }
-                    Text("A4 · print, laminate, or AirDrop")
+                    Text(format == .theatreCard
+                         ? "One A4 page · print, laminate, or AirDrop"
+                         : "A4 · print, laminate, or AirDrop")
                         .font(.caption).foregroundStyle(.tertiary)
                 }
                 Spacer()
-                Image(systemName: "doc.richtext.fill")
+                Image(systemName: format.icon)
                     .font(.title2)
                     .foregroundStyle(Theme.accent)
             }
             .padding(.vertical, 4)
+        }
+    }
+
+    /// Format chooser: one-page Theatre Card vs full detailed card.
+    private var formatSection: some View {
+        Section("Format") {
+            ForEach(PDFExportFormat.allCases) { candidate in
+                Button {
+                    format = candidate
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: candidate.icon)
+                            .font(.body)
+                            .foregroundStyle(Theme.accent)
+                            .frame(width: 26)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(candidate.rawValue)
+                                .font(.body)
+                                .foregroundStyle(.primary)
+                            Text(candidate.subtitle)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: format == candidate ? "checkmark.circle.fill" : "circle")
+                            .font(.title3)
+                            .foregroundStyle(format == candidate ? Theme.accent : Color(.tertiaryLabel))
+                    }
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 
@@ -196,13 +265,19 @@ struct PreferenceCardExportView: View {
     private func generate() {
         isGenerating = true
         do {
-            let url = try ProfilePDF.writeFile(
-                for: doctor,
-                hospital: hospital,
-                region: settings.region,
-                options: options,
-                includeQRCode: includeQR
-            )
+            let url: URL
+            switch format {
+            case .theatreCard:
+                url = try TheatreCardPDF.writeFile(for: doctor, hospital: hospital, region: settings.region)
+            case .fullCard:
+                url = try ProfilePDF.writeFile(
+                    for: doctor,
+                    hospital: hospital,
+                    region: settings.region,
+                    options: options,
+                    includeQRCode: includeQR
+                )
+            }
             isGenerating = false
             sharePayload = SharePayload(url: url)
         } catch {

@@ -38,7 +38,7 @@ struct ShareTab: View {
                     .multilineTextAlignment(.center)
 
                 Button { showPDFOptions = true } label: {
-                    Label("Export as PDF", systemImage: "doc.richtext")
+                    Label("Export / Print PDF", systemImage: "printer")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
@@ -47,7 +47,7 @@ struct ShareTab: View {
                         .overlay(Capsule().strokeBorder(Theme.accent.opacity(0.4), lineWidth: 1))
                 }
 
-                Text("Builds a polished Consultant Preference Card — choose sections, add a hospital appendix, then AirDrop, email, or print and laminate for theatre.")
+                Text("Builds a printable PDF — a one-page laminate-ready Theatre Card, or the full Preference Card with selectable sections and a hospital appendix. AirDrop, email, or print.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
