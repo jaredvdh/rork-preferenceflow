@@ -46,55 +46,30 @@ nonisolated enum DemoData {
     /// Full set of demo consultants and surgeons.
     static var doctors: [Doctor] { [sarahMitchell, jamesOkonkwo, priyaNair, danielKovac] }
 
-    /// The pristine demo hospital for a given id, if one exists.
-    static func canonicalHospital(id: UUID) -> Hospital? {
-        hospitals.first { $0.id == id }
-    }
-
-    /// The pristine demo consultant for a given id, if one exists.
-    static func canonicalDoctor(id: UUID) -> Doctor? {
-        doctors.first { $0.id == id }
-    }
-
     // MARK: - Edited-demo detection
 
-    /// True when a stored demo consultant differs from its pristine definition —
-    /// i.e. the user has explored by editing it. Timestamps are ignored so an
-    /// untouched record never reads as edited. Records whose id isn't a known
-    /// demo id are never considered demo (returns false).
+    /// How far `updatedAt` may drift past `createdAt` before a demo record counts
+    /// as user-edited. Untouched records keep the two stamps within milliseconds
+    /// of each other (both default to "now" at install); every user edit flows
+    /// through `DataStore.upsert`, which bumps `updatedAt` well past this window.
+    private static let editDetectionTolerance: TimeInterval = 10
+
+    /// True when a stored demo consultant has been edited by the user. Detection
+    /// is timestamp-based (`updatedAt` bumped past `createdAt` by an edit), NOT a
+    /// content comparison against the current in-code definition — app updates
+    /// routinely revise the demo content itself, which would otherwise make every
+    /// previously installed record read as "edited" and block clean removal.
+    /// Records whose id isn't a known demo id are never considered demo.
     static func isEditedDemoDoctor(_ doctor: Doctor) -> Bool {
-        guard let canonical = canonicalDoctor(id: doctor.id) else { return false }
-        return fingerprint(doctor) != fingerprint(canonical)
+        guard allDemoDoctorIDs.contains(doctor.id) else { return false }
+        return doctor.updatedAt.timeIntervalSince(doctor.createdAt) > editDetectionTolerance
     }
 
-    /// True when a stored demo hospital differs from its pristine definition.
+    /// True when a stored demo hospital has been edited by the user (see
+    /// `isEditedDemoDoctor` for why this is timestamp-based).
     static func isEditedDemoHospital(_ hospital: Hospital) -> Bool {
-        guard let canonical = canonicalHospital(id: hospital.id) else { return false }
-        return fingerprint(hospital) != fingerprint(canonical)
-    }
-
-    /// Stable content fingerprint for a consultant, ignoring volatile timestamps,
-    /// so pristine and stored copies compare equal when nothing meaningful changed.
-    private static func fingerprint(_ doctor: Doctor) -> Data? {
-        var normalized = doctor
-        normalized.createdAt = Date(timeIntervalSince1970: 0)
-        normalized.updatedAt = Date(timeIntervalSince1970: 0)
-        return try? comparisonEncoder().encode(normalized)
-    }
-
-    /// Stable content fingerprint for a hospital, ignoring volatile timestamps.
-    private static func fingerprint(_ hospital: Hospital) -> Data? {
-        var normalized = hospital
-        normalized.createdAt = Date(timeIntervalSince1970: 0)
-        normalized.updatedAt = Date(timeIntervalSince1970: 0)
-        return try? comparisonEncoder().encode(normalized)
-    }
-
-    /// Deterministic encoder (sorted keys) for content comparison.
-    private static func comparisonEncoder() -> JSONEncoder {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        return encoder
+        guard allDemoHospitalIDs.contains(hospital.id) else { return false }
+        return hospital.updatedAt.timeIntervalSince(hospital.createdAt) > editDetectionTolerance
     }
 
     // MARK: - Hospitals
