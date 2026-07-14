@@ -74,7 +74,7 @@ struct DailyContextPromptView: View {
                 }
             }
             Spacer()
-            Button("Skip") { finish(doctorId: settings.activeDoctorId) }
+            Button("Skip") { finish(doctorId: carryOverDoctorId) }
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.white.opacity(0.6))
         }
@@ -303,7 +303,7 @@ struct DailyContextPromptView: View {
 
     private var continueWithoutButton: some View {
         Button {
-            finish(doctorId: settings.activeDoctorId)
+            finish(doctorId: carryOverDoctorId)
         } label: {
             Text("Continue to dashboard")
                 .font(.headline)
@@ -315,6 +315,15 @@ struct DailyContextPromptView: View {
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 32)
+    }
+
+    /// The existing active provider is only carried through Skip / Continue
+    /// when they match the current discipline view — an anaesthetist must never
+    /// remain today's provider in the surgical view (and vice versa).
+    private var carryOverDoctorId: UUID? {
+        guard let id = settings.activeDoctorId, let doctor = store.doctor(id: id),
+              doctor.clinicianKind == settings.discipline.primaryKind else { return nil }
+        return id
     }
 
     private func finish(doctorId: UUID?) {

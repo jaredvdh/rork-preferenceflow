@@ -58,9 +58,12 @@ struct TodayView: View {
         }
         .onChange(of: showingPrompt) { wasShowing, isShowing in
             // After the prompt closes with a provider chosen, open straight
-            // into their card — home stays one tap back.
+            // into their card — home stays one tap back. Never navigate to a
+            // provider from the other discipline (e.g. a stored anaesthetist
+            // while the surgical view is active).
             guard wasShowing, !isShowing, let id = settings.activeDoctorId,
-                  store.doctor(id: id) != nil else { return }
+                  let doctor = store.doctor(id: id),
+                  doctor.clinicianKind == settings.discipline.primaryKind else { return }
             path = NavigationPath()
             path.append(id)
         }
