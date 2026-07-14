@@ -20,6 +20,7 @@ extension Subspecialty {
         case .trauma: return Color(hex: "E67E22")       // orange
         case .icu: return Color(hex: "1ABC9C")          // teal variant
         case .generalSurgery: return Color(hex: "2E7DD1") // blue
+        case .hepatobiliary: return Color(hex: "9C6B2F")   // bile amber-brown
         case .orthopaedics: return Color(hex: "A0522D")   // sienna
         case .cathLab: return Color(hex: "E74C3C")        // bright red
         case .endoscopy: return Color(hex: "16A085")      // deep teal

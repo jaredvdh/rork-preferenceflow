@@ -14,9 +14,18 @@ struct SearchView: View {
     @State private var hospitalFilter: UUID?
     @State private var specialtyFilter: Subspecialty?
 
-    /// Structured crisis manual for the active edition (US or UK/SI), loaded offline.
+    /// Structured crisis manual for the active edition (US or UK/SI), loaded
+    /// offline. Deliberately NOT discipline-filtered — perioperative emergencies
+    /// apply to all theatre staff, so crisis cards surface in both views.
     private var crisisManual: CrisisManual? {
         CrisisManualStore.manual(for: settings.crisisEdition)
+    }
+
+    /// Provider results follow the active discipline view: anaesthetists in the
+    /// anaesthesia view, surgeons in the surgical view. Hospitals, documents,
+    /// knowledge and crisis cards stay shared.
+    private var disciplineKind: ClinicianKind {
+        settings.discipline.primaryKind
     }
 
     var body: some View {
@@ -60,7 +69,7 @@ struct SearchView: View {
                     }
                     Menu {
                         Button("All specialties") { specialtyFilter = nil }
-                        ForEach(Subspecialty.allCases) { s in
+                        ForEach(Subspecialty.options(for: disciplineKind)) { s in
                             Button(s.rawValue) { specialtyFilter = s }
                         }
                     } label: {
@@ -87,6 +96,7 @@ struct SearchView: View {
 
     private var matchingDoctors: [Doctor] {
         store.doctors.filter { doc in
+            guard doc.clinicianKind == disciplineKind else { return false }
             if let hospitalFilter, doc.hospitalId != hospitalFilter { return false }
             if let specialtyFilter, !doc.subspecialties.contains(specialtyFilter) { return false }
             guard !query.isBlank else { return true }
@@ -279,9 +289,11 @@ struct SearchView: View {
         }
     }
 
-    /// Scope used for nested matches, respecting the hospital filter.
+    /// Scope used for nested matches, respecting the discipline view and the
+    /// hospital filter.
     private var matchingDoctorsScope: [Doctor] {
         store.doctors.filter { doc in
+            guard doc.clinicianKind == disciplineKind else { return false }
             if let hospitalFilter, doc.hospitalId != hospitalFilter { return false }
             if let specialtyFilter, !doc.subspecialties.contains(specialtyFilter) { return false }
             return true

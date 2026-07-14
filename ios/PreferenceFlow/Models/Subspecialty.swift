@@ -24,6 +24,7 @@ nonisolated enum Subspecialty: String, Codable, CaseIterable, Identifiable, Hash
     case transplant = "Transplant"
     // Surgical specialties (surgeon / proceduralist profiles).
     case generalSurgery = "General / Laparoscopic"
+    case hepatobiliary = "Hepatobiliary (HPB)"
     case orthopaedics = "Orthopaedics"
     case cathLab = "Cath Lab"
     case endoscopy = "Endoscopy"
@@ -43,9 +44,9 @@ nonisolated enum Subspecialty: String, Codable, CaseIterable, Identifiable, Hash
 
     /// Specialties offered when tagging a surgeon / proceduralist profile.
     static let surgical: [Subspecialty] = [
-        .generalSurgery, .orthopaedics, .cathLab, .endoscopy, .cardiothoracic,
-        .urology, .gynaecology, .ent, .vascular, .neuro, .plastics,
-        .ophthalmology, .obstetrics, .paediatrics, .trauma, .other
+        .generalSurgery, .hepatobiliary, .orthopaedics, .cathLab, .endoscopy,
+        .cardiothoracic, .urology, .gynaecology, .ent, .vascular, .neuro,
+        .plastics, .ophthalmology, .obstetrics, .paediatrics, .trauma, .other
     ]
 
     /// The specialty list appropriate to a profile's clinician kind.
@@ -71,6 +72,7 @@ nonisolated enum Subspecialty: String, Codable, CaseIterable, Identifiable, Hash
         case .thoracic: return "lungs.fill"
         case .transplant: return "arrow.triangle.2.circlepath"
         case .generalSurgery: return "scissors"
+        case .hepatobiliary: return "cross.vial"
         case .orthopaedics: return "figure.walk"
         case .cathLab: return "waveform.path.ecg.rectangle"
         case .endoscopy: return "scope"

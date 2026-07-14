@@ -129,9 +129,9 @@ struct DailyContextPromptView: View {
     // MARK: - Provider step
 
     /// Profiles offered for today's context: scoped to the chosen hospital when
-    /// any are linked, then filtered to the user's discipline (surgeons for
-    /// surgical mode, anaesthetists otherwise). Falls back to all profiles when
-    /// the discipline has none yet so the prompt never dead-ends.
+    /// any are linked, then strictly filtered to the user's discipline view —
+    /// surgeons in the surgical view, anaesthetists in the anaesthesia view.
+    /// The empty state points to adding a profile if the view has none yet.
     private var hospitalDoctors: [Doctor] {
         var pool = store.doctors
         if let id = chosenHospitalId {
@@ -139,8 +139,7 @@ struct DailyContextPromptView: View {
             if !linked.isEmpty { pool = linked }
         }
         let kind = settings.discipline.primaryKind
-        let ofKind = pool.filter { $0.clinicianKind == kind }
-        return ofKind.isEmpty ? pool : ofKind
+        return pool.filter { $0.clinicianKind == kind }
     }
 
     /// Discipline-aware subtitle under "Who are you working with today?".

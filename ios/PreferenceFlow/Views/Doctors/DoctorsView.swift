@@ -16,10 +16,6 @@ struct DoctorsView: View {
 
     @State private var creatingNew = false
     @State private var quickAdding = false
-    /// Which profile type the list is showing. Defaults to the user's
-    /// discipline; the segmented toggle lets them peek at the other side
-    /// without changing their discipline setting.
-    @State private var viewKindOverride: ClinicianKind?
     /// Result from Quick Add, consumed on sheet dismiss to navigate appropriately.
     @State private var quickAddResult: (id: UUID, openEdit: Bool)?
     @State private var query = ""
@@ -37,20 +33,16 @@ struct DoctorsView: View {
     @State private var importMessage: String?
     @State private var importIsError = false
 
-    /// The profile type currently shown (user toggle, else discipline default).
+    /// The profile type shown — strictly follows the user's discipline view.
+    /// Anaesthesia view shows only anaesthetists; Surgical view only surgeons.
+    /// Switch views from the Today screen or Settings.
     private var viewKind: ClinicianKind {
-        viewKindOverride ?? settings.discipline.primaryKind
+        settings.discipline.primaryKind
     }
 
     /// All profiles of the currently shown type.
     private var doctorsOfKind: [Doctor] {
         store.doctors.filter { $0.clinicianKind == viewKind }
-    }
-
-    /// Whether profiles of the other type exist — drives the segmented toggle.
-    private var hasBothKinds: Bool {
-        store.doctors.contains { $0.clinicianKind == .anaesthetist }
-            && store.doctors.contains { $0.clinicianKind == .surgeon }
     }
 
     /// Results matching the current query (whole list when query is blank).
@@ -84,7 +76,7 @@ struct DoctorsView: View {
     var body: some View {
         NavigationStack(path: $path) {
             Group {
-                if store.doctors.isEmpty {
+                if doctorsOfKind.isEmpty {
                     EmptyStateView(
                         icon: viewKind == .surgeon ? "scissors" : "person.text.rectangle",
                         title: "No \(viewKind.providerPlural(settings.region).lowercased()) yet",
@@ -321,9 +313,6 @@ struct DoctorsView: View {
     private var listContent: some View {
         ScrollView {
             VStack(spacing: 18) {
-                if hasBothKinds {
-                    kindToggle
-                }
                 searchField
 
                 if isSearching {
@@ -335,15 +324,11 @@ struct DoctorsView: View {
                     if !recents.isEmpty {
                         section(title: "Recent", icon: "clock.arrow.circlepath", doctors: recents)
                     }
-                    if doctorsOfKind.isEmpty {
-                        emptyKindState
-                    } else {
-                        section(
-                            title: "All \(viewKind.providerPlural(settings.region))",
-                            icon: "person.2",
-                            doctors: doctorsOfKind
-                        )
-                    }
+                    section(
+                        title: "All \(viewKind.providerPlural(settings.region))",
+                        icon: "person.2",
+                        doctors: doctorsOfKind
+                    )
                 }
             }
             .padding(.horizontal, 16)
@@ -351,7 +336,6 @@ struct DoctorsView: View {
             .padding(.bottom, 24)
         }
         .scrollDismissesKeyboard(.interactively)
-        .sensoryFeedback(.selection, trigger: viewKindOverride)
         .onAppear {
             // Auto-focus so the technician can start typing immediately.
             // Delayed past the NavigationStack push animation (0.35s) with a
@@ -361,41 +345,6 @@ struct DoctorsView: View {
                 searchFocused = true
             }
         }
-    }
-
-    /// Segmented toggle between anaesthetic and surgeon profiles — shown only
-    /// when both types exist so single-discipline users never see it.
-    private var kindToggle: some View {
-        Picker("Profile type", selection: Binding(
-            get: { viewKind },
-            set: { viewKindOverride = $0 }
-        )) {
-            ForEach(ClinicianKind.allCases) { kind in
-                Text(kind.providerPlural(settings.region)).tag(kind)
-            }
-        }
-        .pickerStyle(.segmented)
-    }
-
-    /// Shown when the selected profile type has no profiles yet (but the other
-    /// type does), with a direct add affordance.
-    private var emptyKindState: some View {
-        VStack(spacing: 10) {
-            Image(systemName: viewKind == .surgeon ? "scissors" : "person.text.rectangle")
-                .font(.system(size: 32))
-                .foregroundStyle(.tertiary)
-            Text("No \(viewKind.providerPlural(settings.region).lowercased()) yet")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Button { creatingNew = true } label: {
-                Label("Add \(viewKind.provider(settings.region))", systemImage: "plus")
-                    .font(.subheadline.weight(.semibold))
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(Theme.accent)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 36)
     }
 
     // MARK: - Search field

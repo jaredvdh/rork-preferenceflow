@@ -25,9 +25,14 @@ struct TodayView: View {
     @State private var showingSettings = false
 
     private var activeHospital: Hospital? { store.hospital(id: settings.activeHospitalId) }
+
+    /// Today's provider — only surfaced when they match the active discipline
+    /// view, so switching views never shows a surgeon on the anaesthesia home
+    /// (or vice versa). The stored context is kept, so switching back restores it.
     private var activeDoctor: Doctor? {
-        guard let id = settings.activeDoctorId else { return nil }
-        return store.doctor(id: id)
+        guard let id = settings.activeDoctorId, let doctor = store.doctor(id: id),
+              doctor.clinicianKind == settings.discipline.primaryKind else { return nil }
+        return doctor
     }
 
     var body: some View {
