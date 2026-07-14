@@ -15,6 +15,8 @@ struct QuickAddConsultantView: View {
     @Environment(AppSettings.self) private var settings
     @Environment(\.dismiss) private var dismiss
 
+    /// Which profile type to create — anaesthetist or surgeon.
+    var kind: ClinicianKind = .anaesthetist
     /// Called after a successful save with the new profile's id and whether the
     /// user chose to jump straight into the full setup editor.
     var onSaved: (UUID, Bool) -> Void
@@ -38,7 +40,7 @@ struct QuickAddConsultantView: View {
                 Section {
                     LabeledField(label: "Full Name", text: $fullName, placeholder: "Dr Jane Smith", icon: "person")
                     NavigationLink {
-                        SubspecialtyPicker(selected: $specialties)
+                        SubspecialtyPicker(selected: $specialties, kind: kind)
                     } label: {
                         HStack {
                             Label("Specialty", systemImage: "square.grid.2x2")
@@ -55,10 +57,13 @@ struct QuickAddConsultantView: View {
                 }
 
                 Section("Quick preferences") {
-                    OptionPicker(label: "Sterile glove size", selection: $sterileGloveSize,
+                    OptionPicker(label: kind == .surgeon ? "Glove size" : "Sterile glove size",
+                                 selection: $sterileGloveSize,
                                  options: GeneralPreferences.sterileGloveSizes, icon: "hand.raised")
                     LabeledField(label: "Gown size", text: $gownSize, placeholder: "e.g. Large", icon: "tshirt")
-                    LabeledField(label: "Coffee order", text: $coffee, placeholder: "e.g. Flat white", icon: "cup.and.saucer")
+                    if kind == .anaesthetist {
+                        LabeledField(label: "Coffee order", text: $coffee, placeholder: "e.g. Flat white", icon: "cup.and.saucer")
+                    }
                 }
 
                 Section("Notes") {
@@ -145,16 +150,25 @@ struct QuickAddConsultantView: View {
     }
 
     private func save(verified: Bool) {
-        var doctor = Doctor(fullName: fullName, subspecialties: specialties)
+        var doctor = Doctor(fullName: fullName, kind: kind, subspecialties: specialties)
         doctor.isVerified = verified
         // Attach to the only hospital automatically so the profile isn't orphaned.
         if store.hospitals.count == 1, let only = store.hospitals.first {
             doctor.hospitalId = only.id
             doctor.department = only.department
         }
-        doctor.general.sterileGloveSize = sterileGloveSize
-        doctor.general.gownSize = gownSize
-        doctor.general.coffeePreference = coffee
+        if kind == .surgeon {
+            // Surgeon quick preferences live in the surgical section so the
+            // surgeon card displays them.
+            var surgical = SurgicalPreferences()
+            surgical.gloves.gloveSize = sterileGloveSize
+            surgical.gloves.gownPreference = gownSize
+            doctor.surgical = surgical
+        } else {
+            doctor.general.sterileGloveSize = sterileGloveSize
+            doctor.general.gownSize = gownSize
+            doctor.general.coffeePreference = coffee
+        }
         doctor.personalNotes = notes
         doctor.referencePhotoData = photoData
         store.upsert(doctor)

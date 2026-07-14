@@ -58,6 +58,7 @@ final class AppSettings {
         static let appLock = "pf.appLockEnabled"
         static let cloudAutoBackup = "pf.cloudAutoBackup"
         static let crisisEdition = "pf.crisisEdition"
+        static let discipline = "pf.discipline"
     }
 
     private let defaults: UserDefaults
@@ -80,6 +81,13 @@ final class AppSettings {
 
     var region: TerminologyRegion {
         didSet { defaults.set(region.rawValue, forKey: Keys.region) }
+    }
+
+    /// The user's working discipline — anaesthesia or surgical/perioperative.
+    /// Drives which profile type the Providers tab foregrounds and the app's
+    /// provider labels. The crisis manual and hospitals are shared by both.
+    var discipline: Discipline {
+        didSet { defaults.set(discipline.rawValue, forKey: Keys.discipline) }
     }
 
     var country: String {
@@ -233,6 +241,12 @@ final class AppSettings {
         } else {
             self.region = .commonwealth
         }
+        if let raw = defaults.string(forKey: Keys.discipline),
+           let parsed = Discipline(rawValue: raw) {
+            self.discipline = parsed
+        } else {
+            self.discipline = .anaesthesia
+        }
         if let raw = defaults.string(forKey: Keys.dailyMode),
            let parsed = DailyContextMode(rawValue: raw) {
             self.dailyContextMode = parsed
@@ -269,6 +283,12 @@ final class AppSettings {
 
     /// Convenience accessor used throughout the UI for terminology strings.
     var terms: TerminologyRegion { region }
+
+    /// Singular provider title for the active discipline ("Anaesthetist" / "Surgeon").
+    var providerTitle: String { discipline.primaryKind.provider(region) }
+
+    /// Plural provider title for the active discipline ("Anaesthetists" / "Surgeons").
+    var providerPluralTitle: String { discipline.primaryKind.providerPlural(region) }
 
     // MARK: - Daily context logic
 

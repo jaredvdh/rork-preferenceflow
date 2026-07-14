@@ -15,6 +15,8 @@ struct NewConsultantFlowView: View {
 
     /// Pre-selected hospital (e.g. when launched from a hospital). Skips step 1.
     var presetHospitalID: UUID?
+    /// Which profile type to create — anaesthetist or surgeon.
+    var kind: ClinicianKind
 
     @State private var step: Step = .hospital
     @State private var hospitalID: UUID?
@@ -22,8 +24,9 @@ struct NewConsultantFlowView: View {
 
     private enum Step { case hospital, template, identity }
 
-    init(presetHospitalID: UUID? = nil) {
+    init(presetHospitalID: UUID? = nil, kind: ClinicianKind = .anaesthetist) {
         self.presetHospitalID = presetHospitalID
+        self.kind = kind
     }
 
     var body: some View {
@@ -31,7 +34,14 @@ struct NewConsultantFlowView: View {
             Group {
                 switch step {
                 case .hospital: hospitalStep
-                case .template: templateStep
+                case .template:
+                    if kind == .surgeon {
+                        // Department standards describe anaesthetic setups — a
+                        // surgeon profile starts blank instead.
+                        Color.clear.onAppear { choose(nil) }
+                    } else {
+                        templateStep
+                    }
                 case .identity:
                     if let draft {
                         // Reuse the identity editor; it saves via the store on Save.
@@ -55,7 +65,7 @@ struct NewConsultantFlowView: View {
         switch step {
         case .hospital: return "Select Hospital"
         case .template: return "Choose Standard"
-        case .identity: return "New \(settings.region.provider)"
+        case .identity: return "New \(kind.provider(settings.region))"
         }
     }
 
@@ -157,7 +167,9 @@ struct NewConsultantFlowView: View {
 
     private func choose(_ template: DepartmentTemplate?) {
         var doctor = Doctor(hospitalId: hospitalID)
+        doctor.kind = kind
         doctor.department = store.hospital(id: hospitalID)?.department ?? ""
+        if kind == .surgeon { doctor.surgical = SurgicalPreferences() }
         if let template { template.apply(to: &doctor) }
         draft = doctor
         withAnimation(.spring(response: 0.3)) { step = .identity }
@@ -190,7 +202,12 @@ private struct ConsultantIdentityStep: View {
             }
             Section("Identity") {
                 LabeledField(label: "Full Name", text: $draft.fullName, placeholder: "Dr Jane Smith", icon: "person")
-                LabeledField(label: "Role", text: $draft.role, placeholder: settings.region.provider, icon: "stethoscope")
+                LabeledField(
+                    label: "Role",
+                    text: $draft.role,
+                    placeholder: draft.clinicianKind.provider(settings.region),
+                    icon: draft.isSurgeon ? "scissors" : "stethoscope"
+                )
                 if let hospitalName {
                     HStack {
                         Label("Hospital", systemImage: "building.2")
@@ -201,7 +218,7 @@ private struct ConsultantIdentityStep: View {
             }
             Section {
                 NavigationLink {
-                    SubspecialtyPicker(selected: $draft.subspecialties)
+                    SubspecialtyPicker(selected: $draft.subspecialties, kind: draft.clinicianKind)
                 } label: {
                     HStack {
                         Label("Subspecialties", systemImage: "square.grid.2x2")

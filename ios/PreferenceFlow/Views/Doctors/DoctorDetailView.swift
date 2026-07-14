@@ -17,11 +17,25 @@ enum ProfileTab: String, CaseIterable, Identifiable {
     case neuraxial = "Neuraxial"
     case procedures = "Procedures"
     case share = "Share"
+    // Surgeon / proceduralist sections.
+    case gloves = "Gloves & Personal"
+    case trays = "Trays & Instruments"
+    case sutures = "Sutures & Closure"
+    case energy = "Energy & Equipment"
+    case positioning = "Positioning & Prep"
 
     var id: String { rawValue }
 
     /// Sections shown in the single "Edit Consultant" experience, in order.
     static let editTabs: [ProfileTab] = [.details, .general, .airway, .drugs, .monitoring, .regional, .neuraxial, .procedures, .share]
+
+    /// Sections shown when editing a surgeon / proceduralist profile.
+    static let surgeonEditTabs: [ProfileTab] = [.details, .gloves, .trays, .sutures, .energy, .positioning, .procedures, .share]
+
+    /// The edit sections for a given profile type.
+    static func editTabs(for kind: ClinicianKind) -> [ProfileTab] {
+        kind == .surgeon ? surgeonEditTabs : editTabs
+    }
 
     var icon: String {
         switch self {
@@ -35,6 +49,11 @@ enum ProfileTab: String, CaseIterable, Identifiable {
         case .neuraxial: return "figure.walk.motion"
         case .procedures: return "cross.case"
         case .share: return "square.and.arrow.up"
+        case .gloves: return "hand.raised.fill"
+        case .trays: return "tray.2.fill"
+        case .sutures: return "bandage.fill"
+        case .energy: return "bolt.fill"
+        case .positioning: return "bed.double.fill"
         }
     }
 }
@@ -241,7 +260,7 @@ struct DoctorDetailView: View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(ProfileTab.editTabs) { item in
+                    ForEach(ProfileTab.editTabs(for: doctor?.clinicianKind ?? .anaesthetist)) { item in
                         let title = tabTitle(item)
                         Button {
                             withAnimation(.spring(response: 0.3)) { tab = item }
@@ -419,28 +438,33 @@ struct DoctorDetailView: View {
         .animation(.easeInOut(duration: 0.2), value: readTab)
     }
 
+    @ViewBuilder
     private func overviewContent(_ doctor: Doctor) -> some View {
-        OverviewTab(
-            doctor: doctor,
-            onNavigate: { target in withAnimation(.spring(response: 0.3)) { isEditing = true; tab = target } },
-            onSelectSpecialty: { setup in withAnimation(.spring(response: 0.3)) { readTab = .specialty(setup.id) } },
-            hospitalID: dailyHospitalID,
-            editMode: isEditing,
-            template: template
-        )
+        if doctor.isSurgeon {
+            SurgeonOverviewTab(
+                doctor: doctor,
+                onNavigate: { target in withAnimation(.spring(response: 0.3)) { isEditing = true; tab = target } },
+                onSelectSpecialty: { setup in withAnimation(.spring(response: 0.3)) { readTab = .specialty(setup.id) } },
+                hospitalID: dailyHospitalID,
+                editMode: isEditing
+            )
+        } else {
+            OverviewTab(
+                doctor: doctor,
+                onNavigate: { target in withAnimation(.spring(response: 0.3)) { isEditing = true; tab = target } },
+                onSelectSpecialty: { setup in withAnimation(.spring(response: 0.3)) { readTab = .specialty(setup.id) } },
+                hospitalID: dailyHospitalID,
+                editMode: isEditing,
+                template: template
+            )
+        }
     }
 
     @ViewBuilder
     private func editContent(_ doctor: Doctor) -> some View {
         switch tab {
         case .overview:
-            OverviewTab(
-                doctor: doctor,
-                onNavigate: { target in withAnimation(.spring(response: 0.3)) { isEditing = true; tab = target } },
-                hospitalID: dailyHospitalID,
-                editMode: isEditing,
-                template: template
-            )
+            overviewContent(doctor)
         case .details: DetailsTab(doctor: doctor)
         case .general: GeneralTab(doctor: doctor)
         case .airway: AirwayTab(doctor: doctor)
@@ -450,6 +474,11 @@ struct DoctorDetailView: View {
         case .neuraxial: NeuraxialTab(doctor: doctor)
         case .procedures: OperationsTab(doctor: doctor)
         case .share: ShareTab(doctor: doctor)
+        case .gloves: GlovesPersonalTab(doctor: doctor)
+        case .trays: TraysInstrumentsTab(doctor: doctor)
+        case .sutures: SuturesClosureTab(doctor: doctor)
+        case .energy: EnergyEquipmentTab(doctor: doctor)
+        case .positioning: PositioningPrepTab(doctor: doctor)
         }
     }
 }

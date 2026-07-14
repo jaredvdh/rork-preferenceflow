@@ -5,11 +5,13 @@
 
 import SwiftUI
 
-/// First-run flow: welcome → country/region → terminology confirmation → safety.
+/// First-run flow: welcome → discipline → country/region → terminology
+/// confirmation → safety.
 struct OnboardingView: View {
     @Environment(AppSettings.self) private var settings
 
     @State private var step = 0
+    @State private var discipline: Discipline? = nil
     @State private var country = ""
     @State private var regionName = ""
     @State private var region: TerminologyRegion? = nil
@@ -26,9 +28,10 @@ struct OnboardingView: View {
 
                 TabView(selection: $step) {
                     welcomeStep.tag(0)
-                    locationStep.tag(1)
-                    terminologyStep.tag(2)
-                    safetyStep.tag(3)
+                    disciplineStep.tag(1)
+                    locationStep.tag(2)
+                    terminologyStep.tag(3)
+                    safetyStep.tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut, value: step)
@@ -49,7 +52,7 @@ struct OnboardingView: View {
 
     private var progressDots: some View {
         HStack(spacing: 8) {
-            ForEach(0..<4, id: \.self) { index in
+            ForEach(0..<5, id: \.self) { index in
                 Capsule()
                     .fill(index == step ? Theme.accentBright : Color.white.opacity(0.25))
                     .frame(width: index == step ? 22 : 7, height: 7)
@@ -90,6 +93,79 @@ struct OnboardingView: View {
             primaryButton("Get Started") { advance() }
         }
         .padding(.bottom, 50)
+    }
+
+    private var disciplineStep: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            stepHeader(
+                title: "What's your focus?",
+                subtitle: "This decides which preference cards the app puts first. You can change it anytime in Settings \u{2014} and see both sides with one tap."
+            )
+
+            VStack(spacing: 12) {
+                ForEach(Discipline.allCases) { option in
+                    disciplineRow(option)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Label("Shared by both", systemImage: "cross.case.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.75))
+                Text("Hospitals, orientation, the emergency crisis manual, backups and search are identical in both \u{2014} crises concern the whole theatre team.")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(14)
+            .background(.white.opacity(0.06), in: .rect(cornerRadius: Theme.cornerMedium))
+
+            Spacer()
+            primaryButton("Continue") { advance() }
+                .disabled(discipline == nil)
+                .opacity(discipline == nil ? 0.5 : 1)
+        }
+        .padding(.horizontal, 28)
+        .padding(.top, 20)
+        .padding(.bottom, 40)
+    }
+
+    private func disciplineRow(_ option: Discipline) -> some View {
+        Button { discipline = option } label: {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(discipline == option ? Theme.accent.opacity(0.4) : Color.white.opacity(0.1))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: option.symbol)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(option.displayName(for: region ?? .commonwealth))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(option.detail)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer()
+                Image(systemName: discipline == option ? "largecircle.fill.circle" : "circle")
+                    .foregroundStyle(discipline == option ? Theme.accentBright : .white.opacity(0.4))
+            }
+            .padding(14)
+            .background(
+                discipline == option ? Theme.accent.opacity(0.22) : Color.white.opacity(0.07),
+                in: .rect(cornerRadius: Theme.cornerMedium)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.cornerMedium)
+                    .stroke(discipline == option ? Theme.accentBright : .clear, lineWidth: 1.5)
+            )
+        }
+        .buttonStyle(.plain)
+        .sensoryFeedback(.selection, trigger: discipline)
     }
 
     private var locationStep: some View {
@@ -275,7 +351,9 @@ struct OnboardingView: View {
                 .tracking(1)
                 .foregroundStyle(.white.opacity(0.5))
             if let region {
-                Text("You are an \(region.assistant), saving setups for \(region.providerPlural.lowercased()).")
+                Text(discipline == .surgical
+                     ? "You work in the surgical/perioperative team, saving preference cards for surgeons."
+                     : "You are an \(region.assistant), saving setups for \(region.providerPlural.lowercased()).")
                     .font(.footnote)
                     .foregroundStyle(.white.opacity(0.85))
             } else {
@@ -316,6 +394,7 @@ struct OnboardingView: View {
         settings.country = country == CountryOption.other.rawValue ? "" : country
         settings.regionName = regionName
         settings.region = region ?? .commonwealth
+        settings.discipline = discipline ?? .anaesthesia
         withAnimation { settings.didCompleteOnboarding = true }
     }
 }

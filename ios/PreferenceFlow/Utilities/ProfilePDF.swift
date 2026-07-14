@@ -58,15 +58,23 @@ enum ProfilePDF {
             ctx.beginPage()
             drawCover(&ctx, doctor: doctor, hospital: hospital, region: region)
 
-            if options.contains(.consultant) { drawGeneral(&ctx, doctor.general) }
-            if options.contains(.standardSetup) { drawStandardSetup(&ctx, doctor, region: region) }
-            if options.contains(.specialty) { drawSpecialty(&ctx, doctor.activeSpecialtySetups) }
-            if options.contains(.regional) { drawRegional(&ctx, doctor.regionalBlocks) }
-            if options.contains(.neuraxial) {
-                drawNeuraxial(&ctx, doctor.neuraxial)
-                drawProcedural(&ctx, doctor.proceduralPreferences)
+            if doctor.isSurgeon {
+                let s = doctor.surgicalPreferences
+                if options.contains(.consultant) { drawSurgeonPersonal(&ctx, s.gloves) }
+                if options.contains(.standardSetup) { drawSurgicalSetup(&ctx, s) }
+                if options.contains(.specialty) { drawSpecialty(&ctx, doctor.activeSpecialtySetups) }
+                if options.contains(.notes) { drawNotes(&ctx, doctor) }
+            } else {
+                if options.contains(.consultant) { drawGeneral(&ctx, doctor.general) }
+                if options.contains(.standardSetup) { drawStandardSetup(&ctx, doctor, region: region) }
+                if options.contains(.specialty) { drawSpecialty(&ctx, doctor.activeSpecialtySetups) }
+                if options.contains(.regional) { drawRegional(&ctx, doctor.regionalBlocks) }
+                if options.contains(.neuraxial) {
+                    drawNeuraxial(&ctx, doctor.neuraxial)
+                    drawProcedural(&ctx, doctor.proceduralPreferences)
+                }
+                if options.contains(.notes) { drawNotes(&ctx, doctor) }
             }
-            if options.contains(.notes) { drawNotes(&ctx, doctor) }
             if options.contains(.hospitalInfo), let hospital, hospital.orientationOrEmpty.hasContent {
                 drawHospitalAppendix(&ctx, hospital)
             }
@@ -139,7 +147,7 @@ enum ProfilePDF {
         let textLeft = margin + avatarSize + 18
         let textWidth = pageSize.width - margin - textLeft
 
-        "CONSULTANT PREFERENCE CARD".draw(
+        (doctor.isSurgeon ? "SURGEON PREFERENCE CARD" : "CONSULTANT PREFERENCE CARD").draw(
             at: CGPoint(x: textLeft, y: 32),
             withAttributes: [
                 .font: UIFont.systemFont(ofSize: 9.5, weight: .heavy),
@@ -213,6 +221,16 @@ enum ProfilePDF {
     /// Capability badges summarising what this consultant's card contains.
     private static func summaryBadges(for doctor: Doctor) -> [String] {
         var badges: [String] = []
+        if doctor.isSurgeon {
+            let s = doctor.surgicalPreferences
+            if s.gloves.hasContent { badges.append("Gloves") }
+            if s.trays.hasContent { badges.append("Trays") }
+            if s.sutures.hasContent { badges.append("Sutures") }
+            if s.energy.hasContent { badges.append("Energy") }
+            if s.positioning.hasContent { badges.append("Positioning") }
+            for sp in doctor.activeSpecialtySetups { badges.append("\(specialtyEmoji(sp.specialty)) \(sp.specialty.rawValue)") }
+            return badges
+        }
         if hasAirwayContent(doctor.airway) { badges.append("Airway") }
         if (doctor.adultDrugs?.hasContent ?? false) || (doctor.paediatricDrugs?.hasContent ?? false) { badges.append("Drugs") }
         if doctor.regionalBlocks.contains(where: { !$0.name.isBlank }) { badges.append("Regional") }
@@ -239,8 +257,108 @@ enum ProfilePDF {
         case .transplant: return "♻️"
         case .mri: return "🧲"
         case .general: return "🩺"
+        case .generalSurgery: return "✂️"
+        case .orthopaedics: return "🦴"
+        case .cathLab: return "🩺"
+        case .endoscopy: return "🔍"
+        case .cardiothoracic: return "❤️"
+        case .urology: return "💧"
+        case .gynaecology: return "🤰"
+        case .ophthalmology: return "👁️"
         case .other: return "🔹"
         }
+    }
+
+    // MARK: - Surgeon sections
+
+    /// Gloves, gown, wearables and working style — the surgeon counterpart to
+    /// "Consultant Preferences".
+    private static func drawSurgeonPersonal(_ ctx: inout DrawContext, _ g: GlovesPersonal) {
+        var rows: [(String, String)] = []
+        rows.append(("Gloves", g.gloveDisplay))
+        rows.append(("Gown", g.gownPreference))
+        var wearables: [String] = []
+        if g.wearsLoupes { wearables.append("Loupes") }
+        if g.wearsHeadlight { wearables.append("Headlight") }
+        rows.append(("Wears", wearables.joined(separator: ", ")))
+        rows.append(("Music", g.musicPreference))
+        rows.append(("Communication", g.communicationStyle))
+
+        let filtered = rows.filter { !$0.1.isBlank }
+        guard !filtered.isEmpty || !g.notes.isBlank else { return }
+
+        ctx.drawSectionTitle("Surgeon Preferences", icon: "hand.raised")
+        for row in filtered { ctx.drawValueRow(label: row.0, value: row.1) }
+        if !g.notes.isBlank { ctx.drawNote(g.notes) }
+        ctx.endSection()
+    }
+
+    /// Trays, sutures, energy and positioning — the surgeon counterpart to
+    /// "Standard Setup".
+    private static func drawSurgicalSetup(_ ctx: inout DrawContext, _ s: SurgicalPreferences) {
+        guard s.trays.hasContent || s.sutures.hasContent
+                || s.energy.hasContent || s.positioning.hasContent else { return }
+
+        ctx.drawSectionTitle("Standard Setup", icon: "checklist")
+        ctx.drawCaption("The default setup used for most operating lists.")
+
+        let t = s.trays
+        if t.hasContent {
+            ctx.drawGroupLabel("Trays & Instruments")
+            if !t.traysToOpen.isEmpty { ctx.drawBullet("Open: \(t.traysToOpen.joined(separator: ", "))") }
+            if !t.favouriteExtras.isEmpty { ctx.drawBullet("Favourite extras: \(t.favouriteExtras.joined(separator: ", "))") }
+            if !t.haveAvailableUnopened.isEmpty { ctx.drawBullet("Available unopened: \(t.haveAvailableUnopened.joined(separator: ", "))") }
+            if !t.notes.isBlank { ctx.drawNote(t.notes) }
+            if let photo = t.setupPhoto {
+                ctx.drawMuted("Back-table photo")
+                ctx.drawImage(photo)
+            }
+        }
+
+        let su = s.sutures
+        if su.hasContent {
+            ctx.drawGroupLabel("Sutures & Closure")
+            if !su.fascia.isBlank { ctx.drawValueRow(label: "Fascia / deep", value: su.fascia) }
+            if !su.subcutaneous.isBlank { ctx.drawValueRow(label: "Subcutaneous", value: su.subcutaneous) }
+            if !su.skin.isBlank { ctx.drawValueRow(label: "Skin", value: su.skin) }
+            if !su.staplers.isEmpty { ctx.drawValueRow(label: "Staplers & loads", value: su.staplers.joined(separator: ", ")) }
+            if !su.drains.isEmpty { ctx.drawValueRow(label: "Drains", value: su.drains.joined(separator: ", ")) }
+            if !su.dressings.isEmpty { ctx.drawValueRow(label: "Dressings", value: su.dressings.joined(separator: ", ")) }
+            if !su.notes.isBlank { ctx.drawNote(su.notes) }
+        }
+
+        let e = s.energy
+        if e.hasContent {
+            ctx.drawGroupLabel("Energy & Equipment")
+            if !e.diathermyDisplay.isBlank {
+                ctx.drawValueRow(label: "Diathermy", value: e.diathermyDisplay)
+                ctx.drawCaption("Starting settings — confirm against the machine and local policy.")
+            }
+            if !e.energyDevices.isEmpty { ctx.drawValueRow(label: "Devices", value: e.energyDevices.joined(separator: ", ")) }
+            var tourniquet: [String] = []
+            if !e.tourniquetPressure.isBlank { tourniquet.append(e.tourniquetPressure) }
+            if !e.tourniquetNotes.isBlank { tourniquet.append(e.tourniquetNotes) }
+            if !tourniquet.isEmpty { ctx.drawValueRow(label: "Tourniquet", value: tourniquet.joined(separator: " · ")) }
+            if !e.irrigation.isBlank { ctx.drawValueRow(label: "Irrigation", value: e.irrigation) }
+            if !e.imaging.isEmpty { ctx.drawValueRow(label: "Imaging & equipment", value: e.imaging.joined(separator: ", ")) }
+            if !e.notes.isBlank { ctx.drawNote(e.notes) }
+        }
+
+        let p = s.positioning
+        if p.hasContent {
+            ctx.drawGroupLabel("Positioning & Prep")
+            if !p.patientPosition.isBlank { ctx.drawValueRow(label: "Position", value: p.patientPosition) }
+            if !p.tableAttachments.isEmpty { ctx.drawValueRow(label: "Table setup", value: p.tableAttachments.joined(separator: ", ")) }
+            if !p.prepSolution.isBlank { ctx.drawValueRow(label: "Prep", value: p.prepSolution) }
+            if !p.drapingStyle.isBlank { ctx.drawValueRow(label: "Draping", value: p.drapingStyle) }
+            if !p.catheter.isBlank { ctx.drawValueRow(label: "Catheter", value: p.catheter) }
+            if !p.notes.isBlank { ctx.drawNote(p.notes) }
+            if let photo = p.setupPhoto {
+                ctx.drawMuted("Positioning photo")
+                ctx.drawImage(photo)
+            }
+        }
+        ctx.endSection()
     }
 
     // MARK: - Consultant preferences

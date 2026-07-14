@@ -27,6 +27,8 @@ nonisolated enum DemoData {
     static let mercyPrivateID = id(2)
     static let sarahMitchellID = id(11)
     static let jamesOkonkwoID = id(12)
+    static let priyaNairID = id(13)
+    static let danielKovacID = id(14)
 
     /// Definitive set of demo hospital ids. Removal matches on these — never on
     /// the fallible `isDemoData` flag alone — so demo cleanup can never delete a
@@ -34,15 +36,15 @@ nonisolated enum DemoData {
     static let allDemoHospitalIDs: Set<UUID> = [cityCentralID, mercyPrivateID]
 
     /// Definitive set of demo consultant ids (see `allDemoHospitalIDs`).
-    static let allDemoDoctorIDs: Set<UUID> = [sarahMitchellID, jamesOkonkwoID]
+    static let allDemoDoctorIDs: Set<UUID> = [sarahMitchellID, jamesOkonkwoID, priyaNairID, danielKovacID]
 
     // MARK: - Public API
 
     /// Full set of demo hospitals.
     static var hospitals: [Hospital] { [cityCentral, mercyPrivate] }
 
-    /// Full set of demo consultants.
-    static var doctors: [Doctor] { [sarahMitchell, jamesOkonkwo] }
+    /// Full set of demo consultants and surgeons.
+    static var doctors: [Doctor] { [sarahMitchell, jamesOkonkwo, priyaNair, danielKovac] }
 
     /// The pristine demo hospital for a given id, if one exists.
     static func canonicalHospital(id: UUID) -> Hospital? {
@@ -510,6 +512,130 @@ nonisolated enum DemoData {
             paediatricDrugs: paediatricDrugs,
             airway: airway,
             specialtySetups: [paediatric]
+        )
+    }
+
+    // MARK: - Surgeon 1: Miss Priya Nair (Orthopaedics)
+
+    private static var priyaNair: Doctor {
+        var surgical = SurgicalPreferences()
+        surgical.gloves.gloveSize = "6.5"
+        surgical.gloves.gloveBrand = "Biogel PI"
+        surgical.gloves.doubleGloves = true
+        surgical.gloves.underGloveSize = "7.0"
+        surgical.gloves.gownPreference = "Wrap-around M"
+        surgical.gloves.wearsLoupes = false
+        surgical.gloves.wearsHeadlight = false
+        surgical.gloves.musicPreference = "Playlist on \u{2014} off for time-out and cementing"
+        surgical.gloves.communicationStyle = "Counts read back aloud. Speak up early if anything is missing from the set."
+
+        surgical.trays.traysToOpen = ["Basic orthopaedic set", "Arthroscopy set"]
+        surgical.trays.favouriteExtras = ["Extra suction", "Skin hooks", "Bone wax"]
+        surgical.trays.haveAvailableUnopened = ["Cell saver", "GIA stapler"]
+        surgical.trays.notes = "Implant sizes confirmed with rep the day before \u{2014} check the case cart against the booking sheet."
+
+        surgical.sutures.fascia = "1 PDS loop"
+        surgical.sutures.subcutaneous = "2-0 Vicryl"
+        surgical.sutures.skin = "Staples"
+        surgical.sutures.drains = ["No drain routinely"]
+        surgical.sutures.dressings = ["Comfeel", "Pressure dressing"]
+
+        surgical.energy.diathermyCut = "30"
+        surgical.energy.diathermyCoag = "40"
+        surgical.energy.energyDevices = ["Monopolar diathermy", "Bipolar diathermy"]
+        surgical.energy.tourniquetPressure = "250 mmHg"
+        surgical.energy.tourniquetNotes = "Notify at 90 min, hard stop at 120 min"
+        surgical.energy.irrigation = "Pulse lavage"
+        surgical.energy.imaging = ["C-arm (image intensifier)"]
+
+        surgical.positioning.patientPosition = "Supine"
+        surgical.positioning.tableAttachments = ["Arm boards", "Leg holder", "Side supports", "Gel padding"]
+        surgical.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        surgical.positioning.drapingStyle = "Extremity drape"
+        surgical.positioning.catheter = "No catheter routinely"
+        surgical.positioning.notes = "Lateral decubitus with bean bag for hips \u{2014} check pressure points before draping."
+
+        let ortho = SpecialtySetup(
+            id: id(124),
+            specialty: .orthopaedics,
+            additionalMonitoring: [],
+            linesAndAccess: ["Large-bore IV"],
+            equipment: ["Cell saver", "Forced-air warmer"],
+            specialNotes: "Arthroplasty: laminar flow theatre, space suits for the scrub team, cement mixed on surgeon's call. Tranexamic acid timing per anaesthetist."
+        )
+
+        return Doctor(
+            id: priyaNairID,
+            fullName: "Miss Priya Nair",
+            phone: "",
+            email: "",
+            hospitalId: cityCentralID,
+            department: "Orthopaedics",
+            role: "Consultant Orthopaedic Surgeon",
+            kind: .surgeon,
+            subspecialties: [.orthopaedics, .trauma],
+            biography: "Hip and knee arthroplasty surgeon with a trauma commitment.",
+            personalNotes: "Runs an exact 15-minute turnover \u{2014} next set opened during closing.",
+            isDemoData: true,
+            surgical: surgical,
+            specialtySetups: [ortho]
+        )
+    }
+
+    // MARK: - Surgeon 2: Dr Daniel Kovac (Interventional Cardiology / Cath Lab)
+
+    private static var danielKovac: Doctor {
+        var surgical = SurgicalPreferences()
+        surgical.gloves.gloveSize = "7.5"
+        surgical.gloves.gloveBrand = "Gammex latex-free"
+        surgical.gloves.doubleGloves = false
+        surgical.gloves.gownPreference = "Standard gown"
+        surgical.gloves.musicPreference = "Quiet room \u{2014} no music during cases"
+        surgical.gloves.communicationStyle = "Closed-loop communication; ACT results called out as soon as available."
+
+        surgical.trays.traysToOpen = ["Cath lab base pack"]
+        surgical.trays.favouriteExtras = ["Extra gauze", "Sterile probe cover"]
+        surgical.trays.haveAvailableUnopened = ["Pericardiocentesis kit", "Covered stent"]
+        surgical.trays.notes = "Radial first: 6Fr slender sheath on the standard trolley. Femoral kit in the room, unopened."
+
+        surgical.sutures.skin = "Steri-Strips only"
+        surgical.sutures.dressings = ["Pressure dressing", "Opsite"]
+        surgical.sutures.notes = "TR band for radial haemostasis; Angio-Seal for femoral access."
+
+        surgical.energy.imaging = ["Ultrasound"]
+        surgical.energy.notes = "Lead aprons and thyroid shields for everyone before first screening. Table-side shield positioned before draping."
+
+        surgical.positioning.patientPosition = "Supine"
+        surgical.positioning.tableAttachments = ["Arm boards", "Head ring"]
+        surgical.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        surgical.positioning.drapingStyle = "Angiography drape (radial + femoral fenestrations)"
+        surgical.positioning.catheter = "No catheter routinely"
+        surgical.positioning.notes = "Right wrist extended on arm board for radial access; both groins prepped for complex cases."
+
+        let cathLab = SpecialtySetup(
+            id: id(125),
+            specialty: .cathLab,
+            additionalMonitoring: ["Arterial line"],
+            linesAndAccess: ["Large-bore IV"],
+            equipment: ["Defibrillator pads", "Pacing"],
+            specialNotes: "Defib pads on before draping for all PCI. Heparin per protocol \u{2014} ACT checked at 30 min. IABP console checked and plugged in for high-risk cases."
+        )
+
+        return Doctor(
+            id: danielKovacID,
+            fullName: "Dr Daniel Kovac",
+            phone: "",
+            email: "",
+            hospitalId: cityCentralID,
+            department: "Cardiology",
+            role: "Interventional Cardiologist",
+            kind: .surgeon,
+            subspecialties: [.cathLab],
+            biography: "Interventional cardiologist \u{2014} PCI, radial-first access, structural work.",
+            personalNotes: "Time-critical primary PCI: room ready within 20 minutes of activation.",
+            isDemoData: true,
+            surgical: surgical,
+            specialtySetups: [cathLab]
         )
     }
 }

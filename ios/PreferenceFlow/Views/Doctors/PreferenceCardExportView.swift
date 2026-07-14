@@ -23,7 +23,7 @@ enum PDFExportFormat: String, CaseIterable, Identifiable {
 
     var subtitle: String {
         switch self {
-        case .theatreCard: return "One page, laminate-ready — airway, drugs, equipment at a glance"
+        case .theatreCard: return "One page, laminate-ready — the whole setup at a glance"
         case .fullCard: return "Detailed multi-page card — choose sections, add hospital appendix"
         }
     }
@@ -53,9 +53,18 @@ struct PreferenceCardExportView: View {
     private var hospital: Hospital? { store.hospital(id: hospitalID ?? doctor.hospitalId) }
     private var hospitalHasOrientation: Bool { hospital?.orientationOrEmpty.hasContent ?? false }
 
-    /// The selectable export sections, in document order.
+    /// The selectable export sections, in document order — surgical sections
+    /// for surgeon profiles, anaesthetic sections otherwise.
     private var sectionRows: [(member: PreferenceCardOptions, title: String, icon: String, subtitle: String)] {
-        [
+        if doctor.isSurgeon {
+            return [
+                (.consultant, "Surgeon Preferences", "hand.raised", "Gloves, gown, loupes, music, communication"),
+                (.standardSetup, "Standard Setup", "checklist", "Trays, sutures, energy settings, positioning"),
+                (.specialty, "Specialty Setups", "square.grid.2x2", "What changes for Cath Lab, Endoscopy, Ortho…"),
+                (.notes, "Notes", "note.text", "Biography and personal notes")
+            ]
+        }
+        return [
             (.consultant, "Consultant Preferences", "person.text.rectangle", "Glove size, coffee, communication, workflow"),
             (.standardSetup, "Standard Setup", "checklist", "Airway, induction drugs, IV fluids"),
             (.specialty, "Specialty Setups", "square.grid.2x2", "What changes for Cardiac, Paediatric, Neuro…"),

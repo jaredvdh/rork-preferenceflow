@@ -48,6 +48,20 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Picker(selection: $settings.discipline) {
+                        ForEach(Discipline.allCases) {
+                            Text($0.displayName(for: settings.region)).tag($0)
+                        }
+                    } label: {
+                        Label("Discipline", systemImage: settings.discipline.symbol)
+                    }
+                } header: {
+                    Text("Discipline")
+                } footer: {
+                    Text("Which preference cards the app puts first — \(settings.region.discipline.lowercased()) (consultant cards) or surgical/perioperative (surgeon cards). Hospitals, the crisis manual, backups and search are shared by both, and you can view the other side anytime from the \(settings.providerPluralTitle) tab.")
+                }
+
+                Section {
                     Picker(selection: $settings.region) {
                         ForEach(TerminologyRegion.allCases) { Text($0.displayName).tag($0) }
                     } label: {
@@ -212,6 +226,7 @@ struct SettingsView: View {
         .sensoryFeedback(.selection, trigger: settings.isCloudAutoBackupEnabled)
         .sensoryFeedback(.selection, trigger: settings.isDemoMode)
         .sensoryFeedback(.selection, trigger: settings.crisisEditionOverride)
+        .sensoryFeedback(.selection, trigger: settings.discipline)
         .sensoryFeedback(.success, trigger: cloudMessage) { _, newValue in newValue != nil && !isCloudError }
         .sensoryFeedback(.error, trigger: cloudMessage) { _, newValue in newValue != nil && isCloudError }
         .onAppear { cloudBackup.refreshAvailability() }

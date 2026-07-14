@@ -189,7 +189,9 @@ struct SpecialtySetupTab: View {
                     modificationCount: setup.changeCount
                 )
 
-                Text("Standard airway, drugs, and monitoring still apply. Additional requirements for \(setup.specialty.rawValue) cases:")
+                Text(doctor.isSurgeon
+                     ? "The surgeon's standard setup still applies. Additional requirements for \(setup.specialty.rawValue) cases:"
+                     : "Standard airway, drugs, and monitoring still apply. Additional requirements for \(setup.specialty.rawValue) cases:")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -232,12 +234,21 @@ struct SpecialtySetupEditView: View {
         self.isNew = isNew
     }
 
+    /// Specialty choices appropriate to the profile type — surgical lists for
+    /// surgeons, anaesthetic lists for anaesthetists. The current value is
+    /// always included so an existing setup never loses its selection.
+    private var specialtyOptions: [Subspecialty] {
+        var options = Subspecialty.options(for: doctor.clinicianKind)
+        if !options.contains(setup.specialty) { options.insert(setup.specialty, at: 0) }
+        return options
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("Specialty") {
                     Picker("Specialty", selection: $setup.specialty) {
-                        ForEach(Subspecialty.allCases) { Text($0.rawValue).tag($0) }
+                        ForEach(specialtyOptions) { Text($0.rawValue).tag($0) }
                     }
                 }
                 Section("Additional Monitoring") {

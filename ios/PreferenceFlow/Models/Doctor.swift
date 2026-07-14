@@ -50,6 +50,10 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
 
     // Professional information
     var role: String
+    /// Which type of clinician this profile describes (anaesthetist or surgeon).
+    /// Optional for backward-compatible decoding — profiles saved before the
+    /// surgical module existed decode as nil and read as `.anaesthetist`.
+    var kind: ClinicianKind?
     var subspecialties: [Subspecialty]
 
     // Notes
@@ -77,6 +81,10 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     /// technique. Optional for backward-compatible decoding: profiles saved
     /// before this existed decode as nil and read as empty.
     var procedural: ProceduralPreferences?
+    /// Surgeon / proceduralist preferences (gloves, trays, sutures, energy,
+    /// positioning). Optional for backward-compatible decoding — anaesthetic
+    /// profiles never carry this section.
+    var surgical: SurgicalPreferences?
     var operations: [ProcedureTemplate]
     /// Per-specialty setup modifications (what changes vs the standard setup).
     /// Optional for backward-compatible decoding of profiles saved earlier.
@@ -99,6 +107,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         hospitalId: UUID? = nil,
         department: String = "",
         role: String = "",
+        kind: ClinicianKind? = nil,
         subspecialties: [Subspecialty] = [],
         biography: String = "",
         personalNotes: String = "",
@@ -116,6 +125,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         regionalBlocks: [RegionalBlock] = [],
         neuraxial: NeuraxialPreferences = NeuraxialPreferences(),
         procedural: ProceduralPreferences? = nil,
+        surgical: SurgicalPreferences? = nil,
         operations: [ProcedureTemplate] = [],
         specialtySetups: [SpecialtySetup]? = nil,
         departmentTemplateId: UUID? = nil,
@@ -132,6 +142,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         self.hospitalId = hospitalId
         self.department = department
         self.role = role
+        self.kind = kind
         self.subspecialties = subspecialties
         self.biography = biography
         self.personalNotes = personalNotes
@@ -149,6 +160,7 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
         self.regionalBlocks = regionalBlocks
         self.neuraxial = neuraxial
         self.procedural = procedural
+        self.surgical = surgical
         self.operations = operations
         self.specialtySetups = specialtySetups
         self.departmentTemplateId = departmentTemplateId
@@ -241,6 +253,16 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     /// The procedural workflow storage (Arterial Line, CVC) with the nil legacy
     /// case normalised to empty.
     var proceduralPreferences: ProceduralPreferences { procedural ?? ProceduralPreferences() }
+
+    /// Which type of clinician this profile describes, defaulting legacy
+    /// profiles (nil) to anaesthetist.
+    var clinicianKind: ClinicianKind { kind ?? .anaesthetist }
+
+    /// Whether this is a surgeon / proceduralist preference card.
+    var isSurgeon: Bool { clinicianKind == .surgeon }
+
+    /// The surgical preferences with the nil legacy case normalised to empty.
+    var surgicalPreferences: SurgicalPreferences { surgical ?? SurgicalPreferences() }
 
     /// Inserts or replaces a procedural workflow customization, creating the
     /// storage on first write.

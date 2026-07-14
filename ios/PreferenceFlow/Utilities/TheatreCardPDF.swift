@@ -627,6 +627,14 @@ enum TheatreCardPDF {
         case .transplant: return "♻️"
         case .mri: return "🧲"
         case .general: return "🩺"
+        case .generalSurgery: return "✂️"
+        case .orthopaedics: return "🦴"
+        case .cathLab: return "🩺"
+        case .endoscopy: return "🔍"
+        case .cardiothoracic: return "❤️"
+        case .urology: return "💧"
+        case .gynaecology: return "🤰"
+        case .ophthalmology: return "👁️"
         case .other: return "🔹"
         }
     }

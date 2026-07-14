@@ -16,6 +16,10 @@ struct DoctorsView: View {
 
     @State private var creatingNew = false
     @State private var quickAdding = false
+    /// Which profile type the list is showing. Defaults to the user's
+    /// discipline; the segmented toggle lets them peek at the other side
+    /// without changing their discipline setting.
+    @State private var viewKindOverride: ClinicianKind?
     /// Result from Quick Add, consumed on sheet dismiss to navigate appropriately.
     @State private var quickAddResult: (id: UUID, openEdit: Bool)?
     @State private var query = ""
@@ -33,11 +37,27 @@ struct DoctorsView: View {
     @State private var importMessage: String?
     @State private var importIsError = false
 
+    /// The profile type currently shown (user toggle, else discipline default).
+    private var viewKind: ClinicianKind {
+        viewKindOverride ?? settings.discipline.primaryKind
+    }
+
+    /// All profiles of the currently shown type.
+    private var doctorsOfKind: [Doctor] {
+        store.doctors.filter { $0.clinicianKind == viewKind }
+    }
+
+    /// Whether profiles of the other type exist — drives the segmented toggle.
+    private var hasBothKinds: Bool {
+        store.doctors.contains { $0.clinicianKind == .anaesthetist }
+            && store.doctors.contains { $0.clinicianKind == .surgeon }
+    }
+
     /// Results matching the current query (whole list when query is blank).
     private var filtered: [Doctor] {
-        guard !query.isBlank else { return store.doctors }
+        guard !query.isBlank else { return doctorsOfKind }
         let q = query
-        return store.doctors.filter {
+        return doctorsOfKind.filter {
             $0.fullName.localizedCaseInsensitiveContains(q)
             || $0.role.localizedCaseInsensitiveContains(q)
             || $0.department.localizedCaseInsensitiveContains(q)
@@ -46,13 +66,15 @@ struct DoctorsView: View {
     }
 
     private var favourites: [Doctor] {
-        settings.favouriteDoctorIds.compactMap { store.doctor(id: $0) }
+        settings.favouriteDoctorIds
+            .compactMap { store.doctor(id: $0) }
+            .filter { $0.clinicianKind == viewKind }
     }
 
     private var recents: [Doctor] {
         settings.recentDoctorIds
             .compactMap { store.doctor(id: $0) }
-            .filter { !settings.favouriteDoctorIds.contains($0.id) }
+            .filter { !settings.favouriteDoctorIds.contains($0.id) && $0.clinicianKind == viewKind }
             .prefix(3)
             .map { $0 }
     }
@@ -64,17 +86,17 @@ struct DoctorsView: View {
             Group {
                 if store.doctors.isEmpty {
                     EmptyStateView(
-                        icon: "person.text.rectangle",
-                        title: "No \(settings.region.providerPlural.lowercased()) yet",
+                        icon: viewKind == .surgeon ? "scissors" : "person.text.rectangle",
+                        title: "No \(viewKind.providerPlural(settings.region).lowercased()) yet",
                         message: "Create a profile to start saving theatre setup preferences.",
-                        actionTitle: "Add \(settings.region.provider)",
+                        actionTitle: "Add \(viewKind.provider(settings.region))",
                         action: { creatingNew = true }
                     )
                 } else {
                     listContent
                 }
             }
-            .navigationTitle(settings.region.providerPlural)
+            .navigationTitle(viewKind.providerPlural(settings.region))
             .background(Color(.systemGroupedBackground))
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -86,7 +108,7 @@ struct DoctorsView: View {
                             Label("Quick Add", systemImage: "bolt.fill")
                         }
                         Button { creatingNew = true } label: {
-                            Label("New \(settings.region.provider)", systemImage: "person.crop.circle.badge.plus")
+                            Label("New \(viewKind.provider(settings.region))", systemImage: "person.crop.circle.badge.plus")
                         }
                         Button { showFileImporter = true } label: {
                             Label("Import Profile…", systemImage: "square.and.arrow.down")
@@ -97,12 +119,12 @@ struct DoctorsView: View {
                 }
             }
             .sheet(isPresented: $creatingNew) {
-                NewConsultantFlowView()
+                NewConsultantFlowView(kind: viewKind)
             }
             .onAppear(perform: consumePendingAdd)
             .onChange(of: settings.pendingOpenAddDoctor) { _, _ in consumePendingAdd() }
             .sheet(isPresented: $quickAdding, onDismiss: consumeQuickAddResult) {
-                QuickAddConsultantView { id, openEdit in
+                QuickAddConsultantView(kind: viewKind) { id, openEdit in
                     quickAddResult = (id, openEdit)
                 }
             }
@@ -299,6 +321,9 @@ struct DoctorsView: View {
     private var listContent: some View {
         ScrollView {
             VStack(spacing: 18) {
+                if hasBothKinds {
+                    kindToggle
+                }
                 searchField
 
                 if isSearching {
@@ -310,11 +335,15 @@ struct DoctorsView: View {
                     if !recents.isEmpty {
                         section(title: "Recent", icon: "clock.arrow.circlepath", doctors: recents)
                     }
-                    section(
-                        title: "All \(settings.region.providerPlural)",
-                        icon: "person.2",
-                        doctors: store.doctors
-                    )
+                    if doctorsOfKind.isEmpty {
+                        emptyKindState
+                    } else {
+                        section(
+                            title: "All \(viewKind.providerPlural(settings.region))",
+                            icon: "person.2",
+                            doctors: doctorsOfKind
+                        )
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -322,6 +351,7 @@ struct DoctorsView: View {
             .padding(.bottom, 24)
         }
         .scrollDismissesKeyboard(.interactively)
+        .sensoryFeedback(.selection, trigger: viewKindOverride)
         .onAppear {
             // Auto-focus so the technician can start typing immediately.
             // Delayed past the NavigationStack push animation (0.35s) with a
@@ -333,13 +363,48 @@ struct DoctorsView: View {
         }
     }
 
+    /// Segmented toggle between anaesthetic and surgeon profiles — shown only
+    /// when both types exist so single-discipline users never see it.
+    private var kindToggle: some View {
+        Picker("Profile type", selection: Binding(
+            get: { viewKind },
+            set: { viewKindOverride = $0 }
+        )) {
+            ForEach(ClinicianKind.allCases) { kind in
+                Text(kind.providerPlural(settings.region)).tag(kind)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+
+    /// Shown when the selected profile type has no profiles yet (but the other
+    /// type does), with a direct add affordance.
+    private var emptyKindState: some View {
+        VStack(spacing: 10) {
+            Image(systemName: viewKind == .surgeon ? "scissors" : "person.text.rectangle")
+                .font(.system(size: 32))
+                .foregroundStyle(.tertiary)
+            Text("No \(viewKind.providerPlural(settings.region).lowercased()) yet")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Button { creatingNew = true } label: {
+                Label("Add \(viewKind.provider(settings.region))", systemImage: "plus")
+                    .font(.subheadline.weight(.semibold))
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Theme.accent)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 36)
+    }
+
     // MARK: - Search field
 
     private var searchField: some View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
-            TextField("Search \(settings.region.providerPlural.lowercased())", text: $query)
+            TextField("Search \(viewKind.providerPlural(settings.region).lowercased())", text: $query)
                 .focused($searchFocused)
                 .autocorrectionDisabled()
                 .submitLabel(.search)

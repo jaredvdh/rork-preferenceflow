@@ -141,9 +141,14 @@ struct DoctorDetailsFormSections: View {
 
     private var professionalSection: some View {
         Section("Professional") {
-            LabeledField(label: "Role", text: $draft.role, placeholder: settings.region.provider, icon: "stethoscope")
+            LabeledField(
+                label: "Role",
+                text: $draft.role,
+                placeholder: draft.clinicianKind.provider(settings.region),
+                icon: draft.isSurgeon ? "scissors" : "stethoscope"
+            )
             NavigationLink {
-                SubspecialtyPicker(selected: $draft.subspecialties)
+                SubspecialtyPicker(selected: $draft.subspecialties, kind: draft.clinicianKind)
             } label: {
                 HStack {
                     Label("Subspecialties", systemImage: "square.grid.2x2")
@@ -181,13 +186,24 @@ struct DoctorDetailsFormSections: View {
     }
 }
 
-/// Multi-select picker for provider subspecialties.
+/// Multi-select picker for provider subspecialties, filtered to the profile's
+/// clinician kind (anaesthetic vs surgical specialty lists). Already-selected
+/// values outside the list are kept visible so nothing is silently dropped.
 struct SubspecialtyPicker: View {
     @Binding var selected: [Subspecialty]
+    var kind: ClinicianKind = .anaesthetist
+
+    private var options: [Subspecialty] {
+        var list = Subspecialty.options(for: kind)
+        for item in selected where !list.contains(item) {
+            list.insert(item, at: 0)
+        }
+        return list
+    }
 
     var body: some View {
         List {
-            ForEach(Subspecialty.allCases) { item in
+            ForEach(options) { item in
                 Button {
                     toggle(item)
                 } label: {

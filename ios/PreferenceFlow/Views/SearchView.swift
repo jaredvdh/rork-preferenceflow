@@ -247,6 +247,28 @@ struct SearchView: View {
         }
     }
 
+    /// Surgeons whose surgical preferences (trays, sutures, energy devices,
+    /// positioning, prep) match the query.
+    private var matchingSurgicalItems: [(doctor: Doctor, item: String)] {
+        guard !query.isBlank else { return [] }
+        return matchingDoctorsScope.flatMap { doc -> [(Doctor, String)] in
+            guard doc.isSurgeon, let s = doc.surgical else { return [] }
+            var haystack: [String] = []
+            haystack += s.trays.traysToOpen + s.trays.favouriteExtras + s.trays.haveAvailableUnopened
+            haystack += s.sutures.staplers + s.sutures.drains + s.sutures.dressings
+            haystack += [s.sutures.fascia, s.sutures.subcutaneous, s.sutures.skin]
+            haystack += s.energy.energyDevices + s.energy.imaging
+            haystack += [s.energy.irrigation, s.positioning.patientPosition,
+                         s.positioning.prepSolution, s.positioning.drapingStyle,
+                         s.positioning.catheter]
+            haystack += s.positioning.tableAttachments
+            haystack += [s.gloves.gloveBrand, s.gloves.gownPreference]
+            let unique = Array(Set(haystack.filter { !$0.isBlank }))
+                .filter { $0.localizedCaseInsensitiveContains(query) }
+            return unique.map { (doc, $0) }
+        }
+    }
+
     /// Providers whose procedure equipment checklists match the query.
     private var matchingEquipment: [(doctor: Doctor, item: String)] {
         guard !query.isBlank else { return [] }
@@ -269,7 +291,7 @@ struct SearchView: View {
     private var hasAnyResults: Bool {
         !matchingDoctors.isEmpty || !matchingHospitals.isEmpty || !matchingProcedures.isEmpty
             || !matchingBlocks.isEmpty || !matchingSpecialtySetups.isEmpty || !matchingKnowledge.isEmpty
-            || !matchingMedications.isEmpty || !matchingEquipment.isEmpty
+            || !matchingMedications.isEmpty || !matchingEquipment.isEmpty || !matchingSurgicalItems.isEmpty
             || !matchingEquipmentLocations.isEmpty || !matchingContacts.isEmpty
             || !matchingSickCall.isEmpty || !matchingDocuments.isEmpty
             || !matchingCrisisCards.isEmpty || !matchingMachines.isEmpty
@@ -348,6 +370,18 @@ struct SearchView: View {
                             DoctorDetailView(doctorID: pair.doctor.id)
                         } label: {
                             searchSubRow(title: pair.agent, subtitle: pair.doctor.displayName, icon: "cross.vial.fill")
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            if !matchingSurgicalItems.isEmpty {
+                resultGroup("Surgical Setup", icon: "scissors") {
+                    ForEach(Array(matchingSurgicalItems.enumerated()), id: \.offset) { _, pair in
+                        NavigationLink {
+                            DoctorDetailView(doctorID: pair.doctor.id)
+                        } label: {
+                            searchSubRow(title: pair.item, subtitle: pair.doctor.displayName, icon: "scissors")
                         }
                         .buttonStyle(.plain)
                     }

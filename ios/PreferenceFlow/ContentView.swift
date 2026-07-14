@@ -72,7 +72,7 @@ struct RootTabView: View {
                 .tag(RootTab.today)
 
             DoctorsView()
-                .tabItem { Label(settings.region.providerPlural, systemImage: "person.text.rectangle.fill") }
+                .tabItem { Label(settings.providerPluralTitle, systemImage: "person.text.rectangle.fill") }
                 .tag(RootTab.providers)
 
             HospitalsView()
