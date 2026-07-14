@@ -111,18 +111,18 @@ struct TodayView: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(Theme.heroGradient).frame(width: 60, height: 60)
-                    Image(systemName: "stethoscope")
+                    Image(systemName: settings.discipline == .surgical ? "scissors" : "stethoscope")
                         .font(.title.weight(.semibold)).foregroundStyle(.white)
                 }
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Start your day")
                         .font(.title2.weight(.bold))
                     Text(activeHospital == nil
-                         ? "Pick today's hospital and the \(settings.region.provider.lowercased()) you're working with to open straight into their profile."
-                         : "You're at \(activeHospital?.name ?? ""). Choose the \(settings.region.provider.lowercased()) you're working with.")
+                         ? "Pick today's hospital and the \(settings.providerTitle.lowercased()) you're working with to open straight into their profile."
+                         : "You're at \(activeHospital?.name ?? ""). Choose the \(settings.providerTitle.lowercased()) you're working with.")
                         .font(.subheadline).foregroundStyle(.secondary)
                 }
-                Label(activeHospital == nil ? "Choose hospital" : "Choose \(settings.region.provider.lowercased())", systemImage: "arrow.right.circle.fill")
+                Label(activeHospital == nil ? "Choose hospital" : "Choose \(settings.providerTitle.lowercased())", systemImage: "arrow.right.circle.fill")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)

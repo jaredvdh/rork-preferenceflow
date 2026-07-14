@@ -6,8 +6,9 @@
 import SwiftUI
 
 /// Start-of-shift prompt that captures the day's working context: first the
-/// hospital, then the anaesthetist/provider you're working with. Presented over
-/// the Today dashboard on a new calendar day (per the user's daily-context mode).
+/// hospital, then the provider you're working with (anaesthetist or surgeon,
+/// per the user's discipline). Presented over the Today dashboard on a new
+/// calendar day (per the user's daily-context mode).
 struct DailyContextPromptView: View {
     @Environment(DataStore.self) private var store
     @Environment(AppSettings.self) private var settings
@@ -125,12 +126,31 @@ struct DailyContextPromptView: View {
         }
     }
 
-    // MARK: - Anaesthetist step
+    // MARK: - Provider step
 
+    /// Profiles offered for today's context: scoped to the chosen hospital when
+    /// any are linked, then filtered to the user's discipline (surgeons for
+    /// surgical mode, anaesthetists otherwise). Falls back to all profiles when
+    /// the discipline has none yet so the prompt never dead-ends.
     private var hospitalDoctors: [Doctor] {
-        guard let id = chosenHospitalId else { return store.doctors }
-        let linked = store.doctors(forHospital: id)
-        return linked.isEmpty ? store.doctors : linked
+        var pool = store.doctors
+        if let id = chosenHospitalId {
+            let linked = store.doctors(forHospital: id)
+            if !linked.isEmpty { pool = linked }
+        }
+        let kind = settings.discipline.primaryKind
+        let ofKind = pool.filter { $0.clinicianKind == kind }
+        return ofKind.isEmpty ? pool : ofKind
+    }
+
+    /// Discipline-aware subtitle under "Who are you working with today?".
+    private var providerStepSubtitle: String {
+        switch settings.discipline {
+        case .anaesthesia:
+            return "Pick the \(settings.providerTitle.lowercased()) you're supporting."
+        case .surgical:
+            return "Pick the \(settings.providerTitle.lowercased()) you're scrubbing for."
+        }
     }
 
     private var chosenHospitalName: String {
@@ -142,13 +162,13 @@ struct DailyContextPromptView: View {
             header(
                 eyebrow: chosenHospitalName.isBlank ? "Today's team" : chosenHospitalName,
                 title: "Who are you working with today?",
-                subtitle: "Pick the \(settings.region.provider.lowercased()) you're supporting."
+                subtitle: providerStepSubtitle
             )
 
             if hospitalDoctors.isEmpty {
                 emptyCard(
                     icon: "person.text.rectangle",
-                    text: "No \(settings.region.providerPlural.lowercased()) yet. Continue and add a profile from the \(settings.region.providerPlural) tab."
+                    text: "No \(settings.providerPluralTitle.lowercased()) yet. Continue and add a profile from the \(settings.providerPluralTitle) tab."
                 )
                 Spacer()
                 continueWithoutButton
