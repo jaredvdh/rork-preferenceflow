@@ -15,19 +15,24 @@ nonisolated struct SurgicalPreferences: Codable, Hashable {
     var sutures: SuturesClosure
     var energy: EnergyEquipment
     var positioning: PositioningPrep
+    /// Per-operation preference cards (e.g. Lap Chole, Hemicolectomy). Each
+    /// gets its own read-mode tab and prints as a separate one-page card.
+    var procedures: [SurgeonProcedure]
 
     init(
         gloves: GlovesPersonal = GlovesPersonal(),
         trays: TraysInstruments = TraysInstruments(),
         sutures: SuturesClosure = SuturesClosure(),
         energy: EnergyEquipment = EnergyEquipment(),
-        positioning: PositioningPrep = PositioningPrep()
+        positioning: PositioningPrep = PositioningPrep(),
+        procedures: [SurgeonProcedure] = []
     ) {
         self.gloves = gloves
         self.trays = trays
         self.sutures = sutures
         self.energy = energy
         self.positioning = positioning
+        self.procedures = procedures
     }
 
     /// Decodes with per-section fallbacks so future additions never break
@@ -39,11 +44,13 @@ nonisolated struct SurgicalPreferences: Codable, Hashable {
         sutures = try container.decodeIfPresent(SuturesClosure.self, forKey: .sutures) ?? SuturesClosure()
         energy = try container.decodeIfPresent(EnergyEquipment.self, forKey: .energy) ?? EnergyEquipment()
         positioning = try container.decodeIfPresent(PositioningPrep.self, forKey: .positioning) ?? PositioningPrep()
+        procedures = try container.decodeIfPresent([SurgeonProcedure].self, forKey: .procedures) ?? []
     }
 
     var hasContent: Bool {
         gloves.hasContent || trays.hasContent || sutures.hasContent
             || energy.hasContent || positioning.hasContent
+            || !procedures.isEmpty
     }
 }
 

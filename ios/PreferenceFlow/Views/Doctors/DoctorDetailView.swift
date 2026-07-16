@@ -297,11 +297,12 @@ struct DoctorDetailView: View {
         item.rawValue
     }
 
-    /// Read-mode tab bar: Overview plus one tab per active specialty setup. Core
-    /// sections stay reachable from the Overview card and via Edit mode — only
-    /// specialty setups are promoted to their own read-mode tab.
+    /// Read-mode tab bar: General/Overview plus one tab per procedure card
+    /// (surgeons) and per active specialty setup. Core sections stay reachable
+    /// from the Overview card and via Edit mode.
     private var showReadTabBar: Bool {
         !(doctor?.activeSpecialtySetups.isEmpty ?? true)
+            || !(doctor?.surgicalProcedures.isEmpty ?? true)
     }
 
     private var readTabBar: some View {
@@ -309,12 +310,24 @@ struct DoctorDetailView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     readTabChip(
-                        title: "Overview",
+                        title: doctor?.isSurgeon == true ? "General" : "Overview",
                         icon: "person.crop.rectangle",
                         tint: Theme.accent,
                         selected: readTab == .overview
                     ) { withAnimation(.spring(response: 0.3)) { readTab = .overview } }
                     .id(ReadTab.overview)
+
+                    // Surgeon operation cards — one tab per procedure, right
+                    // after General so "look up the operation" is one tap.
+                    ForEach(doctor?.surgicalProcedures ?? []) { procedure in
+                        readTabChip(
+                            title: procedure.displayName,
+                            icon: "cross.case.fill",
+                            tint: Color(hex: "2E7DD1"),
+                            selected: readTab == .procedure(procedure.id)
+                        ) { withAnimation(.spring(response: 0.3)) { readTab = .procedure(procedure.id) } }
+                        .id(ReadTab.procedure(procedure.id))
+                    }
 
                     ForEach(doctor?.activeSpecialtySetups ?? []) { setup in
                         readTabChip(
@@ -430,6 +443,18 @@ struct DoctorDetailView: View {
                     overviewContent(doctor)
                         .transition(.opacity)
                 }
+            case .procedure(let id):
+                if let procedure = doctor.surgicalProcedures.first(where: { $0.id == id }) {
+                    SurgeonProcedureTab(
+                        doctor: doctor,
+                        procedure: procedure,
+                        hospitalID: dailyHospitalID
+                    )
+                    .transition(.opacity)
+                } else {
+                    overviewContent(doctor)
+                        .transition(.opacity)
+                }
             case .overview:
                 overviewContent(doctor)
                     .transition(.opacity)
@@ -445,6 +470,7 @@ struct DoctorDetailView: View {
                 doctor: doctor,
                 onNavigate: { target in withAnimation(.spring(response: 0.3)) { isEditing = true; tab = target } },
                 onSelectSpecialty: { setup in withAnimation(.spring(response: 0.3)) { readTab = .specialty(setup.id) } },
+                onSelectProcedure: { procedure in withAnimation(.spring(response: 0.3)) { readTab = .procedure(procedure.id) } },
                 hospitalID: dailyHospitalID,
                 editMode: isEditing
             )
@@ -472,7 +498,12 @@ struct DoctorDetailView: View {
         case .monitoring: MonitoringLinesTab(doctor: doctor)
         case .regional: RegionalTab(doctor: doctor)
         case .neuraxial: NeuraxialTab(doctor: doctor)
-        case .procedures: OperationsTab(doctor: doctor)
+        case .procedures:
+            if doctor.isSurgeon {
+                SurgeonProceduresTab(doctor: doctor)
+            } else {
+                OperationsTab(doctor: doctor)
+            }
         case .share: ShareTab(doctor: doctor)
         case .gloves: GlovesPersonalTab(doctor: doctor)
         case .trays: TraysInstrumentsTab(doctor: doctor)
@@ -484,8 +515,10 @@ struct DoctorDetailView: View {
 }
 
 /// Read-mode section selection in the profile switcher: the full Overview card,
-/// or a specific consultant specialty setup promoted to its own tab.
+/// a consultant specialty setup, or a surgeon procedure card promoted to its
+/// own tab.
 enum ReadTab: Hashable {
     case overview
     case specialty(UUID)
+    case procedure(UUID)
 }

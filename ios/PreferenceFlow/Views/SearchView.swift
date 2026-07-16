@@ -273,6 +273,15 @@ struct SearchView: View {
                          s.positioning.catheter]
             haystack += s.positioning.tableAttachments
             haystack += [s.gloves.gloveBrand, s.gloves.gownPreference]
+            // Per-operation cards: the operation name plus its setup contents.
+            for proc in s.procedures {
+                haystack.append(proc.name)
+                haystack += proc.trays.traysToOpen + proc.trays.favouriteExtras + proc.trays.haveAvailableUnopened
+                haystack += proc.sutures.staplers + proc.sutures.drains + proc.sutures.dressings
+                haystack += [proc.sutures.fascia, proc.sutures.subcutaneous, proc.sutures.skin]
+                haystack += proc.energy.energyDevices + proc.energy.imaging
+                haystack += [proc.positioning.patientPosition]
+            }
             let unique = Array(Set(haystack.filter { !$0.isBlank }))
                 .filter { $0.localizedCaseInsensitiveContains(query) }
             return unique.map { (doc, $0) }

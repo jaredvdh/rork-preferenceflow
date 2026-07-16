@@ -11,6 +11,8 @@ enum PDFExportFormat: String, CaseIterable, Identifiable {
     case theatreCard = "Theatre Card"
     /// Multi-page detailed export with selectable sections and appendix.
     case fullCard = "Full Preference Card"
+    /// One A4 page for a single surgeon operation card (surgeons only).
+    case procedureCard = "Operation Card"
 
     var id: String { rawValue }
 
@@ -18,6 +20,7 @@ enum PDFExportFormat: String, CaseIterable, Identifiable {
         switch self {
         case .theatreCard: return "printer"
         case .fullCard: return "doc.richtext"
+        case .procedureCard: return "cross.case"
         }
     }
 
@@ -25,6 +28,7 @@ enum PDFExportFormat: String, CaseIterable, Identifiable {
         switch self {
         case .theatreCard: return "One page, laminate-ready — the whole setup at a glance"
         case .fullCard: return "Detailed multi-page card — choose sections, add hospital appendix"
+        case .procedureCard: return "One page for a single operation — trays, sutures, positioning"
         }
     }
 }
@@ -46,12 +50,23 @@ struct PreferenceCardExportView: View {
     @State private var format: PDFExportFormat = .theatreCard
     @State private var options: PreferenceCardOptions = .standard
     @State private var includeQR = false
+    /// The operation exported when the format is `.procedureCard`.
+    @State private var selectedProcedureID: UUID?
     @State private var sharePayload: SharePayload?
     @State private var isGenerating = false
     @State private var errorMessage: String?
 
     private var hospital: Hospital? { store.hospital(id: hospitalID ?? doctor.hospitalId) }
     private var hospitalHasOrientation: Bool { hospital?.orientationOrEmpty.hasContent ?? false }
+
+    /// Formats offered for this profile — the per-operation card only appears
+    /// for surgeons who have operation cards.
+    private var availableFormats: [PDFExportFormat] {
+        if doctor.isSurgeon && !doctor.surgicalProcedures.isEmpty {
+            return PDFExportFormat.allCases
+        }
+        return [.theatreCard, .fullCard]
+    }
 
     /// The selectable export sections, in document order — surgical sections
     /// for surgeon profiles, anaesthetic sections otherwise.
@@ -80,6 +95,10 @@ struct PreferenceCardExportView: View {
                 previewHeader
 
                 formatSection
+
+                if format == .procedureCard {
+                    procedurePickerSection
+                }
 
                 if format == .fullCard {
                     Section("Include sections") {
@@ -151,7 +170,11 @@ struct PreferenceCardExportView: View {
                             Text("Generate").fontWeight(.semibold)
                         }
                     }
-                    .disabled((format == .fullCard && options.isEmpty) || isGenerating)
+                    .disabled(
+                        (format == .fullCard && options.isEmpty)
+                            || (format == .procedureCard && selectedProcedureID == nil)
+                            || isGenerating
+                    )
                 }
             }
             .sensoryFeedback(.success, trigger: sharePayload?.id) { _, newValue in newValue != nil }
@@ -163,6 +186,11 @@ struct PreferenceCardExportView: View {
                 Button("OK") { errorMessage = nil }
             } message: {
                 Text(errorMessage ?? "")
+            }
+            .onAppear {
+                if selectedProcedureID == nil {
+                    selectedProcedureID = doctor.surgicalProcedures.first?.id
+                }
             }
         }
     }
@@ -190,10 +218,44 @@ struct PreferenceCardExportView: View {
         }
     }
 
+    /// Picks which operation card to print when exporting a single operation.
+    private var procedurePickerSection: some View {
+        Section("Operation") {
+            ForEach(doctor.surgicalProcedures) { procedure in
+                Button {
+                    selectedProcedureID = procedure.id
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "cross.case.fill")
+                            .font(.body)
+                            .foregroundStyle(Color(hex: "2E7DD1"))
+                            .frame(width: 26)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(procedure.displayName)
+                                .font(.body)
+                                .foregroundStyle(.primary)
+                            if !procedure.summaryLine.isEmpty {
+                                Text(procedure.summaryLine)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        Spacer()
+                        Image(systemName: selectedProcedureID == procedure.id ? "checkmark.circle.fill" : "circle")
+                            .font(.title3)
+                            .foregroundStyle(selectedProcedureID == procedure.id ? Theme.accent : Color(.tertiaryLabel))
+                    }
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
     /// Format chooser: one-page Theatre Card vs full detailed card.
     private var formatSection: some View {
         Section("Format") {
-            ForEach(PDFExportFormat.allCases) { candidate in
+            ForEach(availableFormats) { candidate in
                 Button {
                     format = candidate
                 } label: {
@@ -278,6 +340,13 @@ struct PreferenceCardExportView: View {
             switch format {
             case .theatreCard:
                 url = try TheatreCardPDF.writeFile(for: doctor, hospital: hospital, region: settings.region)
+            case .procedureCard:
+                guard let procedure = doctor.surgicalProcedures.first(where: { $0.id == selectedProcedureID }) else {
+                    isGenerating = false
+                    errorMessage = "Choose an operation to print."
+                    return
+                }
+                url = try SurgeonProcedurePDF.writeFile(procedure: procedure, doctor: doctor, hospital: hospital)
             case .fullCard:
                 url = try ProfilePDF.writeFile(
                     for: doctor,

@@ -264,6 +264,10 @@ nonisolated struct Doctor: Identifiable, Codable, Hashable {
     /// The surgical preferences with the nil legacy case normalised to empty.
     var surgicalPreferences: SurgicalPreferences { surgical ?? SurgicalPreferences() }
 
+    /// This surgeon's per-operation preference cards (empty for anaesthetists
+    /// and legacy profiles).
+    var surgicalProcedures: [SurgeonProcedure] { surgical?.procedures ?? [] }
+
     /// Inserts or replaces a procedural workflow customization, creating the
     /// storage on first write.
     mutating func setProceduralCustomization(_ customization: WorkflowCustomization) {

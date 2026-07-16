@@ -531,6 +531,71 @@ nonisolated enum DemoData {
         surgical.positioning.catheter = "Foley 14Fr"
         surgical.positioning.notes = "Reverse Trendelenburg with left tilt for lap chole. Warming blanket from the start for long resections."
 
+        // Per-operation cards — each shows as its own tab and prints separately.
+        var lapChole = SurgeonProcedure(id: id(128), name: "Lap Cholecystectomy")
+        lapChole.positioning.patientPosition = "Supine"
+        lapChole.positioning.tableAttachments = ["Arm boards"]
+        lapChole.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        lapChole.positioning.drapingStyle = "Standard drapes"
+        lapChole.positioning.catheter = "No catheter routinely"
+        lapChole.positioning.notes = "Reverse Trendelenburg with left tilt once ports are in."
+        lapChole.trays.traysToOpen = ["Laparoscopic set"]
+        lapChole.trays.favouriteExtras = ["Vessel loops"]
+        lapChole.trays.haveAvailableUnopened = ["Laparotomy tray (during lap case)"]
+        lapChole.trays.notes = "Standard 4-port setup. Clip applier loaded before the cystic duct is dissected."
+        lapChole.sutures.fascia = "0 Vicryl (umbilical port)"
+        lapChole.sutures.skin = "4-0 Monocryl subcuticular"
+        lapChole.sutures.drains = ["No drain routinely"]
+        lapChole.sutures.dressings = ["Comfeel"]
+        lapChole.energy.diathermyCut = "30"
+        lapChole.energy.diathermyCoag = "35"
+        lapChole.energy.energyDevices = ["Monopolar diathermy"]
+        lapChole.energy.imaging = ["Laparoscopic stack"]
+        lapChole.notes = "Retrieval bag opened before gallbladder is off the liver bed. On-table cholangiogram kit available unopened."
+
+        var lapAppendix = SurgeonProcedure(id: id(129), name: "Lap Appendicectomy")
+        lapAppendix.positioning.patientPosition = "Supine"
+        lapAppendix.positioning.tableAttachments = ["Arms tucked"]
+        lapAppendix.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        lapAppendix.positioning.drapingStyle = "Standard drapes"
+        lapAppendix.positioning.catheter = "In-out catheter only"
+        lapAppendix.positioning.notes = "Trendelenburg with left tilt once ports are in."
+        lapAppendix.trays.traysToOpen = ["Laparoscopic set"]
+        lapAppendix.trays.haveAvailableUnopened = ["GIA stapler"]
+        lapAppendix.trays.notes = "Endoloops ×2 opened; stapler only for a difficult base."
+        lapAppendix.sutures.skin = "4-0 Monocryl subcuticular"
+        lapAppendix.sutures.dressings = ["Opsite"]
+        lapAppendix.energy.diathermyCut = "30"
+        lapAppendix.energy.diathermyCoag = "35"
+        lapAppendix.energy.energyDevices = ["Monopolar diathermy", "Bipolar diathermy"]
+        lapAppendix.energy.imaging = ["Laparoscopic stack"]
+        lapAppendix.notes = "Retrieval bag for the appendix always. Warm saline wash if perforated — call it out early."
+
+        var hemicolectomy = SurgeonProcedure(id: id(130), name: "Right Hemicolectomy")
+        hemicolectomy.positioning.patientPosition = "Lloyd-Davies"
+        hemicolectomy.positioning.tableAttachments = ["Lithotomy stirrups", "Gel padding"]
+        hemicolectomy.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        hemicolectomy.positioning.drapingStyle = "Laparotomy drapes + Ioban"
+        hemicolectomy.positioning.catheter = "Foley 14Fr"
+        hemicolectomy.trays.traysToOpen = ["Laparoscopic set", "Laparotomy set"]
+        hemicolectomy.trays.favouriteExtras = ["Long instruments", "Deep retractors (Deavers)"]
+        hemicolectomy.trays.haveAvailableUnopened = ["Extra suction"]
+        hemicolectomy.trays.notes = "Laparotomy set opened but covered — lap-assisted with extraction incision."
+        hemicolectomy.sutures.fascia = "1 PDS loop"
+        hemicolectomy.sutures.subcutaneous = "3-0 Vicryl"
+        hemicolectomy.sutures.skin = "4-0 Monocryl subcuticular"
+        hemicolectomy.sutures.staplers = ["Endo GIA", "Purple loads", "Linear stapler (GIA)"]
+        hemicolectomy.sutures.drains = ["No drain routinely"]
+        hemicolectomy.sutures.dressings = ["Comfeel"]
+        hemicolectomy.energy.diathermyCut = "30"
+        hemicolectomy.energy.diathermyCoag = "35"
+        hemicolectomy.energy.energyDevices = ["Monopolar diathermy", "LigaSure"]
+        hemicolectomy.energy.irrigation = "Warm saline"
+        hemicolectomy.energy.imaging = ["Laparoscopic stack"]
+        hemicolectomy.notes = "Anastomosis is stapled side-to-side — two Endo GIA purple loads plus one linear stapler load ready before the bowel is divided."
+
+        surgical.procedures = [lapChole, lapAppendix, hemicolectomy]
+
         let hpb = SpecialtySetup(
             id: id(126),
             specialty: .hepatobiliary,
@@ -596,6 +661,48 @@ nonisolated enum DemoData {
         surgical.positioning.drapingStyle = "Chin-to-knees cardiac draping \u{2014} both legs prepped for vein harvest"
         surgical.positioning.catheter = "Foley 16Fr with temperature probe"
         surgical.positioning.notes = "External defib pads on before draping for redo sternotomy. Groins kept accessible for emergency femoral cannulation."
+
+        // Per-operation cards — each shows as its own tab and prints separately.
+        var cabg = SurgeonProcedure(id: id(131), name: "CABG")
+        cabg.positioning.patientPosition = "Supine"
+        cabg.positioning.tableAttachments = ["Arms tucked", "Gel padding"]
+        cabg.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        cabg.positioning.drapingStyle = "Chin-to-knees — both legs prepped for vein harvest"
+        cabg.positioning.catheter = "Foley 16Fr with temperature probe"
+        cabg.trays.traysToOpen = ["Cardiac major set", "Sternotomy set"]
+        cabg.trays.favouriteExtras = ["Internal defibrillator paddles", "Pacing wires", "Bone wax"]
+        cabg.trays.haveAvailableUnopened = ["Spare sternal saw", "Cell saver"]
+        cabg.trays.notes = "Leg vein harvest trolley set up separately. Aortic punch and side-biting clamp on the top shelf."
+        cabg.sutures.subcutaneous = "2-0 Vicryl"
+        cabg.sutures.skin = "3-0 Monocryl subcuticular"
+        cabg.sutures.drains = ["Mediastinal drain 28Fr", "Pleural drain if opened"]
+        cabg.sutures.dressings = ["Mepore", "Pressure dressing to leg wounds"]
+        cabg.sutures.notes = "Sternum closed with stainless steel wires ×6."
+        cabg.energy.diathermyCut = "40"
+        cabg.energy.diathermyCoag = "40"
+        cabg.energy.energyDevices = ["Monopolar diathermy", "Bipolar diathermy", "Harmonic scalpel"]
+        cabg.notes = "Internal paddles connected and tested before bypass. Heparin on surgeon's call — ACT read back aloud before cannulation."
+
+        var avr = SurgeonProcedure(id: id(132), name: "Aortic Valve Replacement")
+        avr.positioning.patientPosition = "Supine"
+        avr.positioning.tableAttachments = ["Arms tucked", "Head ring"]
+        avr.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        avr.positioning.drapingStyle = "Standard cardiac draping"
+        avr.positioning.catheter = "Foley 16Fr with temperature probe"
+        avr.trays.traysToOpen = ["Cardiac major set", "Sternotomy set"]
+        avr.trays.favouriteExtras = ["Valve sizers", "Internal defibrillator paddles", "Pacing wires"]
+        avr.trays.haveAvailableUnopened = ["Cell saver"]
+        avr.trays.notes = "Valve prostheses stay in their boxes until sized — sizes confirmed with a read-back before opening."
+        avr.sutures.subcutaneous = "2-0 Vicryl"
+        avr.sutures.skin = "3-0 Monocryl subcuticular"
+        avr.sutures.drains = ["Mediastinal drain 28Fr"]
+        avr.sutures.dressings = ["Mepore"]
+        avr.energy.diathermyCut = "40"
+        avr.energy.diathermyCoag = "40"
+        avr.energy.energyDevices = ["Monopolar diathermy", "Bipolar diathermy"]
+        avr.notes = "TOE by anaesthesia for all valve cases — confirmed at time-out. Valve type and size read back before opening the box."
+
+        surgical.procedures = [cabg, avr]
 
         let cardiothoracic = SpecialtySetup(
             id: id(127),

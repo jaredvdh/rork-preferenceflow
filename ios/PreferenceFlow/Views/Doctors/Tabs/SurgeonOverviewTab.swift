@@ -23,6 +23,8 @@ struct SurgeonOverviewTab: View {
     var onNavigate: (ProfileTab) -> Void = { _ in }
     /// Selects a specialty setup's dedicated read-mode tab from the chip shortcuts.
     var onSelectSpecialty: (SpecialtySetup) -> Void = { _ in }
+    /// Opens an operation card's dedicated read-mode tab.
+    var onSelectProcedure: (SurgeonProcedure) -> Void = { _ in }
     /// Hospital used for context (resolved by parent).
     var hospitalID: UUID? = nil
     /// True when the profile is in Edit Mode (hides the inline Edit shortcut).
@@ -42,6 +44,7 @@ struct SurgeonOverviewTab: View {
         ScrollView {
             VStack(spacing: 22) {
                 hero
+                proceduresSection
                 specialtySection
                 setupSection
                 referencePhotoSection
@@ -123,7 +126,67 @@ struct SurgeonOverviewTab: View {
         .padding(.top, 4)
     }
 
-    // MARK: - 2. Specialty setups
+    // MARK: - 2. Operation cards
+
+    /// Per-operation preference cards — the fastest route for a scrub nurse
+    /// looking up today's list. Each opens its own tab and prints separately.
+    private var proceduresSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionLabel("Operations", icon: "cross.case.fill")
+            if doctor.surgicalProcedures.isEmpty {
+                Button { onNavigate(.procedures) } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Add operation cards (e.g. Lap Chole, Hemicolectomy)")
+                            .font(.subheadline.weight(.medium))
+                    }
+                    .foregroundStyle(Theme.accent)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
+            } else {
+                ForEach(doctor.surgicalProcedures) { procedure in
+                    Button { onSelectProcedure(procedure) } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "cross.case.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(Color(hex: "2E7DD1"))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(procedure.displayName)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.primary)
+                                if !procedure.summaryLine.isEmpty {
+                                    Text(procedure.summaryLine)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding(12)
+                        .background(Color(hex: "2E7DD1").opacity(0.08), in: .rect(cornerRadius: Theme.cornerMedium))
+                    }
+                    .buttonStyle(.plain)
+                }
+                Button { onNavigate(.procedures) } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                        Text("Add")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(Color(.tertiarySystemFill), in: .capsule)
+                    .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    // MARK: - 3. Specialty setups
 
     private var activeSpecialties: [SpecialtySetup] { doctor.activeSpecialtySetups }
 
