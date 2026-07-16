@@ -437,7 +437,7 @@ struct DoctorDetailView: View {
             switch readTab {
             case .specialty(let id):
                 if let setup = doctor.activeSpecialtySetups.first(where: { $0.id == id }) {
-                    SpecialtySetupTab(doctor: doctor, setup: setup)
+                    SpecialtySetupTab(doctor: doctor, setup: setup, hospitalID: dailyHospitalID)
                         .transition(.opacity)
                 } else {
                     overviewContent(doctor)

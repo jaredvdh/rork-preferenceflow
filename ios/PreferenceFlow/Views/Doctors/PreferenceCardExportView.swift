@@ -13,6 +13,8 @@ enum PDFExportFormat: String, CaseIterable, Identifiable {
     case fullCard = "Full Preference Card"
     /// One A4 page for a single surgeon operation card (surgeons only).
     case procedureCard = "Operation Card"
+    /// One A4 page for a single specialty setup (e.g. Cardiac, Neuro, Obstetrics).
+    case specialtyCard = "Specialty Card"
 
     var id: String { rawValue }
 
@@ -21,6 +23,7 @@ enum PDFExportFormat: String, CaseIterable, Identifiable {
         case .theatreCard: return "printer"
         case .fullCard: return "doc.richtext"
         case .procedureCard: return "cross.case"
+        case .specialtyCard: return "square.grid.2x2"
         }
     }
 
@@ -29,6 +32,7 @@ enum PDFExportFormat: String, CaseIterable, Identifiable {
         case .theatreCard: return "One page, laminate-ready — the whole setup at a glance"
         case .fullCard: return "Detailed multi-page card — choose sections, add hospital appendix"
         case .procedureCard: return "One page for a single operation — trays, sutures, positioning"
+        case .specialtyCard: return "One page for a single specialty list — what changes vs standard"
         }
     }
 }
@@ -52,6 +56,8 @@ struct PreferenceCardExportView: View {
     @State private var includeQR = false
     /// The operation exported when the format is `.procedureCard`.
     @State private var selectedProcedureID: UUID?
+    /// The specialty setup exported when the format is `.specialtyCard`.
+    @State private var selectedSpecialtyID: UUID?
     @State private var sharePayload: SharePayload?
     @State private var isGenerating = false
     @State private var errorMessage: String?
@@ -60,12 +66,17 @@ struct PreferenceCardExportView: View {
     private var hospitalHasOrientation: Bool { hospital?.orientationOrEmpty.hasContent ?? false }
 
     /// Formats offered for this profile — the per-operation card only appears
-    /// for surgeons who have operation cards.
+    /// for surgeons who have operation cards; the per-specialty card only when
+    /// the profile has specialty setups (Cardiac, Neuro, Obstetrics…).
     private var availableFormats: [PDFExportFormat] {
+        var formats: [PDFExportFormat] = [.theatreCard, .fullCard]
         if doctor.isSurgeon && !doctor.surgicalProcedures.isEmpty {
-            return PDFExportFormat.allCases
+            formats.append(.procedureCard)
         }
-        return [.theatreCard, .fullCard]
+        if !doctor.activeSpecialtySetups.isEmpty {
+            formats.append(.specialtyCard)
+        }
+        return formats
     }
 
     /// The selectable export sections, in document order — surgical sections
@@ -98,6 +109,10 @@ struct PreferenceCardExportView: View {
 
                 if format == .procedureCard {
                     procedurePickerSection
+                }
+
+                if format == .specialtyCard {
+                    specialtyPickerSection
                 }
 
                 if format == .fullCard {
@@ -173,6 +188,7 @@ struct PreferenceCardExportView: View {
                     .disabled(
                         (format == .fullCard && options.isEmpty)
                             || (format == .procedureCard && selectedProcedureID == nil)
+                            || (format == .specialtyCard && selectedSpecialtyID == nil)
                             || isGenerating
                     )
                 }
@@ -190,6 +206,9 @@ struct PreferenceCardExportView: View {
             .onAppear {
                 if selectedProcedureID == nil {
                     selectedProcedureID = doctor.surgicalProcedures.first?.id
+                }
+                if selectedSpecialtyID == nil {
+                    selectedSpecialtyID = doctor.activeSpecialtySetups.first?.id
                 }
             }
         }
@@ -244,6 +263,39 @@ struct PreferenceCardExportView: View {
                         Image(systemName: selectedProcedureID == procedure.id ? "checkmark.circle.fill" : "circle")
                             .font(.title3)
                             .foregroundStyle(selectedProcedureID == procedure.id ? Theme.accent : Color(.tertiaryLabel))
+                    }
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    /// Picks which specialty setup to print when exporting a single specialty
+    /// card (e.g. just the Cardiac list changes).
+    private var specialtyPickerSection: some View {
+        Section("Specialty") {
+            ForEach(doctor.activeSpecialtySetups) { setup in
+                Button {
+                    selectedSpecialtyID = setup.id
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: setup.specialty.symbol)
+                            .font(.body)
+                            .foregroundStyle(setup.specialty.color)
+                            .frame(width: 26)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(setup.specialty.rawValue)
+                                .font(.body)
+                                .foregroundStyle(.primary)
+                            Text("^[\(setup.changeCount) change](inflect: true) vs standard setup")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: selectedSpecialtyID == setup.id ? "checkmark.circle.fill" : "circle")
+                            .font(.title3)
+                            .foregroundStyle(selectedSpecialtyID == setup.id ? Theme.accent : Color(.tertiaryLabel))
                     }
                     .contentShape(.rect)
                 }
@@ -347,6 +399,13 @@ struct PreferenceCardExportView: View {
                     return
                 }
                 url = try SurgeonProcedurePDF.writeFile(procedure: procedure, doctor: doctor, hospital: hospital)
+            case .specialtyCard:
+                guard let setup = doctor.activeSpecialtySetups.first(where: { $0.id == selectedSpecialtyID }) else {
+                    isGenerating = false
+                    errorMessage = "Choose a specialty to print."
+                    return
+                }
+                url = try SpecialtyCardPDF.writeFile(setup: setup, doctor: doctor, hospital: hospital)
             case .fullCard:
                 url = try ProfilePDF.writeFile(
                     for: doctor,

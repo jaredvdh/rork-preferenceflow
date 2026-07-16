@@ -172,11 +172,22 @@ extension SpecialtySetup {
 /// Full-tab, read-only view for a specialty setup, shown in the profile's
 /// read-mode section switcher (parallel to a core tab like Airway). Standing
 /// note clarifies the standard setup still applies, then the same colour-coded
-/// cards as the detail sheet, plus an inline Edit entry point.
+/// cards as the detail sheet, plus Print and Edit entry points — the specialty
+/// card prints as its own one-page laminate, like a surgeon operation card.
 struct SpecialtySetupTab: View {
+    @Environment(DataStore.self) private var store
     let doctor: Doctor
     let setup: SpecialtySetup
+    /// Hospital used for the printed card's context (resolved by parent).
+    var hospitalID: UUID? = nil
+
     @State private var editing = false
+    @State private var sharePayload: SharePayload?
+    @State private var printError: String?
+
+    private var hospital: Hospital? {
+        store.hospital(id: hospitalID ?? doctor.hospitalId)
+    }
 
     var body: some View {
         ScrollView {
@@ -199,14 +210,31 @@ struct SpecialtySetupTab: View {
 
                 SpecialtySetupCards(setup: setup)
 
-                Button { editing = true } label: {
-                    Label("Edit \(setup.specialty.rawValue) Setup", systemImage: "slider.horizontal.3")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 4)
+                HStack(spacing: 10) {
+                    Button {
+                        printSpecialtyCard()
+                    } label: {
+                        Label("Print \(setup.specialty.rawValue) Card", systemImage: "printer.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Theme.accent, in: .capsule)
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        editing = true
+                    } label: {
+                        Label("Edit", systemImage: "slider.horizontal.3")
+                            .font(.subheadline.weight(.semibold))
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 12)
+                            .background(Color(.tertiarySystemFill), in: .capsule)
+                            .foregroundStyle(.primary)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Theme.accent)
 
                 PrefDisclaimer()
             }
@@ -215,6 +243,31 @@ struct SpecialtySetupTab: View {
         .background(Color(.systemGroupedBackground))
         .sheet(isPresented: $editing) {
             SpecialtySetupEditView(doctor: doctor, setup: setup, isNew: false)
+        }
+        .sheet(item: $sharePayload) { payload in
+            ShareSheet(items: [payload.url])
+        }
+        .alert("Print Failed", isPresented: .constant(printError != nil)) {
+            Button("OK") { printError = nil }
+        } message: {
+            Text(printError ?? "")
+        }
+        .sensoryFeedback(.success, trigger: sharePayload?.id) { _, newValue in newValue != nil }
+    }
+
+    /// Renders this specialty setup as a one-page PDF and opens the share
+    /// sheet (print, AirDrop, Files) — the anaesthetic parallel of printing a
+    /// single surgeon operation card.
+    private func printSpecialtyCard() {
+        do {
+            let url = try SpecialtyCardPDF.writeFile(
+                setup: setup,
+                doctor: doctor,
+                hospital: hospital
+            )
+            sharePayload = SharePayload(url: url)
+        } catch {
+            printError = error.localizedDescription
         }
     }
 }
