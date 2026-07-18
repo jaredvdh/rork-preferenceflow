@@ -84,7 +84,7 @@ nonisolated struct SurgeonProcedure: Identifiable, Codable, Hashable {
         "Right Hemicolectomy", "Trauma Laparotomy", "Liver Resection",
         "Total Knee Replacement", "Total Hip Replacement", "Arthroscopy",
         "CABG", "Aortic Valve Replacement", "VATS Lobectomy",
-        "PCI / Angiogram", "Pacemaker Insertion",
+        "Coronary Angioplasty (PCI)", "TAVI (TAVR)", "Pacemaker Insertion",
         "Colonoscopy", "Gastroscopy", "ERCP",
         "TURP", "Caesarean Section", "Hysterectomy",
         "Carotid Endarterectomy", "Craniotomy", "Cataract Surgery"

@@ -29,6 +29,7 @@ nonisolated enum DemoData {
     static let jamesOkonkwoID = id(12)
     static let samuelAdeyemiID = id(13)
     static let elenaVasquezID = id(14)
+    static let priyaSharmaID = id(15)
 
     /// Definitive set of demo hospital ids. Removal matches on these — never on
     /// the fallible `isDemoData` flag alone — so demo cleanup can never delete a
@@ -36,7 +37,7 @@ nonisolated enum DemoData {
     static let allDemoHospitalIDs: Set<UUID> = [cityCentralID, mercyPrivateID]
 
     /// Definitive set of demo consultant ids (see `allDemoHospitalIDs`).
-    static let allDemoDoctorIDs: Set<UUID> = [sarahMitchellID, jamesOkonkwoID, samuelAdeyemiID, elenaVasquezID]
+    static let allDemoDoctorIDs: Set<UUID> = [sarahMitchellID, jamesOkonkwoID, samuelAdeyemiID, elenaVasquezID, priyaSharmaID]
 
     // MARK: - Public API
 
@@ -44,7 +45,7 @@ nonisolated enum DemoData {
     static var hospitals: [Hospital] { [cityCentral, mercyPrivate] }
 
     /// Full set of demo consultants and surgeons.
-    static var doctors: [Doctor] { [sarahMitchell, jamesOkonkwo, samuelAdeyemi, elenaVasquez] }
+    static var doctors: [Doctor] { [sarahMitchell, jamesOkonkwo, samuelAdeyemi, elenaVasquez, priyaSharma] }
 
     // MARK: - Edited-demo detection
 
@@ -558,7 +559,7 @@ nonisolated enum DemoData {
         surgical.trays.traysToOpen = ["Laparotomy set", "Laparoscopic set"]
         surgical.trays.favouriteExtras = ["Bookwalter retractor", "Long instruments", "Deep retractors (Deavers)", "Vessel loops"]
         surgical.trays.haveAvailableUnopened = ["Vascular clamps", "Cell saver", "GIA stapler"]
-        surgical.trays.notes = "Lap chole: standard 4-port setup. Open HPB: Bookwalter mounted before knife to skin, CUSA checked and in the room."
+        surgical.trays.notes = "Standing defaults only — each operation tab lists the exact trays and setup for that case."
 
         surgical.sutures.fascia = "1 PDS loop"
         surgical.sutures.subcutaneous = "3-0 Vicryl"
@@ -602,6 +603,7 @@ nonisolated enum DemoData {
         lapChole.energy.diathermyCoag = "35"
         lapChole.energy.energyDevices = ["Monopolar diathermy"]
         lapChole.energy.imaging = ["Laparoscopic stack"]
+        lapChole.energy.notes = "Laparoscopic tower to the patient's right shoulder end; surgeon on the patient's left, scrub nurse at the foot."
         lapChole.notes = "Retrieval bag opened before gallbladder is off the liver bed. On-table cholangiogram kit available unopened."
 
         var lapAppendix = SurgeonProcedure(id: id(129), name: "Lap Appendicectomy")
@@ -620,6 +622,7 @@ nonisolated enum DemoData {
         lapAppendix.energy.diathermyCoag = "35"
         lapAppendix.energy.energyDevices = ["Monopolar diathermy", "Bipolar diathermy"]
         lapAppendix.energy.imaging = ["Laparoscopic stack"]
+        lapAppendix.energy.notes = "Laparoscopic tower at the patient's right hip end; surgeon and assistant both on the patient's left."
         lapAppendix.notes = "Retrieval bag for the appendix always. Warm saline wash if perforated — call it out early."
 
         var hemicolectomy = SurgeonProcedure(id: id(130), name: "Right Hemicolectomy")
@@ -643,6 +646,7 @@ nonisolated enum DemoData {
         hemicolectomy.energy.energyDevices = ["Monopolar diathermy", "LigaSure"]
         hemicolectomy.energy.irrigation = "Warm saline"
         hemicolectomy.energy.imaging = ["Laparoscopic stack"]
+        hemicolectomy.energy.notes = "Tower at the patient's right shoulder; assistant between the legs in Lloyd-Davies."
         hemicolectomy.notes = "Anastomosis is stapled side-to-side — two Endo GIA purple loads plus one linear stapler load ready before the bowel is divided."
 
         surgical.procedures = [lapChole, lapAppendix, hemicolectomy]
@@ -691,7 +695,7 @@ nonisolated enum DemoData {
         surgical.trays.traysToOpen = ["Cardiac major set", "Sternotomy set"]
         surgical.trays.favouriteExtras = ["Internal defibrillator paddles", "Vessel loops", "Bone wax", "Pacing wires"]
         surgical.trays.haveAvailableUnopened = ["Vascular clamps", "Cell saver", "Spare sternal saw"]
-        surgical.trays.notes = "Leg vein harvest trolley set up separately for CABG. Aortic punch and side-biting clamp on the top shelf of the set."
+        surgical.trays.notes = "Standing defaults for any sternotomy — the CABG and AVR tabs list each operation's exact setup."
 
         surgical.sutures.subcutaneous = "2-0 Vicryl"
         surgical.sutures.skin = "3-0 Monocryl subcuticular"
@@ -779,6 +783,92 @@ nonisolated enum DemoData {
             isDemoData: true,
             surgical: surgical,
             specialtySetups: [cardiothoracic]
+        )
+    }
+
+    // MARK: - Surgeon 3: Dr Priya Sharma (Interventional Cardiology / Cath Lab)
+
+    private static var priyaSharma: Doctor {
+        var surgical = SurgicalPreferences()
+        surgical.gloves.gloveSize = "6.5"
+        surgical.gloves.gloveBrand = "Biogel"
+        surgical.gloves.gownPreference = "Lead apron + thyroid shield under gown"
+        surgical.gloves.musicPreference = "Radio on quietly — off during complications"
+        surgical.gloves.communicationStyle = "Radiation call-outs aloud — 'screening' before every acquisition. Closed-loop for drug doses."
+        surgical.gloves.notes = "Lead glasses — personal pair kept in the lab."
+
+        surgical.trays.traysToOpen = ["Angio pack"]
+        surgical.trays.notes = "Standing default only — each procedure tab lists the exact wires, catheters and closure setup."
+
+        surgical.energy.imaging = ["C-arm (image intensifier)", "Ultrasound"]
+        surgical.energy.notes = "Defib pads on before every case. Ultrasound for all femoral punctures."
+
+        surgical.positioning.patientPosition = "Supine"
+        surgical.positioning.tableAttachments = ["Arm boards", "Gel padding"]
+        surgical.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        surgical.positioning.notes = "Both wrists and both groins prepped for every case — access site can change mid-procedure."
+
+        // Per-procedure cards — each shows as its own tab and prints separately.
+        var angioplasty = SurgeonProcedure(id: id(160), name: "Coronary Angioplasty (PCI)")
+        angioplasty.positioning.patientPosition = "Supine"
+        angioplasty.positioning.tableAttachments = ["Arm boards", "Gel padding"]
+        angioplasty.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        angioplasty.positioning.drapingStyle = "Angio drape — right wrist + both groins exposed"
+        angioplasty.positioning.catheter = "No catheter routinely"
+        angioplasty.positioning.notes = "Right radial first — wrist extended on the arm board with a gel support."
+        angioplasty.trays.traysToOpen = ["Angio pack", "Radial access set"]
+        angioplasty.trays.favouriteExtras = ["6Fr slender sheath", "J-wire", "Manifold + contrast lines", "Verapamil/GTN cocktail for the sheath"]
+        angioplasty.trays.haveAvailableUnopened = ["Femoral access set", "Temporary pacing kit", "IVUS catheter"]
+        angioplasty.trays.notes = "Guide catheters stay in their boxes until the diagnostic pictures are done — read back size before opening."
+        angioplasty.sutures.dressings = ["TR Band (radial compression)"]
+        angioplasty.sutures.notes = "Radial: TR Band, timed deflation. Femoral bailout: Angio-Seal 6Fr; manual pressure if deployment fails."
+        angioplasty.energy.imaging = ["C-arm (image intensifier)", "IVUS console", "Pressure wire console"]
+        angioplasty.energy.notes = "C-arm works from the patient's right; monitor bank at the head end on the left. Lead aprons and thyroid shields for everyone scrubbed."
+        angioplasty.notes = "Contrast allergy and renal function confirmed at time-out. Defib pads on before first balloon inflation. ACT checked before each device."
+
+        var tavr = SurgeonProcedure(id: id(161), name: "TAVI (TAVR)")
+        tavr.positioning.patientPosition = "Supine"
+        tavr.positioning.tableAttachments = ["Arms tucked", "Gel padding"]
+        tavr.positioning.prepSolution = "ChloraPrep (2% CHG in alcohol)"
+        tavr.positioning.drapingStyle = "Chin-to-knees — chest and both groins exposed"
+        tavr.positioning.catheter = "Foley 14Fr"
+        tavr.positioning.notes = "Hybrid theatre layout. External pacing pads on before draping."
+        tavr.trays.traysToOpen = ["Structural heart pack", "TAVI set"]
+        tavr.trays.favouriteExtras = ["Pigtail catheters", "Stiff wires (Lunderquist)", "ProGlide ×2 per femoral site"]
+        tavr.trays.haveAvailableUnopened = ["Sternotomy set (in room)", "Femoral cutdown tray", "Covered stents"]
+        tavr.trays.notes = "Valve stays refrigerated until sizing is confirmed on the table — valve type and size read back before the box is opened."
+        tavr.sutures.dressings = ["Pressure dressing to access sites"]
+        tavr.sutures.notes = "ProGlide ×2 pre-closure both femoral sites before upsizing the sheath."
+        tavr.energy.imaging = ["C-arm (image intensifier)", "TOE machine", "Rapid pacing box"]
+        tavr.energy.notes = "C-arm at the head end; echo machine to the patient's left; perfusion on standby in the corridor."
+        tavr.notes = "Rapid pacing tested before valve crossing. Cardiac surgery and perfusion aware and on standby for every case — confirmed at time-out."
+
+        surgical.procedures = [angioplasty, tavr]
+
+        let cathLab = SpecialtySetup(
+            id: id(162),
+            specialty: .cathLab,
+            additionalMonitoring: ["Invasive arterial pressure (via sheath)", "Defib pads on"],
+            linesAndAccess: ["IV access opposite arm to radial access"],
+            equipment: ["C-arm", "Contrast injector", "IVUS console", "Temporary pacing box"],
+            specialNotes: "Radiation protection first: lead aprons, thyroid shields and lead glasses for everyone in the room. Pregnancy status of staff respected without question. 'Screening' called before every acquisition."
+        )
+
+        return Doctor(
+            id: priyaSharmaID,
+            fullName: "Dr Priya Sharma",
+            phone: "",
+            email: "",
+            hospitalId: mercyPrivateID,
+            department: "Cardiology",
+            role: "Consultant Interventional Cardiologist",
+            kind: .surgeon,
+            subspecialties: [.cathLab],
+            biography: "Interventional cardiologist — coronary intervention and structural heart (TAVI).",
+            personalNotes: "Prefers the same scrub team for structural cases where possible.",
+            isDemoData: true,
+            surgical: surgical,
+            specialtySetups: [cathLab]
         )
     }
 }
