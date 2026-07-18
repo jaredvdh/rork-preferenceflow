@@ -356,6 +356,56 @@ nonisolated enum DemoData {
             ]
         )
 
+        // Operation cards — per-operation anaesthetic setups, each shown as its
+        // own read tab and printable as a separate one-page card (mirrors the
+        // surgeon operation cards).
+        let cabg = ProcedureTemplate(
+            id: id(133),
+            name: "CABG",
+            typicalStartTime: "0800",
+            typicalLocation: "Theatre 5 (Cardiac)",
+            timeline: [
+                TimelineEntry(id: id(140), time: "0700", event: "Patient to theatre — Bair Hugger on, checks complete"),
+                TimelineEntry(id: id(141), time: "0715", event: "Large-bore IV + arterial line under LA"),
+                TimelineEntry(id: id(142), time: "0730", event: "Induction, intubation, quad lumen CVC right IJ"),
+                TimelineEntry(id: id(143), time: "0750", event: "TEE probe in, lines transduced, arms tucked")
+            ],
+            monitoring: [.ecg, .bis, .arterialLine, .cvp, .tee, .nirs],
+            ivCount: "2",
+            ivSize: "14G + 16G",
+            ivLocation: "Right forearm (left if LIMA harvest)",
+            airwayNotes: "ETT 8.0 (M) / 7.0 (F), McGrath Mac. Tube secured to left side of mouth, clear of the TEE probe.",
+            lineSetup: "Quad lumen CVC right IJ. Triple transducer set zeroed at phlebostatic axis. Pacing box checked and connected.",
+            infusions: "Propofol TCI ready for bypass. Noradrenaline 4mg/50mL. GTN 50mg/50mL drawn and labelled.",
+            equipmentChecklist: [
+                ChecklistItem(id: id(144), text: "Cell saver primed", isChecked: true),
+                ChecklistItem(id: id(145), text: "Defibrillator pads on before induction", isChecked: true),
+                ChecklistItem(id: id(146), text: "TEE machine in room, probe checked", isChecked: true),
+                ChecklistItem(id: id(147), text: "Heparin drawn — dose per perfusionist", isChecked: false)
+            ],
+            specialNotes: "ACT baseline before heparin. Confirm blood products crossmatched — 2 units in theatre fridge before knife to skin."
+        )
+
+        let traumaLaparotomy = ProcedureTemplate(
+            id: id(134),
+            name: "Trauma Laparotomy",
+            typicalStartTime: "Emergency",
+            typicalLocation: "Theatre 1",
+            monitoring: [.ecg, .arterialLine],
+            ivCount: "2",
+            ivSize: "14G × 2",
+            ivLocation: "Antecubital, both arms",
+            airwayNotes: "RSI with cricoid. Videolaryngoscope first-line, bougie ready.",
+            lineSetup: "Rapid infuser (Belmont) primed before patient arrival. Arterial line after knife if unstable — do not delay.",
+            infusions: "TXA 1g on induction. Calcium ready with blood products.",
+            equipmentChecklist: [
+                ChecklistItem(id: id(148), text: "Belmont primed", isChecked: true),
+                ChecklistItem(id: id(149), text: "Massive transfusion protocol number on whiteboard", isChecked: true),
+                ChecklistItem(id: id(150), text: "Cell saver on standby", isChecked: false)
+            ],
+            specialNotes: "Permissive hypotension until surgical control. Keep theatre warm — 24°C minimum."
+        )
+
         let cardiac = SpecialtySetup(
             id: id(122),
             specialty: .cardiac,
@@ -386,6 +436,7 @@ nonisolated enum DemoData {
             regionalBlocks: [fasciaIliaca],
             neuraxial: neuraxial,
             procedural: procedural,
+            operations: [cabg, traumaLaparotomy],
             specialtySetups: [cardiac]
         )
     }

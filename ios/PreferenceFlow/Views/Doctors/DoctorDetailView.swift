@@ -303,6 +303,7 @@ struct DoctorDetailView: View {
     private var showReadTabBar: Bool {
         !(doctor?.activeSpecialtySetups.isEmpty ?? true)
             || !(doctor?.surgicalProcedures.isEmpty ?? true)
+            || !(doctor?.operations.isEmpty ?? true)
     }
 
     private var readTabBar: some View {
@@ -320,6 +321,18 @@ struct DoctorDetailView: View {
                     // Surgeon operation cards — one tab per procedure, right
                     // after General so "look up the operation" is one tap.
                     ForEach(doctor?.surgicalProcedures ?? []) { procedure in
+                        readTabChip(
+                            title: procedure.displayName,
+                            icon: "cross.case.fill",
+                            tint: Color(hex: "2E7DD1"),
+                            selected: readTab == .procedure(procedure.id)
+                        ) { withAnimation(.spring(response: 0.3)) { readTab = .procedure(procedure.id) } }
+                        .id(ReadTab.procedure(procedure.id))
+                    }
+
+                    // Anaesthetist operation cards — same one-tap lookup for
+                    // per-operation anaesthetic setups (e.g. CABG, Craniotomy).
+                    ForEach(doctor?.operations ?? []) { procedure in
                         readTabChip(
                             title: procedure.displayName,
                             icon: "cross.case.fill",
@@ -451,6 +464,13 @@ struct DoctorDetailView: View {
                         hospitalID: dailyHospitalID
                     )
                     .transition(.opacity)
+                } else if let procedure = doctor.operations.first(where: { $0.id == id }) {
+                    AnaesthetistProcedureTab(
+                        doctor: doctor,
+                        procedure: procedure,
+                        hospitalID: dailyHospitalID
+                    )
+                    .transition(.opacity)
                 } else {
                     overviewContent(doctor)
                         .transition(.opacity)
@@ -479,6 +499,7 @@ struct DoctorDetailView: View {
                 doctor: doctor,
                 onNavigate: { target in withAnimation(.spring(response: 0.3)) { isEditing = true; tab = target } },
                 onSelectSpecialty: { setup in withAnimation(.spring(response: 0.3)) { readTab = .specialty(setup.id) } },
+                onSelectProcedure: { procedure in withAnimation(.spring(response: 0.3)) { readTab = .procedure(procedure.id) } },
                 hospitalID: dailyHospitalID,
                 editMode: isEditing,
                 template: template

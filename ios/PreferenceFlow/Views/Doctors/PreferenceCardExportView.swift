@@ -11,7 +11,7 @@ enum PDFExportFormat: String, CaseIterable, Identifiable {
     case theatreCard = "Theatre Card"
     /// Multi-page detailed export with selectable sections and appendix.
     case fullCard = "Full Preference Card"
-    /// One A4 page for a single surgeon operation card (surgeons only).
+    /// One A4 page for a single operation card (surgeon or anaesthetist).
     case procedureCard = "Operation Card"
     /// One A4 page for a single specialty setup (e.g. Cardiac, Neuro, Obstetrics).
     case specialtyCard = "Specialty Card"
@@ -31,7 +31,7 @@ enum PDFExportFormat: String, CaseIterable, Identifiable {
         switch self {
         case .theatreCard: return "One page, laminate-ready — the whole setup at a glance"
         case .fullCard: return "Detailed multi-page card — choose sections, add hospital appendix"
-        case .procedureCard: return "One page for a single operation — trays, sutures, positioning"
+        case .procedureCard: return "One page for a single operation's exact setup"
         case .specialtyCard: return "One page for a single specialty list — what changes vs standard"
         }
     }
@@ -66,11 +66,15 @@ struct PreferenceCardExportView: View {
     private var hospitalHasOrientation: Bool { hospital?.orientationOrEmpty.hasContent ?? false }
 
     /// Formats offered for this profile — the per-operation card only appears
-    /// for surgeons who have operation cards; the per-specialty card only when
-    /// the profile has specialty setups (Cardiac, Neuro, Obstetrics…).
+    /// when the profile has operation cards (surgeon procedures or anaesthetist
+    /// operations); the per-specialty card only when the profile has specialty
+    /// setups (Cardiac, Neuro, Obstetrics…).
     private var availableFormats: [PDFExportFormat] {
         var formats: [PDFExportFormat] = [.theatreCard, .fullCard]
-        if doctor.isSurgeon && !doctor.surgicalProcedures.isEmpty {
+        let hasOperations = doctor.isSurgeon
+            ? !doctor.surgicalProcedures.isEmpty
+            : !doctor.operations.isEmpty
+        if hasOperations {
             formats.append(.procedureCard)
         }
         if !doctor.activeSpecialtySetups.isEmpty {
@@ -205,7 +209,9 @@ struct PreferenceCardExportView: View {
             }
             .onAppear {
                 if selectedProcedureID == nil {
-                    selectedProcedureID = doctor.surgicalProcedures.first?.id
+                    selectedProcedureID = doctor.isSurgeon
+                        ? doctor.surgicalProcedures.first?.id
+                        : doctor.operations.first?.id
                 }
                 if selectedSpecialtyID == nil {
                     selectedSpecialtyID = doctor.activeSpecialtySetups.first?.id
@@ -237,12 +243,21 @@ struct PreferenceCardExportView: View {
         }
     }
 
+    /// The operation cards this profile can print — surgeon procedures or
+    /// anaesthetist operations, flattened to (id, name, summary) rows.
+    private var operationRows: [(id: UUID, name: String, summary: String)] {
+        if doctor.isSurgeon {
+            return doctor.surgicalProcedures.map { ($0.id, $0.displayName, $0.summaryLine) }
+        }
+        return doctor.operations.map { ($0.id, $0.displayName, $0.summaryLine) }
+    }
+
     /// Picks which operation card to print when exporting a single operation.
     private var procedurePickerSection: some View {
         Section("Operation") {
-            ForEach(doctor.surgicalProcedures) { procedure in
+            ForEach(operationRows, id: \.id) { row in
                 Button {
-                    selectedProcedureID = procedure.id
+                    selectedProcedureID = row.id
                 } label: {
                     HStack(spacing: 12) {
                         Image(systemName: "cross.case.fill")
@@ -250,19 +265,19 @@ struct PreferenceCardExportView: View {
                             .foregroundStyle(Color(hex: "2E7DD1"))
                             .frame(width: 26)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(procedure.displayName)
+                            Text(row.name)
                                 .font(.body)
                                 .foregroundStyle(.primary)
-                            if !procedure.summaryLine.isEmpty {
-                                Text(procedure.summaryLine)
+                            if !row.summary.isEmpty {
+                                Text(row.summary)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }
                         Spacer()
-                        Image(systemName: selectedProcedureID == procedure.id ? "checkmark.circle.fill" : "circle")
+                        Image(systemName: selectedProcedureID == row.id ? "checkmark.circle.fill" : "circle")
                             .font(.title3)
-                            .foregroundStyle(selectedProcedureID == procedure.id ? Theme.accent : Color(.tertiaryLabel))
+                            .foregroundStyle(selectedProcedureID == row.id ? Theme.accent : Color(.tertiaryLabel))
                     }
                     .contentShape(.rect)
                 }
@@ -393,12 +408,15 @@ struct PreferenceCardExportView: View {
             case .theatreCard:
                 url = try TheatreCardPDF.writeFile(for: doctor, hospital: hospital, region: settings.region)
             case .procedureCard:
-                guard let procedure = doctor.surgicalProcedures.first(where: { $0.id == selectedProcedureID }) else {
+                if let procedure = doctor.surgicalProcedures.first(where: { $0.id == selectedProcedureID }) {
+                    url = try SurgeonProcedurePDF.writeFile(procedure: procedure, doctor: doctor, hospital: hospital)
+                } else if let procedure = doctor.operations.first(where: { $0.id == selectedProcedureID }) {
+                    url = try AnaesthetistProcedurePDF.writeFile(procedure: procedure, doctor: doctor, hospital: hospital)
+                } else {
                     isGenerating = false
                     errorMessage = "Choose an operation to print."
                     return
                 }
-                url = try SurgeonProcedurePDF.writeFile(procedure: procedure, doctor: doctor, hospital: hospital)
             case .specialtyCard:
                 guard let setup = doctor.activeSpecialtySetups.first(where: { $0.id == selectedSpecialtyID }) else {
                     isGenerating = false

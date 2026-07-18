@@ -22,6 +22,8 @@ struct OverviewTab: View {
     var onNavigate: (ProfileTab) -> Void = { _ in }
     /// Selects a specialty setup's dedicated read-mode tab from the chip shortcuts.
     var onSelectSpecialty: (SpecialtySetup) -> Void = { _ in }
+    /// Opens an operation card's dedicated read-mode tab.
+    var onSelectProcedure: (ProcedureTemplate) -> Void = { _ in }
     /// Hospital used for the Hospital Information quick links (resolved by parent).
     var hospitalID: UUID? = nil
     /// True when the profile is in Edit Mode (unused by the read-only card).
@@ -50,6 +52,7 @@ struct OverviewTab: View {
         ScrollView {
             VStack(spacing: 22) {
                 hero
+                operationsSection
                 specialtySection
                 setupSection
                 referencePhotoSection
@@ -149,7 +152,69 @@ struct OverviewTab: View {
         .padding(.top, 4)
     }
 
-    // MARK: - 2. Specialty setups (prominent tappable chips)
+    // MARK: - 2. Operation cards
+
+    /// Per-operation anaesthetic setups (e.g. CABG, Craniotomy, C-section) —
+    /// each opens its own read tab and prints as a separate one-page card,
+    /// mirroring the surgeon operation cards.
+    private var operationsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionLabel("Operations", icon: "cross.case.fill")
+            if doctor.operations.isEmpty {
+                Button { onNavigate(.procedures) } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Add operation cards (e.g. CABG, Craniotomy, C-section)")
+                            .font(.subheadline.weight(.medium))
+                    }
+                    .foregroundStyle(Theme.accent)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
+            } else {
+                ForEach(doctor.operations) { procedure in
+                    Button { onSelectProcedure(procedure) } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "cross.case.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(Color(hex: "2E7DD1"))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(procedure.displayName)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.primary)
+                                if !procedure.summaryLine.isEmpty {
+                                    Text(procedure.summaryLine)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                }
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding(12)
+                        .background(Color(hex: "2E7DD1").opacity(0.08), in: .rect(cornerRadius: Theme.cornerMedium))
+                    }
+                    .buttonStyle(.plain)
+                }
+                Button { onNavigate(.procedures) } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                        Text("Add")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(Color(.tertiarySystemFill), in: .capsule)
+                    .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    // MARK: - 3. Specialty setups (prominent tappable chips)
 
     private var activeSpecialties: [SpecialtySetup] { doctor.activeSpecialtySetups }
 

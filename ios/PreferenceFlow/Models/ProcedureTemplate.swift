@@ -96,6 +96,37 @@ nonisolated struct ProcedureTemplate: Identifiable, Codable, Hashable {
         self.specialNotes = specialNotes
     }
 
+    var displayName: String {
+        name.trimmingCharacters(in: .whitespaces).isEmpty ? "Untitled Operation" : name
+    }
+
+    /// Whether this operation card carries any meaningful content beyond a name.
+    var hasContent: Bool {
+        !timeline.isEmpty || !monitoring.isEmpty
+            || !ivCount.trimmingCharacters(in: .whitespaces).isEmpty
+            || !ivSize.trimmingCharacters(in: .whitespaces).isEmpty
+            || !ivLocation.trimmingCharacters(in: .whitespaces).isEmpty
+            || !airwayNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !lineSetup.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !infusions.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !equipmentChecklist.isEmpty
+            || !specialNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// A short summary line for list rows and tab chips: monitoring plus counts.
+    var summaryLine: String {
+        var parts: [String] = []
+        if !monitoring.isEmpty {
+            parts.append(monitoring.map { $0.rawValue }.sorted().prefix(3).joined(separator: " · "))
+        }
+        let ivSummary = [ivCount, ivSize].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " ")
+        if !ivSummary.isEmpty { parts.append("IV: \(ivSummary)") }
+        if !equipmentChecklist.isEmpty {
+            parts.append("\(equipmentChecklist.count) equipment item\(equipmentChecklist.count == 1 ? "" : "s")")
+        }
+        return parts.joined(separator: " · ")
+    }
+
     /// Common procedure names for quick-create suggestions.
     static let suggestions = [
         "CABG", "Valve Surgery", "TAVI", "Paediatric Cardiac",
