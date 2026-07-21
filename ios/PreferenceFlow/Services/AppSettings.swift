@@ -27,6 +27,18 @@ nonisolated enum DailyContextMode: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+/// Who is making profile edits on this device — stamped onto local change-history
+/// records alongside the user's name so a shared team device can attribute edits.
+/// Purely descriptive; no accounts involved.
+nonisolated enum ContributorRole: String, Codable, CaseIterable, Identifiable {
+    case clinician = "Clinician (self)"
+    case chargeNurse = "Charge Nurse / Team Leader"
+    case anaesthesiaTechnician = "Anaesthesia Technician"
+    case other = "Other"
+
+    var id: String { rawValue }
+}
+
 /// Which step the daily prompt should open on.
 nonisolated enum DailyContextPhase {
     case hospital
@@ -45,6 +57,7 @@ final class AppSettings {
         static let country = "pf.country"
         static let regionName = "pf.regionName"
         static let userName = "pf.userName"
+        static let userRole = "pf.userRole"
         static let dailyMode = "pf.dailyContextMode"
         static let activeHospital = "pf.activeHospitalId"
         static let activeDoctor = "pf.activeDoctorId"
@@ -102,6 +115,12 @@ final class AppSettings {
     /// The user's first name, used in the daily greeting. Optional.
     var userName: String {
         didSet { defaults.set(userName, forKey: Keys.userName) }
+    }
+
+    /// The user's working role, recorded on profile change-history entries so
+    /// edits on a shared device can be attributed. Defaults to `.other`.
+    var userRole: ContributorRole {
+        didSet { defaults.set(userRole.rawValue, forKey: Keys.userRole) }
     }
 
     /// App-specific text size override, applied on top of the iOS system setting.
@@ -229,6 +248,7 @@ final class AppSettings {
         self.country = defaults.string(forKey: Keys.country) ?? ""
         self.regionName = defaults.string(forKey: Keys.regionName) ?? ""
         self.userName = defaults.string(forKey: Keys.userName) ?? ""
+        self.userRole = defaults.string(forKey: Keys.userRole).flatMap(ContributorRole.init) ?? .other
         if let raw = defaults.string(forKey: Keys.textSize),
            let parsed = AppTextSize(rawValue: raw) {
             self.appTextSize = parsed
@@ -279,6 +299,15 @@ final class AppSettings {
         } else {
             favouriteDoctorIds.insert(id, at: 0)
         }
+    }
+
+    /// The editor identity currently saved on this device, read straight from
+    /// UserDefaults so non-UI services (e.g. DataStore change tracking) can stamp
+    /// change records without holding a reference to AppSettings.
+    static func currentEditor(defaults: UserDefaults = .standard) -> (name: String, role: ContributorRole) {
+        let name = (defaults.string(forKey: Keys.userName) ?? "").trimmingCharacters(in: .whitespaces)
+        let role = defaults.string(forKey: Keys.userRole).flatMap(ContributorRole.init) ?? .other
+        return (name, role)
     }
 
     /// Convenience accessor used throughout the UI for terminology strings.

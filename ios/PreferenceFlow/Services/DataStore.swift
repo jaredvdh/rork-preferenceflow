@@ -15,6 +15,9 @@ final class DataStore {
     private(set) var hospitals: [Hospital] = []
     private(set) var doctors: [Doctor] = []
     private(set) var documents: [KnowledgeDocument] = []
+    /// Local change history for profile edits — newest entries appended last;
+    /// capped per doctor. Purely on-device, like everything else here.
+    private(set) var changeRecords: [ProfileChangeRecord] = []
 
     private let fileName = "preferenceflow_store.json"
     private let documentsDirName = "KnowledgeDocs"
@@ -30,6 +33,7 @@ final class DataStore {
         var hospitals: [Hospital]
         var doctors: [Doctor]
         var documents: [KnowledgeDocument]?
+        var changeRecords: [ProfileChangeRecord]?
     }
 
     private var storeURL: URL {
@@ -46,6 +50,7 @@ final class DataStore {
             hospitals = snapshot.hospitals
             doctors = snapshot.doctors
             documents = (snapshot.documents ?? []).sorted { $0.dateAdded > $1.dateAdded }
+            changeRecords = snapshot.changeRecords ?? []
             migrateLegacyNeuraxial()
         } catch {
             // Corrupt or incompatible file — start clean rather than crashing.
@@ -67,7 +72,7 @@ final class DataStore {
     }
 
     private func save() {
-        let snapshot = Snapshot(hospitals: hospitals, doctors: doctors, documents: documents)
+        let snapshot = Snapshot(hospitals: hospitals, doctors: doctors, documents: documents, changeRecords: changeRecords)
         do {
             let data = try PreferenceCoding.encoder().encode(snapshot)
             try data.write(to: storeURL, options: [.atomic])
@@ -168,6 +173,7 @@ final class DataStore {
         var updated = doctor
         updated.updatedAt = Date()
         if let index = doctors.firstIndex(where: { $0.id == doctor.id }) {
+            recordChange(from: doctors[index], to: updated)
             // Editing an imported (or, later, synced) profile diverges it from the
             // original received from a colleague — flag it so the technician knows
             // their copy now differs.
@@ -184,7 +190,114 @@ final class DataStore {
 
     func deleteDoctor(_ doctor: Doctor) {
         doctors.removeAll { $0.id == doctor.id }
+        changeRecords.removeAll { $0.doctorID == doctor.id }
         save()
+    }
+
+    // MARK: - Profile change history
+
+    /// The most recent changes kept per profile — oldest pruned first, mirroring
+    /// the iCloud backup retention style.
+    private static let maxChangeRecordsPerDoctor = 20
+
+    /// A one-shot summary override for the next recorded change — set by
+    /// `revertDoctor` so the revert flows through the exact same record pipeline
+    /// as any other edit, just with a clearer label.
+    private var pendingChangeSummary: String?
+
+    /// A doctor's change history, newest first.
+    func changeRecords(for doctorID: UUID) -> [ProfileChangeRecord] {
+        changeRecords
+            .filter { $0.doctorID == doctorID }
+            .sorted { $0.timestamp > $1.timestamp }
+    }
+
+    /// Restores a profile to how it looked before `record`'s edit. The restore
+    /// goes through `upsert`, which itself records a new history entry — nothing
+    /// is ever removed from history by reverting.
+    func revertDoctor(_ doctorID: UUID, to record: ProfileChangeRecord) {
+        guard record.doctorID == doctorID,
+              var restored = try? PreferenceCoding.decoder().decode(Doctor.self, from: record.snapshotBefore) else {
+            return
+        }
+        restored.id = doctorID
+        pendingChangeSummary = "Reverted to previous version"
+        upsert(restored)
+    }
+
+    /// Diffs the old and new profile section by section and appends a history
+    /// entry when anything actually changed. Skips silently when nothing did.
+    private func recordChange(from old: Doctor, to new: Doctor) {
+        // Neutralise the fields upsert itself stamps so an untouched save (or a
+        // no-op revert) never generates a phantom history entry.
+        var comparable = new
+        comparable.updatedAt = old.updatedAt
+        comparable.isLocallyModified = old.isLocallyModified
+        guard comparable != old else {
+            pendingChangeSummary = nil
+            return
+        }
+
+        let sections = changedSections(from: old, to: new)
+        let summary: String
+        if let override = pendingChangeSummary {
+            summary = override
+        } else if sections.isEmpty {
+            summary = "Updated profile details"
+        } else {
+            summary = "Updated " + sections.joined(separator: ", ")
+        }
+        pendingChangeSummary = nil
+
+        guard let snapshot = try? PreferenceCoding.encoder().encode(old) else { return }
+        let editor = AppSettings.currentEditor()
+        changeRecords.append(ProfileChangeRecord(
+            doctorID: old.id,
+            editorName: editor.name,
+            editorRole: editor.role,
+            summary: summary,
+            snapshotBefore: snapshot
+        ))
+        pruneChangeRecords(for: old.id)
+    }
+
+    /// Plain-English names of the preference sections that differ between two
+    /// versions of a profile. Surgical preferences diff at the sub-section level
+    /// so summaries read like the edit tabs ("Trays & Instruments", …).
+    private func changedSections(from old: Doctor, to new: Doctor) -> [String] {
+        var changed: [String] = []
+        if old.general != new.general { changed.append("General") }
+        if old.airway != new.airway { changed.append("Airway") }
+        if old.adultDrugs != new.adultDrugs { changed.append("Drugs & Fluids") }
+        if old.monitoring != new.monitoring { changed.append("Monitoring & Lines") }
+        if old.regionalBlocks != new.regionalBlocks { changed.append("Regional Blocks") }
+        if old.neuraxial != new.neuraxial { changed.append("Neuraxial") }
+        if old.procedural != new.procedural { changed.append("Procedural Lines") }
+
+        let oldSurgical = old.surgicalPreferences
+        let newSurgical = new.surgicalPreferences
+        if oldSurgical.gloves != newSurgical.gloves { changed.append("Gloves & Personal") }
+        if oldSurgical.trays != newSurgical.trays { changed.append("Trays & Instruments") }
+        if oldSurgical.sutures != newSurgical.sutures { changed.append("Sutures & Closure") }
+        if oldSurgical.energy != newSurgical.energy { changed.append("Energy & Equipment") }
+        if oldSurgical.positioning != newSurgical.positioning { changed.append("Positioning & Prep") }
+
+        if oldSurgical.procedures != newSurgical.procedures || old.operations != new.operations {
+            changed.append("Operation Cards")
+        }
+        if old.specialtySetups != new.specialtySetups { changed.append("Specialty Setups") }
+        return changed
+    }
+
+    /// Keeps the newest `maxChangeRecordsPerDoctor` entries for a profile and
+    /// removes the rest, oldest first.
+    private func pruneChangeRecords(for doctorID: UUID) {
+        let forDoctor = changeRecords
+            .filter { $0.doctorID == doctorID }
+            .sorted { $0.timestamp > $1.timestamp }
+        guard forDoctor.count > Self.maxChangeRecordsPerDoctor else { return }
+        let staleIDs = Set(forDoctor.dropFirst(Self.maxChangeRecordsPerDoctor).map(\.id))
+        changeRecords.removeAll { staleIDs.contains($0.id) }
     }
 
     private func sortDoctors() {

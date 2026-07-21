@@ -110,6 +110,11 @@ struct SettingsView: View {
 
                 Section {
                     LabeledField(label: "Your name", text: $settings.userName, icon: "person")
+                    Picker(selection: $settings.userRole) {
+                        ForEach(ContributorRole.allCases) { Text($0.rawValue).tag($0) }
+                    } label: {
+                        Label("Your role", systemImage: "person.text.rectangle")
+                    }
                     Picker(selection: $settings.dailyContextMode) {
                         ForEach(DailyContextMode.allCases) { Text($0.rawValue).tag($0) }
                     } label: {

@@ -104,6 +104,8 @@ struct DoctorDetailView: View {
     /// the toolbar button) because a `.sheet` attached to a view inside a
     /// `ToolbarItem` is hoisted out of the hierarchy and often fails to present.
     @State private var showingEmergency = false
+    /// Presents the local change-history list for this profile.
+    @State private var showingChangeHistory = false
 
     init(
         doctorID: UUID,
@@ -176,6 +178,7 @@ struct DoctorDetailView: View {
                         Button { shareProfileFile() } label: { Label("Share Profile", systemImage: "square.and.arrow.up") }
                         Button { exportingPDF = true } label: { Label("Export / Print PDF", systemImage: "printer") }
                         Button { duplicateProfile() } label: { Label("Duplicate", systemImage: "plus.square.on.square") }
+                        Button { showingChangeHistory = true } label: { Label("Change History", systemImage: "clock.arrow.circlepath") }
                         Divider()
                         Button(role: .destructive) { confirmingDelete = true } label: { Label("Delete", systemImage: "trash") }
                     } label: {
@@ -192,6 +195,9 @@ struct DoctorDetailView: View {
         }
         .sheet(isPresented: $exportingPDF) {
             if let doctor { PreferenceCardExportView(doctor: doctor, hospitalID: dailyHospitalID) }
+        }
+        .sheet(isPresented: $showingChangeHistory) {
+            ProfileChangeHistoryView(doctorID: doctorID)
         }
         .sheet(item: $sharePayload) { payload in
             ShareSheet(items: [payload.url])
