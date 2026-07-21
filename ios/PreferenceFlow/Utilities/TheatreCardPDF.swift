@@ -156,6 +156,23 @@ enum TheatreCardPDF {
         let leftX = margin
         let rightX = margin + colWidth + gutter
 
+        // Surgeon profiles print the surgical sections (mirroring ProfilePDF's
+        // isSurgeon branch); the paediatric airway reference is anaesthetist-only.
+        if doctor.isSurgeon {
+            let s = doctor.surgicalPreferences
+
+            var leftY = top
+            leftY = drawCard(title: "Gloves & Personal", icon: "hand.raised.fill", items: glovesItems(s.gloves, doctor: doctor), x: leftX, y: leftY, width: colWidth)
+            leftY = drawCard(title: "Trays & Instruments", icon: "tray.2.fill", items: traysItems(s.trays), x: leftX, y: leftY + 10, width: colWidth)
+            leftY = drawCard(title: "Sutures & Closure", icon: "bandage.fill", items: suturesItems(s.sutures), x: leftX, y: leftY + 10, width: colWidth)
+
+            var rightY = top
+            rightY = drawCard(title: "Energy & Equipment", icon: "bolt.fill", items: energyItems(s.energy), x: rightX, y: rightY, width: colWidth)
+            rightY = drawCard(title: "Positioning & Prep", icon: "bed.double.fill", items: positioningItems(s.positioning), x: rightX, y: rightY + 10, width: colWidth)
+
+            return max(leftY, rightY)
+        }
+
         var leftY = top
         leftY = drawCard(title: "Airway", icon: "lungs.fill", items: airwayItems(doctor.airway, region: region), x: leftX, y: leftY, width: colWidth)
         leftY = drawCard(title: "Drugs", icon: "syringe.fill", items: drugItems(doctor, region: region), x: leftX, y: leftY + 10, width: colWidth)
@@ -595,6 +612,75 @@ enum TheatreCardPDF {
 
         if !g.generalNotes.isBlank { items.append(CardItem(text: g.generalNotes)) }
         if !doctor.personalNotes.isBlank { items.append(CardItem(text: doctor.personalNotes)) }
+        return items
+    }
+
+    // MARK: - Surgical content extraction
+
+    private static func glovesItems(_ g: GlovesPersonal, doctor: Doctor) -> [CardItem] {
+        var items: [CardItem] = []
+        if !g.gloveDisplay.isBlank { items.append(CardItem(text: "Gloves: \(g.gloveDisplay)")) }
+        if !g.gownPreference.isBlank { items.append(CardItem(text: "Gown: \(g.gownPreference)")) }
+        var wearables: [String] = []
+        if g.wearsLoupes { wearables.append("Loupes") }
+        if g.wearsHeadlight { wearables.append("Headlight") }
+        if !wearables.isEmpty { items.append(CardItem(text: "Wears: \(wearables.joined(separator: " · "))")) }
+        if !g.musicPreference.isBlank { items.append(CardItem(text: "Music: \(g.musicPreference)")) }
+        if !g.communicationStyle.isBlank { items.append(CardItem(text: "Comms: \(g.communicationStyle)")) }
+        if !g.notes.isBlank { items.append(CardItem(text: g.notes)) }
+        if !doctor.personalNotes.isBlank { items.append(CardItem(text: doctor.personalNotes)) }
+        return items
+    }
+
+    private static func traysItems(_ t: TraysInstruments) -> [CardItem] {
+        var items: [CardItem] = []
+        if !t.traysToOpen.isEmpty { items.append(CardItem(text: "Open: \(t.traysToOpen.joined(separator: ", "))")) }
+        if !t.favouriteExtras.isEmpty { items.append(CardItem(text: "Extras: \(t.favouriteExtras.joined(separator: ", "))")) }
+        if !t.haveAvailableUnopened.isEmpty { items.append(CardItem(text: "Available unopened: \(t.haveAvailableUnopened.joined(separator: ", "))")) }
+        if !t.notes.isBlank { items.append(CardItem(text: t.notes)) }
+        if t.setupPhoto != nil { items.append(CardItem(text: "See app for back-table photo")) }
+        return items
+    }
+
+    private static func suturesItems(_ s: SuturesClosure) -> [CardItem] {
+        var items: [CardItem] = []
+        if !s.fascia.isBlank { items.append(CardItem(text: "Fascia / deep: \(s.fascia)")) }
+        if !s.subcutaneous.isBlank { items.append(CardItem(text: "Subcutaneous: \(s.subcutaneous)")) }
+        if !s.skin.isBlank { items.append(CardItem(text: "Skin: \(s.skin)")) }
+        if !s.staplers.isEmpty { items.append(CardItem(text: "Staplers: \(s.staplers.joined(separator: ", "))")) }
+        if !s.drains.isEmpty { items.append(CardItem(text: "Drains: \(s.drains.joined(separator: ", "))")) }
+        if !s.dressings.isEmpty { items.append(CardItem(text: "Dressings: \(s.dressings.joined(separator: ", "))")) }
+        if !s.notes.isBlank { items.append(CardItem(text: s.notes)) }
+        return items
+    }
+
+    private static func energyItems(_ e: EnergyEquipment) -> [CardItem] {
+        var items: [CardItem] = []
+        if !e.diathermyDisplay.isBlank { items.append(CardItem(text: "Diathermy: \(e.diathermyDisplay)")) }
+        if !e.energyDevices.isEmpty { items.append(CardItem(text: "Devices: \(e.energyDevices.joined(separator: ", "))")) }
+        if !e.tourniquetPressure.isBlank {
+            items.append(CardItem(
+                text: "Tourniquet: \(e.tourniquetPressure)",
+                subtext: e.tourniquetNotes.isBlank ? nil : e.tourniquetNotes
+            ))
+        } else if !e.tourniquetNotes.isBlank {
+            items.append(CardItem(text: "Tourniquet: \(e.tourniquetNotes)"))
+        }
+        if !e.irrigation.isBlank { items.append(CardItem(text: "Irrigation: \(e.irrigation)")) }
+        if !e.imaging.isEmpty { items.append(CardItem(text: "Imaging: \(e.imaging.joined(separator: ", "))")) }
+        if !e.notes.isBlank { items.append(CardItem(text: e.notes)) }
+        return items
+    }
+
+    private static func positioningItems(_ p: PositioningPrep) -> [CardItem] {
+        var items: [CardItem] = []
+        if !p.patientPosition.isBlank { items.append(CardItem(text: "Position: \(p.patientPosition)")) }
+        if !p.tableAttachments.isEmpty { items.append(CardItem(text: "Table: \(p.tableAttachments.joined(separator: ", "))")) }
+        if !p.prepSolution.isBlank { items.append(CardItem(text: "Prep: \(p.prepSolution)")) }
+        if !p.drapingStyle.isBlank { items.append(CardItem(text: "Draping: \(p.drapingStyle)")) }
+        if !p.catheter.isBlank { items.append(CardItem(text: "Catheter: \(p.catheter)")) }
+        if !p.notes.isBlank { items.append(CardItem(text: p.notes)) }
+        if p.setupPhoto != nil { items.append(CardItem(text: "See app for positioning photo")) }
         return items
     }
 
