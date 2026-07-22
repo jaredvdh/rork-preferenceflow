@@ -401,6 +401,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "PreferenceFlow-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = ORPrep;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of equipment and theatre setups for hospital orientation.";
@@ -439,6 +440,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "PreferenceFlow-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = ORPrep;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of equipment and theatre setups for hospital orientation.";

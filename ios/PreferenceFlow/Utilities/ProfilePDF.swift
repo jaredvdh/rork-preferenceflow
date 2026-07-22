@@ -840,7 +840,7 @@ enum ProfilePDF {
         ctx.endSection()
     }
 
-    // MARK: - QR code (architected; disabled until deep-linking ships)
+    // MARK: - QR code (deep link — preferenceflow:// scheme registered in Info.plist)
 
     private static func drawQRCode(_ ctx: inout DrawContext, doctor: Doctor) {
         let qrSize: CGFloat = 96
@@ -863,7 +863,7 @@ enum ProfilePDF {
                 .foregroundColor: UIColor(Theme.accentDeep)
             ]
         )
-        let caption = "Scan to open this consultant's profile in the app. Deep-linking arrives in a future update."
+        let caption = "Scan with the iPhone camera to open this consultant's live profile in ORPrep — always up to date."
         caption.draw(
             in: CGRect(x: textX, y: ctx.cursorY + 28, width: textWidth, height: 48),
             withAttributes: [
