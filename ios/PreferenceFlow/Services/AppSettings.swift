@@ -42,6 +42,7 @@ nonisolated enum ContributorRole: String, Codable, CaseIterable, Identifiable {
 /// Which step the daily prompt should open on.
 nonisolated enum DailyContextPhase {
     case hospital
+    case discipline
     case anaesthetist
 }
 
@@ -72,6 +73,7 @@ final class AppSettings {
         static let cloudAutoBackup = "pf.cloudAutoBackup"
         static let crisisEdition = "pf.crisisEdition"
         static let discipline = "pf.discipline"
+        static let rememberDiscipline = "pf.rememberDiscipline"
     }
 
     private let defaults: UserDefaults
@@ -101,6 +103,14 @@ final class AppSettings {
     /// provider labels. The crisis manual and hospitals are shared by both.
     var discipline: Discipline {
         didSet { defaults.set(discipline.rawValue, forKey: Keys.discipline) }
+    }
+
+    /// When true, the daily start prompt skips the specialty step and reuses the
+    /// saved discipline as the default. When false (the default), each new day
+    /// asks which side you're working — anaesthesia or surgical — so staff who
+    /// rotate between them start on the right one.
+    var rememberDiscipline: Bool {
+        didSet { defaults.set(rememberDiscipline, forKey: Keys.rememberDiscipline) }
     }
 
     var country: String {
@@ -267,6 +277,7 @@ final class AppSettings {
         } else {
             self.discipline = .anaesthesia
         }
+        self.rememberDiscipline = defaults.bool(forKey: Keys.rememberDiscipline)
         if let raw = defaults.string(forKey: Keys.dailyMode),
            let parsed = DailyContextMode(rawValue: raw) {
             self.dailyContextMode = parsed
@@ -342,7 +353,8 @@ final class AppSettings {
             return activeHospitalId == nil ? .hospital : nil
         case .rememberHospital:
             if isContextCurrent { return nil }
-            return activeHospitalId == nil ? .hospital : .anaesthetist
+            if activeHospitalId == nil { return .hospital }
+            return rememberDiscipline ? .anaesthetist : .discipline
         case .askEachDay:
             return isContextCurrent ? nil : .hospital
         }

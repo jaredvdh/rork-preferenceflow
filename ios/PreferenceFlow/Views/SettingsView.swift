@@ -120,10 +120,18 @@ struct SettingsView: View {
                     } label: {
                         Label("Daily start prompt", systemImage: "sun.max")
                     }
+                    Toggle(isOn: askSpecialtyBinding) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Label("Ask my specialty each day", systemImage: "stethoscope")
+                            Text("Choose anaesthesia or surgical at the start of each day.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 } header: {
                     Text("Daily Context")
                 } footer: {
-                    Text(settings.dailyContextMode.explanation)
+                    Text(settings.dailyContextMode.explanation + (settings.rememberDiscipline ? " The daily prompt skips the specialty step and starts in \(settings.discipline.displayName(for: settings.region))." : " The daily prompt also asks which specialty side you're working."))
                 }
 
                 Section {
@@ -292,6 +300,15 @@ struct SettingsView: View {
     /// actually remains in the store rather than the persisted flag.
     private func finishRemovalIfClear() {
         settings.isDemoMode = store.hasDemoData
+    }
+
+    /// Drives the "Ask my specialty each day" toggle — the friendly inverse of
+    /// the persisted remember-my-specialty flag.
+    private var askSpecialtyBinding: Binding<Bool> {
+        Binding(
+            get: { !settings.rememberDiscipline },
+            set: { settings.rememberDiscipline = !$0 }
+        )
     }
 
     /// Drives the crisis-card edition picker; an explicit choice persists even
