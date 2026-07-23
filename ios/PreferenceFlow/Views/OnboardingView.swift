@@ -96,38 +96,42 @@ struct OnboardingView: View {
     }
 
     private var disciplineStep: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            stepHeader(
-                title: "What's your focus?",
-                subtitle: "This decides which preference cards the app puts first. You can change it anytime in Settings \u{2014} and see both sides with one tap."
-            )
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                stepHeader(
+                    title: "What's your focus?",
+                    subtitle: "This decides which preference cards the app puts first. You can change it anytime in Settings \u{2014} and see both sides with one tap."
+                )
 
-            VStack(spacing: 12) {
-                ForEach(Discipline.allCases) { option in
-                    disciplineRow(option)
+                VStack(spacing: 12) {
+                    ForEach(Discipline.allCases) { option in
+                        disciplineRow(option)
+                    }
                 }
-            }
 
-            VStack(alignment: .leading, spacing: 6) {
-                Label("Shared by both", systemImage: "cross.case.fill")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.white.opacity(0.75))
-                Text("Hospitals, orientation, the emergency crisis manual, backups and search are identical in both \u{2014} crises concern the whole theatre team.")
-                    .font(.footnote)
-                    .foregroundStyle(.white.opacity(0.6))
+                VStack(alignment: .leading, spacing: 6) {
+                    Label("Shared by both", systemImage: "cross.case.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.75))
+                    Text("Hospitals, orientation, the emergency crisis manual, backups and search are identical in both \u{2014} crises concern the whole theatre team.")
+                        .font(.footnote)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(14)
+                .background(.white.opacity(0.06), in: .rect(cornerRadius: Theme.cornerMedium))
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(14)
-            .background(.white.opacity(0.06), in: .rect(cornerRadius: Theme.cornerMedium))
-
-            Spacer()
-            primaryButton("Continue") { advance() }
-                .disabled(discipline == nil)
-                .opacity(discipline == nil ? 0.5 : 1)
+            .padding(.horizontal, 28)
+            .padding(.top, 20)
+            .padding(.bottom, 16)
         }
-        .padding(.horizontal, 28)
-        .padding(.top, 20)
-        .padding(.bottom, 40)
+        .safeAreaInset(edge: .bottom) {
+            bottomBar {
+                primaryButton("Continue") { advance() }
+                    .disabled(discipline == nil)
+                    .opacity(discipline == nil ? 0.5 : 1)
+            }
+        }
     }
 
     private func disciplineRow(_ option: Discipline) -> some View {
@@ -169,69 +173,78 @@ struct OnboardingView: View {
     }
 
     private var locationStep: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            stepHeader(
-                title: "Where do you work?",
-                subtitle: "We'll match the right terminology for your region."
-            )
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                stepHeader(
+                    title: "Where do you work?",
+                    subtitle: "We'll match the right terminology for your region."
+                )
 
-            VStack(spacing: 12) {
-                ForEach(CountryOption.allCases) { option in
-                    countryRow(option)
+                VStack(spacing: 12) {
+                    ForEach(CountryOption.allCases) { option in
+                        countryRow(option)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Or enter manually")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.6))
+                    glassField("Country", text: $country)
+                    glassField("Region / State (optional)", text: $regionName)
                 }
             }
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Or enter manually")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.6))
-                glassField("Country", text: $country)
-                glassField("Region / State (optional)", text: $regionName)
-            }
-
-            Spacer()
-            primaryButton("Continue") {
-                if let suggested = TerminologyRegion.suggested(for: country) {
-                    region = suggested
-                }
-                // else: no keyword match — leave `region` at whatever the user
-                // last touched (or nil) and let the terminology step present
-                // all options with equal weight, no false default.
-                advance()
-            }
-            .disabled(country.isEmpty)
-            .opacity(country.isEmpty ? 0.5 : 1)
+            .padding(.horizontal, 28)
+            .padding(.top, 20)
+            .padding(.bottom, 16)
         }
-        .padding(.horizontal, 28)
-        .padding(.top, 20)
-        .padding(.bottom, 40)
+        .scrollDismissesKeyboard(.interactively)
+        .safeAreaInset(edge: .bottom) {
+            bottomBar {
+                primaryButton("Continue") {
+                    if let suggested = TerminologyRegion.suggested(for: country) {
+                        region = suggested
+                    }
+                    // else: no keyword match — leave `region` at whatever the user
+                    // last touched (or nil) and let the terminology step present
+                    // all options with equal weight, no false default.
+                    advance()
+                }
+                .disabled(country.isEmpty)
+                .opacity(country.isEmpty ? 0.5 : 1)
+            }
+        }
     }
 
     private var terminologyStep: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            stepHeader(
-                title: hasTerminologySuggestion ? "Confirm terminology" : "Choose terminology",
-                subtitle: hasTerminologySuggestion
-                    ? "This updates titles and spelling across the whole app."
-                    : "We don't have a tailored preset for \(countryDisplayLabel) yet — pick whichever set of titles and spelling feels closest. You can change this anytime in Settings."
-            )
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                stepHeader(
+                    title: hasTerminologySuggestion ? "Confirm terminology" : "Choose terminology",
+                    subtitle: hasTerminologySuggestion
+                        ? "This updates titles and spelling across the whole app."
+                        : "We don't have a tailored preset for \(countryDisplayLabel) yet — pick whichever set of titles and spelling feels closest. You can change this anytime in Settings."
+                )
 
-            VStack(spacing: 12) {
-                ForEach(TerminologyRegion.allCases) { option in
-                    terminologyRow(option)
+                VStack(spacing: 12) {
+                    ForEach(TerminologyRegion.allCases) { option in
+                        terminologyRow(option)
+                    }
                 }
+
+                previewCard
             }
-
-            previewCard
-
-            Spacer()
-            primaryButton("Continue") { advance() }
-                .disabled(region == nil)
-                .opacity(region == nil ? 0.5 : 1)
+            .padding(.horizontal, 28)
+            .padding(.top, 20)
+            .padding(.bottom, 16)
         }
-        .padding(.horizontal, 28)
-        .padding(.top, 20)
-        .padding(.bottom, 40)
+        .safeAreaInset(edge: .bottom) {
+            bottomBar {
+                primaryButton("Continue") { advance() }
+                    .disabled(region == nil)
+                    .opacity(region == nil ? 0.5 : 1)
+            }
+        }
     }
 
     /// Whether the entered country maps to one of the three maintained presets.
@@ -372,6 +385,23 @@ struct OnboardingView: View {
             .foregroundStyle(.white)
             .padding(14)
             .background(.white.opacity(0.08), in: .rect(cornerRadius: Theme.cornerMedium))
+    }
+
+    /// Pinned bottom bar for scrollable steps — keeps the Continue button always
+    /// visible with a soft fade so content scrolls "under" it gracefully.
+    private func bottomBar<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        content()
+            .padding(.horizontal, 28)
+            .padding(.top, 12)
+            .padding(.bottom, 16)
+            .background(
+                LinearGradient(
+                    colors: [Theme.ink.opacity(0), Theme.ink.opacity(0.85), Theme.ink],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea(edges: .bottom)
+            )
     }
 
     private func primaryButton(_ title: String, action: @escaping () -> Void) -> some View {
